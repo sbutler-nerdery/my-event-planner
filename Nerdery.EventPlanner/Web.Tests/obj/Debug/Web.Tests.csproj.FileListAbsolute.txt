@@ -1,0 +1,5 @@
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\Web.Tests.dll
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\Web.Tests.pdb
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\obj\Debug\Web.Tests.csprojResolveAssemblyReference.cache
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\obj\Debug\Web.Tests.dll
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\obj\Debug\Web.Tests.pdb

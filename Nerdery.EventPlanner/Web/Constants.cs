@@ -18,7 +18,7 @@ namespace Web
         /// <summary>
         /// The name of the user profile table in the database.
         /// </summary>
-        public const string DB_USER_TABLE_NAME = "UserProfile";
+        public const string DB_USER_TABLE_NAME = "People";
         /// <summary>
         /// The name of the user id column in the user profile table
         /// </summary>
