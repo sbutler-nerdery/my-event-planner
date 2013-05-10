@@ -50,7 +50,7 @@ namespace Web.Tests.Services
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString());
 
-            Assert.AreEqual(notification.PersonId, personList[0].UserId);
+            Assert.AreEqual(notification.PersonId, thePerson.UserId);
             Assert.AreEqual(notification.IsFacebookNotification, personList[0].NotifyWithFacebook);
             Assert.AreEqual(notification.Title, Constants.MESSAGE_REMOVE_TITLE);
             Assert.AreEqual(notification.Message, expectedMessage);
@@ -70,7 +70,29 @@ namespace Web.Tests.Services
         [TestMethod]
         public void Notification_On_Invitation_Accepted()
         {
+            //Arrange
+            var thePerson = new Person { UserId = 1, FirstName = "Joe", LastName = "Smith", NotifyWithFacebook = true };
+            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now };
+            var personList = new List<Person> { thePerson };
+            var eventList = new List<Event> { theEvent };
 
+            var service = new NotificationService(_personRepo, _eventRepo);
+            A.CallTo(() => _personRepo.GetAll()).Returns(personList.AsQueryable());
+            A.CallTo(() => _eventRepo.GetAll()).Returns(eventList.AsQueryable());
+
+            //Act
+            var notification = service.NotifyInvitationAccepted(1, 1);
+
+            //Assert            
+            string expectedMessage = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
+                                                    thePerson.LastName,
+                                                    theEvent.Title, theEvent.StartDate.ToShortDateString(),
+                                                    theEvent.StartDate.ToShortTimeString());
+
+            Assert.AreEqual(notification.PersonId, thePerson.UserId);
+            Assert.AreEqual(notification.IsFacebookNotification, personList[0].NotifyWithFacebook);
+            Assert.AreEqual(notification.Title, Constants.MESSAGE_ACCEPT_TITLE);
+            Assert.AreEqual(notification.Message, expectedMessage);
         }
         /// <summary>
         /// This ensures that the correct notification is created for the event coordinator
@@ -79,7 +101,29 @@ namespace Web.Tests.Services
         [TestMethod]
         public void Notification_On_Invitation_Declined()
         {
+            //Arrange
+            var thePerson = new Person { UserId = 1, FirstName = "Joe", LastName = "Smith", NotifyWithFacebook = true };
+            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now };
+            var personList = new List<Person> { thePerson };
+            var eventList = new List<Event> { theEvent };
 
+            var service = new NotificationService(_personRepo, _eventRepo);
+            A.CallTo(() => _personRepo.GetAll()).Returns(personList.AsQueryable());
+            A.CallTo(() => _eventRepo.GetAll()).Returns(eventList.AsQueryable());
+
+            //Act
+            var notification = service.NotifyInvitationAccepted(1, 1);
+
+            //Assert            
+            string expectedMessage = string.Format(Constants.MESSAGE_DECLINE_TEMPLATE, thePerson.FirstName,
+                                                    thePerson.LastName,
+                                                    theEvent.Title, theEvent.StartDate.ToShortDateString(),
+                                                    theEvent.StartDate.ToShortTimeString());
+
+            Assert.AreEqual(notification.PersonId, thePerson.UserId);
+            Assert.AreEqual(notification.IsFacebookNotification, personList[0].NotifyWithFacebook);
+            Assert.AreEqual(notification.Title, Constants.MESSAGE_DECLINE_TITLE);
+            Assert.AreEqual(notification.Message, expectedMessage);
         }
         /// <summary>
         /// This test ensures that if an event is deleted from the system, the appropriate notifications are 
