@@ -27,5 +27,12 @@ namespace Web
         /// The name of the user name column in the user profile table
         /// </summary>
         public const string DB_USER_NAME_COLUMN = "UserName";
+
+        /* Notification message templates */
+        /// <summary>
+        /// The message template used to notify users if an event has been updated.
+        /// </summary>
+        public const string MESSAGE_UPDATE_TEMPLATE =
+            "The event title '{0}' hosted by {1} {2} has will now start on {3} at {4}.";
     }
 }

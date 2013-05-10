@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
-using Web.Models;
+using Web.Data.Models;
 
 namespace Web.Data
 {

@@ -33,6 +33,8 @@ namespace Web.ViewModels
         [Display(Name = "Last name")]
         public string LastName { get; set; }
         [Required]
+        [Display(Name = "Email address")]
+        public string Email { get; set; }
         [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; }
     }

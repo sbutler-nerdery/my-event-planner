@@ -186,16 +186,23 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Event.cs" />
-    <Compile Include="Models\FoodItem.cs" />
-    <Compile Include="Models\Game.cs" />
-    <Compile Include="Models\Person.cs" />
+    <Compile Include="Data\Models\Event.cs" />
+    <Compile Include="Data\Models\FoodItem.cs" />
+    <Compile Include="Data\Models\Game.cs" />
+    <Compile Include="Data\Models\Person.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\EventTimeService.cs" />
+    <Compile Include="Services\IEventTimeService.cs" />
+    <Compile Include="Services\INotificationService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
     <Compile Include="ViewModels\EventViewModel.cs" />
     <Compile Include="ViewModels\ExternalLoginViewModel.cs" />
+    <Compile Include="ViewModels\FoodItemViewModel.cs" />
+    <Compile Include="ViewModels\GameViewModel.cs" />
     <Compile Include="ViewModels\LocalPasswordViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\ManageNonPasswordViewModel.cs" />
+    <Compile Include="ViewModels\PersonViewModel.cs" />
     <Compile Include="ViewModels\RegisterExternalLoginViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
   </ItemGroup>

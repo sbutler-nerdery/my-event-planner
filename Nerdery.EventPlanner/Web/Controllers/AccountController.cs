@@ -8,10 +8,10 @@ using System.Web.Security;
 using DotNetOpenAuth.AspNet;
 using Microsoft.Web.WebPages.OAuth;
 using Web.Data;
+using Web.Data.Models;
 using Web.ViewModels;
 using WebMatrix.WebData;
 using Web.Filters;
-using Web.Models;
 
 namespace Web.Controllers
 {
@@ -81,7 +81,7 @@ namespace Web.Controllers
                 // Attempt to register the user
                 try
                 {
-                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password);
+                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password, new{model.FirstName, model.LastName, model.Email, model.PhoneNumber});
                     WebSecurity.Login(model.UserName, model.Password);
                     return RedirectToAction("Index", "Home");
                 }

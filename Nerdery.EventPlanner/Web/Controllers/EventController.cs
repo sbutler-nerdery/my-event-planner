@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using Web.Data;
-using Web.Models;
+using Web.Data.Models;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -18,16 +18,32 @@ namespace Web.Controllers
             _repository = repository;
         }
 
-        //
-        // GET: /Event/
-        public ActionResult Edit()
+        public ActionResult Create()
         {
             return View();
         }
 
-        public ActionResult Insert(EventViewModel model)
+        [HttpPost]
+        public ActionResult Create(EventViewModel model)
         {
             return View();
+        }
+
+        public ActionResult Edit(int id)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Edit(EventViewModel model)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult DeleteEvent(int id)
+        {
+            return RedirectToAction("Index", "Home");
         }
     }
 }
