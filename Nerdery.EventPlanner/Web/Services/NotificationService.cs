@@ -38,13 +38,14 @@ namespace Web.Services
             _personRepository.GetAll().Where(x => x.MyEvents.Select(y => y.EventId == eventId).Any())
                 .ToList().ForEach(x => notifications.Add(new SystemNotification
                     {
+                        PersonId = x.UserId,
                         IsFacebookNotification = x.NotifyWithFacebook,
-                        Message = string.Format("The event title '{0}' hosted by {1} {2} has will now start on {3} at {4}.", 
+                        Message = string.Format(Constants.MESSAGE_UPDATE_TEMPLATE, 
                             theEvent.Title, theEvent.Coordinator.FirstName, 
                             theEvent.Coordinator.LastName, 
                             theEvent.StartDate.ToShortDateString(),
                             theEvent.StartDate.ToShortTimeString()),
-                        Title = "Event Update"
+                        Title = Constants.MESSAGE_UPDATE_TITLE
                     }));
 
             return notifications;
@@ -52,17 +53,74 @@ namespace Web.Services
 
         public List<SystemNotification> GetNotificationsForEventCancelled(int eventId)
         {
-            throw new NotImplementedException();
+            var notifications = new List<SystemNotification>();
+            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+            _personRepository.GetAll().Where(x => x.MyEvents.Select(y => y.EventId == eventId).Any())
+                .ToList().ForEach(x => notifications.Add(new SystemNotification
+                {
+                    PersonId = x.UserId,
+                    IsFacebookNotification = x.NotifyWithFacebook,
+                    Message = string.Format(Constants.MESSAGE_CANCELLED_TEMPLATE,
+                        theEvent.Title, theEvent.Coordinator.FirstName,
+                        theEvent.Coordinator.LastName),
+                    Title = Constants.MESSAGE_CANCELLED_TITLE
+                }));
+
+            return notifications;
         }
 
         public SystemNotification NotifyInvitationAccepted(int eventId, int acceptingId)
         {
-            throw new NotImplementedException();
+            var notification = new SystemNotification();
+
+            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+            var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.UserId == acceptingId);
+
+            notification.IsFacebookNotification = thePerson.NotifyWithFacebook;
+            notification.PersonId = acceptingId;
+            notification.Title = Constants.MESSAGE_ACCEPT_TITLE;
+            notification.Message = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
+                                                 thePerson.LastName,
+                                                 theEvent.Title, theEvent.StartDate.ToShortDateString(),
+                                                 theEvent.StartDate.ToShortTimeString());
+
+            return notification;
         }
 
         public SystemNotification NotifyInvitationDeclined(int eventId, int decliningId)
         {
-            throw new NotImplementedException();
+            var notification = new SystemNotification();
+
+            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+            var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.UserId == decliningId);
+
+            notification.IsFacebookNotification = thePerson.NotifyWithFacebook;
+            notification.PersonId = decliningId;
+            notification.Title = Constants.MESSAGE_DECLINE_TITLE;
+            notification.Message = string.Format(Constants.MESSAGE_DECLINE_TEMPLATE, thePerson.FirstName,
+                                                 thePerson.LastName,
+                                                 theEvent.Title, theEvent.StartDate.ToShortDateString(),
+                                                 theEvent.StartDate.ToShortTimeString());
+
+            return notification;
+        }
+
+        public SystemNotification NotifyPersonRemovedFromEvent(int eventId, int removeThisPersonId)
+        {
+            var notification = new SystemNotification();
+
+            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+            var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.UserId == removeThisPersonId);
+
+            notification.IsFacebookNotification = thePerson.NotifyWithFacebook;
+            notification.PersonId = removeThisPersonId;
+            notification.Title = Constants.MESSAGE_REMOVE_TITLE;
+            notification.Message = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, thePerson.FirstName,
+                                                 thePerson.LastName,
+                                                 theEvent.Title, theEvent.StartDate.ToShortDateString(),
+                                                 theEvent.StartDate.ToShortTimeString());
+
+            return notification;
         }
     }
 }

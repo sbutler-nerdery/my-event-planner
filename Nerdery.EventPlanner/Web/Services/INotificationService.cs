@@ -48,5 +48,12 @@ namespace Web.Services
         /// <param name="decliningId">The id of the person declining</param>
         /// <returns></returns>
         SystemNotification NotifyInvitationDeclined(int eventId, int decliningId);
+        /// <summary>
+        /// Get a notification when a person is removed from an event.
+        /// </summary>
+        /// <param name="eventId">The specified event id</param>
+        /// <param name="removeThisPersonId">The id of the person being removed.</param>
+        /// <returns></returns>
+        SystemNotification NotifyPersonRemovedFromEvent(int eventId, int removeThisPersonId);
     }
 }
