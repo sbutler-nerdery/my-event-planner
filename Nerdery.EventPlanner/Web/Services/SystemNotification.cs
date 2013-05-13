@@ -17,8 +17,12 @@ namespace Web.Services
         public string Title { get; set; }
         public string Message { get; set; }
         /// <summary>
-        /// Get or set whether or not this is going to be a Facebook notification
+        /// Get or set whether or not to send this notification via Facebook
         /// </summary>
-        public bool IsFacebookNotification { get; set; }
+        public bool SendToFacebook { get; set; }
+        /// <summary>
+        /// Get or set whether or not to send this notification via email
+        /// </summary>
+        public bool SendToEmail { get; set; }
     }
 }

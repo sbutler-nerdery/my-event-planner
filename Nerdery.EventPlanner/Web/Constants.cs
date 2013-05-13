@@ -22,7 +22,7 @@ namespace Web
         /// <summary>
         /// The name of the user id column in the user profile table
         /// </summary>
-        public const string DB_USER_ID_COLUMN = "UserId";
+        public const string DB_USER_ID_COLUMN = "PersonId";
         /// <summary>
         /// The name of the user name column in the user profile table
         /// </summary>
