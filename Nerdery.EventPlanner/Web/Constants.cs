@@ -56,6 +56,21 @@ namespace Web
         public const string MESSAGE_CANCELLED_TEMPLATE =
             "The event title '{0}' hosted by {1} {2} has been cancelled.";
         /// <summary>
+        /// The title used to invite a user to an event
+        /// </summary>
+        public const string MESSAGE_NEW_TITLE = "You have been invited to an event!";
+        /// <summary>
+        /// The message template used to invite a user to an event.
+        /// {0} = Event host first name
+        /// {1} = Event host last name
+        /// {2} = Event name
+        /// {3} = Event date
+        /// {4} = Event time
+        /// {5} = The event invitation URL
+        /// </summary>
+        public const string MESSAGE_NEW_TEMPLATE =
+            "{0} {1} has invited you to the event '{2}' starting on {3} at {4}! <a href='{5}'>Click here</a> to accept.";
+        /// <summary>
         /// The title used when a user accepts an invitation
         /// </summary>
         public const string MESSAGE_ACCEPT_TITLE = "Good news!";

@@ -36,8 +36,12 @@ namespace Web.Data.Models
         public virtual List<Game> MyGames { get; set; }
         public virtual List<Person> MyFriends { get; set; }
         /// <summary>
-        /// Get or set if the user will receive notifications via facebook. If false, send via email.
+        /// Get or set if the user will receive notifications via facebook.
         /// </summary>
         public bool NotifyWithFacebook { get; set; }
+        /// <summary>
+        /// Get or set if the user will receive notifications via email.
+        /// </summary>
+        public bool NotifyWithEmail { get; set; }
     }
 }

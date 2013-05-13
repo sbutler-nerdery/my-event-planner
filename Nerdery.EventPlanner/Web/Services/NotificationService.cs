@@ -35,6 +35,7 @@ namespace Web.Services
                     {
                         PersonId = x.PersonId,
                         SendToFacebook = x.NotifyWithFacebook,
+                        SendToEmail = x.NotifyWithEmail,
                         Message = string.Format(Constants.MESSAGE_UPDATE_TEMPLATE, 
                             theEvent.Title, theEvent.Coordinator.FirstName, 
                             theEvent.Coordinator.LastName, 
@@ -56,6 +57,7 @@ namespace Web.Services
                 {
                     PersonId = x.PersonId,
                     SendToFacebook = x.NotifyWithFacebook,
+                    SendToEmail = x.NotifyWithEmail,
                     Message = string.Format(Constants.MESSAGE_CANCELLED_TEMPLATE,
                         theEvent.Title, theEvent.Coordinator.FirstName,
                         theEvent.Coordinator.LastName),
@@ -63,6 +65,26 @@ namespace Web.Services
                 }));
 
             return notifications;
+        }
+
+        public SystemNotification GetNewInvitationNotification(int eventId, int inviteeId, string invitationUrl)
+        {
+            var notification = new SystemNotification();
+
+            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+            var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == inviteeId);
+
+            notification.SendToFacebook = thePerson.NotifyWithFacebook;
+            notification.SendToEmail = thePerson.NotifyWithEmail;
+            notification.PersonId = inviteeId;
+            notification.Title = Constants.MESSAGE_NEW_TITLE;
+            notification.Message = string.Format(Constants.MESSAGE_NEW_TEMPLATE, theEvent.Coordinator.FirstName,
+                                                 theEvent.Coordinator.LastName,
+                                                 theEvent.Title, theEvent.StartDate.ToShortDateString(),
+                                                 theEvent.StartDate.ToShortTimeString(),
+                                                 invitationUrl);
+
+            return notification;            
         }
 
         public SystemNotification GetInvitationAcceptedNotification(int eventId, int acceptingId)
@@ -73,6 +95,7 @@ namespace Web.Services
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == acceptingId);
 
             notification.SendToFacebook = thePerson.NotifyWithFacebook;
+            notification.SendToEmail = thePerson.NotifyWithEmail;
             notification.PersonId = acceptingId;
             notification.Title = Constants.MESSAGE_ACCEPT_TITLE;
             notification.Message = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
@@ -91,6 +114,7 @@ namespace Web.Services
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == decliningId);
 
             notification.SendToFacebook = thePerson.NotifyWithFacebook;
+            notification.SendToEmail = thePerson.NotifyWithEmail;
             notification.PersonId = decliningId;
             notification.Title = Constants.MESSAGE_DECLINE_TITLE;
             notification.Message = string.Format(Constants.MESSAGE_DECLINE_TEMPLATE, thePerson.FirstName,
@@ -109,6 +133,7 @@ namespace Web.Services
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == removeThisPersonId);
 
             notification.SendToFacebook = thePerson.NotifyWithFacebook;
+            notification.SendToEmail = thePerson.NotifyWithEmail;
             notification.PersonId = removeThisPersonId;
             notification.Title = Constants.MESSAGE_REMOVE_TITLE;
             notification.Message = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, thePerson.FirstName,

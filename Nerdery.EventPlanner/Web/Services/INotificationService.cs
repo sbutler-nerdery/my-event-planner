@@ -30,6 +30,14 @@ namespace Web.Services
         /// <returns></returns>
         List<SystemNotification> GetNotificationsForEventCancelled(int eventId);
         /// <summary>
+        /// Get a notification used to invite a new person to an event.
+        /// </summary>
+        /// <param name="eventId">The id of the specified event</param>
+        /// <param name="inviteeId">The id of the person to be invited</param>
+        /// <param name="invitationUrl">The URL the invited person will clik on to accept the inviation</param>
+        /// <returns></returns>
+        SystemNotification GetNewInvitationNotification(int eventId, int inviteeId, string invitationUrl);
+        /// <summary>
         /// Get a notification when a person accepts an event invitation.
         /// </summary>
         /// <param name="eventId">The specified event id</param>
