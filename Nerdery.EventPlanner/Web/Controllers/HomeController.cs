@@ -14,14 +14,22 @@ namespace Web.Controllers
     [Authorize]
     public class HomeController : Controller
     {
+        #region Fields
+
         private readonly IRepository<Person> _personRepository;
         private readonly IUserService _userService;
+
+        #endregion 
+
+        #region Constructors
 
         public HomeController(IRepository<Person> personRepo, IUserService userService)
         {
             _personRepository = personRepo;
             _userService = userService;
         }
+
+        #endregion
 
         #region Public Methods
 

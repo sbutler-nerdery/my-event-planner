@@ -28,7 +28,9 @@ namespace Web.Tests.Controllers
             _personRepo = A.Fake<IRepository<Person>>();
             _eventRepo = A.Fake<IRepository<Event>>();
         }
-
+        /// <summary>
+        /// Make sure that the status message is correct if an exception is caught
+        /// </summary>
         [TestMethod]
         public void Build_View_Model_Fail()
         {
@@ -43,7 +45,9 @@ namespace Web.Tests.Controllers
             //Assert
             Assert.AreEqual(Constants.HOME_BUILD_VIEW_FAIL, result.ViewBag.StatusMessage);
         }
-
+        /// <summary>
+        /// Make sure we get back the view model that we are expecting if the user is found.
+        /// </summary>
         [TestMethod]
         public void Build_View_Model_Succeed()
         {
