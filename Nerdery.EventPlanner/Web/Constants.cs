@@ -42,6 +42,7 @@ namespace Web
         #region Home controller messages
 
         public const string HOME_EDIT_SUCCESS = "Event updates saved!";
+        public const string HOME_BUILD_VIEW_FAIL = "An error occurrred while retrieving your data.";
 
         #endregion 
 

@@ -25,8 +25,18 @@ namespace Web.ViewModels
         public HomeViewModel(Person person) : this()
         {
             person.MyEvents.ForEach(x => MyEvents.Add(new EventListItem(x)));
-            //Note: events that have not been accepted or declined will have null HasAccepted and HasDeclined values
-            person.MyInvitations.ForEach(x => MyInvitations.Add(new EventListItem(x)));
+            person.MyInvitations.ForEach(x =>
+                {
+                    //Update the events that the user is attending
+                    var attendingIds = person.AmAttending.Select(y => y.EventId).ToArray();
+                    var declinedIds = person.HaveDeclined.Select(y => y.EventId).ToArray();
+
+                    //Update the events that the user is not attenting
+                    var item = new EventListItem(x);
+                    item.HasAccepted = attendingIds.Intersect(new[] { x.EventId }).Any();
+                    item.HasDeclined = declinedIds.Intersect(new[] { x.EventId }).Any();
+                    MyInvitations.Add(item);
+                });
             person.AmAttending.ForEach(x =>
                 {
                     var item = new EventListItem(x) {HasAccepted = true, HasDeclined = false};

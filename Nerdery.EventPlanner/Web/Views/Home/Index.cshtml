@@ -20,38 +20,53 @@
 
 <p class="message-success">@ViewBag.StatusMessage</p>
 
-<h3>My Events</h3>
-<p>These are the events that you are coordinating.</p>
-<ul>
-    @foreach (var item in Model.MyEvents)
-    {
-        <li>@item.Title - @Html.ActionLink("Edit", "Edit", "Event", new { id = item.EventId}, null) | @Html.ActionLink("Cancel", "Delete", "Event", new { id = item.EventId}, null)</li>
-    }
-</ul>
+@if (Model != null)
+{
+    <h3>My Events</h3>
+    <p>These are the events that you are coordinating.</p>
+    <ul>
+        @foreach (var item in Model.MyEvents)
+        {
+            <li>@item.Title - @Html.ActionLink("Edit", "Edit", "Event", new { id = item.EventId}, null) | @Html.ActionLink("Cancel", "Delete", "Event", new { id = item.EventId}, null)</li>
+        }
+    </ul>
 
-<h3>Invitations</h3>
-<p>These are events that you have been invited to.</p>
-<ul>
-    @foreach (var item in Model.MyInvitations)
-    {
-        <li>@item.Title - @Html.ActionLink("Accept", "AcceptInviation", "Service", new { id = item.EventId, userId = userId}, null) | @Html.ActionLink("Decline", "DeclineInviation", "Service", new { id = item.EventId, userId = userId}, null)</li>
-    }
-</ul>
+    <h3>Invitations</h3>
+    <p>These are events that you have been invited to.</p>
+    <ul>
+        @foreach (var item in Model.MyInvitations)
+        {
+            if (!item.HasAccepted.HasValue && !item.HasDeclined.HasValue)
+            {
+                <li>@item.Title - @Html.ActionLink("Accept", "AcceptInviation", "Service", new {id = item.EventId, userId = userId}, null) | @Html.ActionLink("Decline", "DeclineInviation", "Service", new {id = item.EventId, userId = userId}, null)</li>
+            }
+            else if(item.HasAccepted.Value)
+            {
+                <li>@item.Title - @Html.ActionLink("Decline", "DeclineInviation", "Service", new {id = item.EventId, userId = userId}, null)</li>
+            }
+            else if(item.HasDeclined.Value)
+            {
+                <li>@item.Title - @Html.ActionLink("Accept", "AcceptInviation", "Service", new {id = item.EventId, userId = userId}, null)</li>
+            }            
+        }
+    </ul>
 
-<h3>Accepted</h3>
-<p>These are event invitations that you have accepted.</p>
-<ul>
-    @foreach (var item in Model.AmAttending)
-    {
-        <li>@item.Title - @Html.ActionLink("Edit", "AcceptInviation", "Service", new { eventId = item.EventId, userId = userId}, null) | @Html.ActionLink("Cancel", "DeclineInviation", "Service", new { id = item.EventId, userId = userId}, null)</li>
-    }
-</ul>
+    <h3>Accepted</h3>
+    <p>These are event invitations that you have accepted.</p>
+    <ul>
+        @foreach (var item in Model.AmAttending)
+        {
+            <li>@item.Title - @Html.ActionLink("Edit", "AcceptInviation", "Service", new { eventId = item.EventId, userId = userId}, null) | @Html.ActionLink("Cancel", "DeclineInviation", "Service", new { id = item.EventId, userId = userId}, null)</li>
+        }
+    </ul>
 
-<h3>Declined</h3>
-<p>These are event invitations that you have declined.</p>
-<ul>
-    @foreach (var item in Model.HaveDeclined)
-    {
-        <li>@item.Title - @Html.ActionLink("Edit", "AcceptInviation", "Service", new { eventId = item.EventId, userId = userId}, null) | @Html.ActionLink("Cancel", "DeclineInviation", "Service", new { id = item.EventId, userId = userId}, null)</li>
-    }
-</ul>
+    <h3>Declined</h3>
+    <p>These are event invitations that you have declined.</p>
+    <ul>
+        @foreach (var item in Model.HaveDeclined)
+        {
+            <li>@item.Title - @Html.ActionLink("Edit", "AcceptInviation", "Service", new { eventId = item.EventId, userId = userId}, null) | @Html.ActionLink("Cancel", "DeclineInviation", "Service", new { id = item.EventId, userId = userId}, null)</li>
+        }
+    </ul>    
+}
+

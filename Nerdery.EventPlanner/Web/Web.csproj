@@ -193,11 +193,13 @@
     <Compile Include="Data\Models\Game.cs" />
     <Compile Include="Data\Models\Person.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\IUserService.cs" />
     <Compile Include="Services\SystemNotification.cs" />
     <Compile Include="Services\EventTimeService.cs" />
     <Compile Include="Services\IEventTimeService.cs" />
     <Compile Include="Services\INotificationService.cs" />
     <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\UserService.cs" />
     <Compile Include="ViewModels\EventViewModel.cs" />
     <Compile Include="ViewModels\ExternalLoginViewModel.cs" />
     <Compile Include="ViewModels\FoodItemViewModel.cs" />
