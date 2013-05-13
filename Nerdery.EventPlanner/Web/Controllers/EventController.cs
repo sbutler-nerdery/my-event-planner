@@ -10,7 +10,7 @@ using Web.ViewModels;
 
 namespace Web.Controllers
 {
-    public class EventController : Controller
+    public class EventController : BaseController
     {
         #region Fields
 
@@ -42,43 +42,67 @@ namespace Web.Controllers
         /// <returns></returns>
         public ActionResult Create()
         {
-            var model = new EventViewModel();
+            try
+            {
+                var model = new EventViewModel();
 
-            //Populate the total list of people who could be invited to an event.
-            _personRepository.GetAll()
-                             .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(User.Identity.Name))
-                             .MyFriends
-                             .ToList()
-                             .ForEach(
-                                 x =>
-                                 model.PeopleList.Add(new PersonViewModel
+                //Populate the total list of people who could be invited to an event.
+                _personRepository.GetAll()
+                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(User.Identity.Name))
+                                 .MyFriends
+                                 .ToList()
+                                 .ForEach(
+                                     x =>
+                                     model.PeopleList.Add(new PersonViewModel
                                      {
                                          PersonId = x.PersonId,
                                          FirstName = x.FirstName,
                                          LastName = x.LastName
                                      }));
 
-            return View(model);
+                return View(model);
+            }
+            catch (Exception)
+            {
+                //TODO: log in database
+                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.BuildViewModelFail);
+            }
+
+            return View();
         }
 
         [HttpPost]
         public ActionResult Create(EventViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var createMe = model.GetDataModel();
+                if (ModelState.IsValid)
+                {
+                    var createMe = model.GetDataModel();
 
-                //Update the date / time for the event
-                createMe.StartDate = _eventService.GetEventStartDate(model.StartDate, model.StartTime);
-                createMe.EndDate = _eventService.GetEventEndDate(createMe.StartDate, model.EndTime);
+                    //Update the date / time for the event
+                    createMe.StartDate = _eventService.GetEventStartDate(model.StartDate, model.StartTime);
+                    createMe.EndDate = _eventService.GetEventEndDate(createMe.StartDate, model.EndTime);
 
-                //Invite people
-                _eventService.InviteNewPeople(createMe, model);
+                    //Invite people
+                    _eventService.InviteNewPeople(createMe, model);
 
-                _eventRepository.Insert(createMe);
-                _eventRepository.SubmitChanges();
+                    _eventRepository.Insert(createMe);
+                    _eventRepository.SubmitChanges();
+
+                    return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
+                }
+
+                return View(model);
             }
-            return View();
+            catch (Exception)
+            {
+                //TODO: log to database
+                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.SaveModelFailed);
+            }
+
+            //If it makes it this far something is wrong.
+            return RedirectToAction("Index", "Home", new { message = BaseControllerMessageId.SaveModelFailed });
         }
 
         /// <summary>
@@ -88,58 +112,80 @@ namespace Web.Controllers
         /// <returns></returns>
         public ActionResult Edit(int id)
         {
-            var dataModel = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == id);
-            var model = new EventViewModel(dataModel);
+            try
+            {
+                var dataModel = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == id);
+                var model = new EventViewModel(dataModel);
 
-            //Populate the total list of people who could be invited to an event.
-            _personRepository.GetAll()
-                             .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(User.Identity.Name))
-                             .MyFriends
-                             .ToList()
-                             .ForEach(
-                                 x =>
-                                 model.PeopleList.Add(new PersonViewModel
-                                 {
-                                     PersonId = x.PersonId,
-                                     FirstName = x.FirstName,
-                                     LastName = x.LastName
-                                 }));
+                //Populate the total list of people who could be invited to an event.
+                _personRepository.GetAll()
+                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(User.Identity.Name))
+                                 .MyFriends
+                                 .ToList()
+                                 .ForEach(
+                                     x =>
+                                     model.PeopleList.Add(new PersonViewModel
+                                     {
+                                         PersonId = x.PersonId,
+                                         FirstName = x.FirstName,
+                                         LastName = x.LastName
+                                     }));
+
+                return View(model);
+            }
+            catch (Exception)
+            {
+                //TODO: log to database
+                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.BuildViewModelFail);
+            }
+
             return View();
         }
 
         [HttpPost]
         public ActionResult Edit(EventViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                var updateMe = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == model.EventId);
+                if (ModelState.IsValid)
+                {
+                    var updateMe = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == model.EventId);
 
-                updateMe.Title = model.Title;
-                updateMe.Description = model.Description;
-                updateMe.Location = model.Location;
-                updateMe.Coordinator = model.Coordinator.GetDataModel();
+                    updateMe.Title = model.Title;
+                    updateMe.Description = model.Description;
+                    updateMe.Location = model.Location;
+                    updateMe.Coordinator = model.Coordinator.GetDataModel();
 
-                //Update the date / time for the event
-                updateMe.StartDate = _eventService.GetEventStartDate(model.StartDate, model.StartTime);
-                updateMe.EndDate = _eventService.GetEventEndDate(updateMe.StartDate, model.EndTime);
+                    //Update the date / time for the event
+                    updateMe.StartDate = _eventService.GetEventStartDate(model.StartDate, model.StartTime);
+                    updateMe.EndDate = _eventService.GetEventEndDate(updateMe.StartDate, model.EndTime);
 
-                //Update the collection properties
-                
-                //Food items
-                _eventService.AppendNewFoodItems(updateMe, model);
-                _eventService.RemoveFoodItems(updateMe, model);
+                    //Update the collection properties
 
-                //Games
-                _eventService.AppendNewGames(updateMe, model);
-                _eventService.RemoveGames(updateMe, model);
+                    //Food items
+                    _eventService.AppendNewFoodItems(updateMe, model);
+                    _eventService.RemoveFoodItems(updateMe, model);
 
-                //People invited
-                _eventService.InviteNewPeople(updateMe, model);
-                _eventService.UninvitePeople(updateMe, model);
+                    //Games
+                    _eventService.AppendNewGames(updateMe, model);
+                    _eventService.RemoveGames(updateMe, model);
 
-                _eventRepository.SubmitChanges();
+                    //People invited
+                    _eventService.InviteNewPeople(updateMe, model);
+                    _eventService.UninvitePeople(updateMe, model);
+
+                    _eventRepository.SubmitChanges();
+
+                    return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
+                }
             }
-            return View();
+            catch (Exception)
+            {
+                //TODO: log to database
+            }
+
+            //If it makes it this far something is wrong.
+            return RedirectToAction("Index", "Home", new { message = BaseControllerMessageId.SaveModelFailed });
         }
 
         /// <summary>
@@ -150,9 +196,24 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult Delete(int id)
         {
-            return RedirectToAction("Index", "Home");
+            try
+            {
+                var deleteMe = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == id);
+                _eventRepository.Delete(deleteMe);
+                _eventRepository.SubmitChanges();
+
+                return RedirectToAction("Index", "Home", new { message = BaseControllerMessageId.DeleteSuccessful });
+            }
+            catch (Exception)
+            {
+                //TODO: log to database
+            }
+
+            //If it makes it this far something is wrong.
+            return RedirectToAction("Index", "Home", new { message = BaseControllerMessageId.DeleteFailed });
         }
 
         #endregion
+
     }
 }

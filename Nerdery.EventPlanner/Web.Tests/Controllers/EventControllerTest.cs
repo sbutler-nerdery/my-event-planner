@@ -1,18 +1,47 @@
 ﻿using System;
+using System.Web.Mvc;
+using FakeItEasy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Web.Controllers;
+using Web.Data;
+using Web.Data.Models;
+using Web.Services;
+using Web.ViewModels;
 
 namespace Web.Tests.Controllers
 {
     [TestClass]
     public class EventControllerTest
     {
+        private IRepository<Person> _personRepo;
+        private IRepository<Event> _eventRepo;
+        private IUserService _userService;
+        private IEventService _eventService;
+
+        [TestInitialize]
+        public void SpinUp()
+        {
+            _personRepo = A.Fake<IRepository<Person>>();
+            _eventRepo = A.Fake<IRepository<Event>>();
+            _userService = A.Fake<IUserService>();
+            _eventService = A.Fake<IEventService>();
+        }
+
         /// <summary>
         /// This unit test ensures that all of the required fields for the event view model must be filled out on create.
         /// </summary>
         [TestMethod]
-        public void Create_Event_Model_Not_Valid()
+        public void Create_Event_Fail_Model_Build()
         {
+            //Arrange
+            A.CallTo(() => _personRepo.GetAll()).Returns(null);
+            var contoller = new EventController(_eventRepo, _personRepo, _eventService, _userService);
 
+            //Act
+            var result = contoller.Create() as ViewResult;
+
+            //Assert
+            Assert.AreEqual(result.ViewBag.StatusMessage, Constants.BASE_BUILD_VIEW_FAIL);
         }
 
         /// <summary>
@@ -21,7 +50,17 @@ namespace Web.Tests.Controllers
         [TestMethod]
         public void Create_Event_Fail()
         {
+            //Arrange
+            A.CallTo(() => _eventRepo.SubmitChanges()).Throws(new Exception("Error saving to the database!"));
+            var contoller = new EventController(_eventRepo, _personRepo, _eventService, _userService);
 
+            //Act
+            var result = contoller.Create(new EventViewModel()) as RedirectToRouteResult;
+
+            //Assert
+            Assert.AreEqual(result.RouteValues["action"], "Index");
+            Assert.AreEqual(result.RouteValues["controller"], "Home");
+            Assert.AreEqual(result.RouteValues["message"].ToString(), "SaveModelFailed");
         }
 
         /// <summary>

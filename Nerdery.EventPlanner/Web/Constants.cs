@@ -39,10 +39,13 @@ namespace Web
 
         #endregion
 
-        #region Home controller messages
+        #region Base controller messages
 
-        public const string HOME_EDIT_SUCCESS = "Event updates saved!";
-        public const string HOME_BUILD_VIEW_FAIL = "An error occurrred while retrieving your data.";
+        public const string BASE_SAVE_SUCCESS = "Your changes were saved successfully!";
+        public const string BASE_SAVE_FAIL = "An error occurrred while trying to save changes.";
+        public const string BASE_DELETE_SUCCESS = "An error occurrred while trying to delete.";
+        public const string BASE_DELETE_FAIL = "Delete succedssful.";
+        public const string BASE_BUILD_VIEW_FAIL = "An error occurrred while retrieving your data.";
 
         #endregion 
 

@@ -43,7 +43,7 @@ namespace Web.Tests.Controllers
             var result = controller.Index(null) as ViewResult;
 
             //Assert
-            Assert.AreEqual(Constants.HOME_BUILD_VIEW_FAIL, result.ViewBag.StatusMessage);
+            Assert.AreEqual(Constants.BASE_BUILD_VIEW_FAIL, result.ViewBag.StatusMessage);
         }
         /// <summary>
         /// Make sure we get back the view model that we are expecting if the user is found.
