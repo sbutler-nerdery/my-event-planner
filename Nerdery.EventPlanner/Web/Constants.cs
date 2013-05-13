@@ -10,7 +10,8 @@ namespace Web
     /// </summary>
     public class Constants
     {
-        /* Database stuff */
+        #region Database stuff
+
         /// <summary>
         /// The connection string name in web.config
         /// </summary>
@@ -28,7 +29,29 @@ namespace Web
         /// </summary>
         public const string DB_USER_NAME_COLUMN = "UserName";
 
-        /* Notification message templates */
+        #endregion
+
+        #region Account controller messages
+
+        public const string ACCOUNT_PASSWORD_CHANGE_SUCCESS = "Your password has been changed.";
+        public const string ACCOUNT_PASSWORD_SET = "Your password has been set.";
+        public const string ACCOUNT_EXTERNAL_LOGIN_REMOVED = "The external login was removed.";
+
+        #endregion
+
+        #region Home controller messages
+
+        public const string HOME_EDIT_SUCCESS = "Event updates saved!";
+
+        #endregion 
+
+        #region Service controller message
+
+        public const string SERVICE_ACCEPT_INVITATION_FAIL = "An error occurred. Unable to accept invitation.";
+
+        #endregion
+
+        #region Notification message templates
         /// <summary>
         /// This is the title used for notifications that are sent to updates people when an event changes.
         /// </summary>
@@ -112,5 +135,7 @@ namespace Web
         /// </summary>
         public const string MESSAGE_REMOVE_TEMPLATE =
             "{0} {1} has removed you from the guest list for the event '{2}' starting on {3} at {4}.";
+
+        #endregion
     }
 }

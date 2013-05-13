@@ -104,8 +104,8 @@ namespace Web.Tests.Services
                 Coordinator = theHost };
             var peopleList = new List<Person>
                 {
-                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith", AmAttending = new List<Event>{theEvent}, AmInvitedToThese = new List<Event>()},
-                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy", AmAttending = new List<Event>(), AmInvitedToThese = new List<Event>{theEvent}},
+                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith", AmAttending = new List<Event>{theEvent}, MyInvitations = new List<Event>()},
+                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy", AmAttending = new List<Event>(), MyInvitations = new List<Event>{theEvent}},
                 };
 
             A.CallTo(() => _eventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
@@ -210,8 +210,8 @@ namespace Web.Tests.Services
             };
             var peopleList = new List<Person>
                 {
-                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith", AmAttending = new List<Event>{theEvent}, AmInvitedToThese = new List<Event>()},
-                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy", AmAttending = new List<Event>(), AmInvitedToThese = new List<Event>{theEvent}},
+                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith", AmAttending = new List<Event>{theEvent}, MyInvitations = new List<Event>()},
+                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy", AmAttending = new List<Event>(), MyInvitations = new List<Event>{theEvent}},
                 };
 
             A.CallTo(() => _eventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());

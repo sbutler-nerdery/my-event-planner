@@ -19,6 +19,10 @@ namespace Web.Controllers
     [InitializeSimpleMembership]
     public class AccountController : Controller
     {
+        #region Public Methods
+
+        #region Out of the box account stuff
+
         //
         // GET: /Account/Login
 
@@ -129,11 +133,7 @@ namespace Web.Controllers
 
         public ActionResult Manage(ManageMessageId? message)
         {
-            ViewBag.StatusMessage =
-                message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
-                : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
-                : message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
-                : "";
+            ViewBag.StatusMessage = GetMessageFromMessageId(message);
             ViewBag.HasLocalPassword = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
             ViewBag.ReturnUrl = Url.Action("Manage");
             return View();
@@ -330,6 +330,74 @@ namespace Web.Controllers
             return PartialView("_RemoveExternalLoginsPartial", externalLogins);
         }
 
+        #endregion
+
+        #region Food items
+
+        public ActionResult CreateFoodItem()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult CreateFoodItem(FoodItemViewModel model)
+        {
+            return View();
+        }
+
+        public ActionResult EditFoodItem(int id)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult EditFoodItem(FoodItemViewModel model)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult DeleteFoodItem(int id)
+        {
+            return RedirectToAction("");
+        }
+
+        #endregion
+
+        #region Games
+
+        public ActionResult CreateGame()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult CreateGame(GameViewModel model)
+        {
+            return View();
+        }
+
+        public ActionResult EditGame(int id)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult EditGame(FoodItemViewModel model)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult DeleteGame(int id)
+        {
+            return RedirectToAction("");
+        }
+
+        #endregion
+
+        #endregion
+
         #region Helpers
         private ActionResult RedirectToLocal(string returnUrl)
         {
@@ -348,6 +416,20 @@ namespace Web.Controllers
             ChangePasswordSuccess,
             SetPasswordSuccess,
             RemoveLoginSuccess,
+        }
+        /// <summary>
+        /// Get the appropriate message for the specified message id
+        /// </summary>
+        /// <param name="id">The specified ManageMessageId</param>
+        /// <returns></returns>
+        private string GetMessageFromMessageId(ManageMessageId? id)
+        {
+            string message = id == ManageMessageId.ChangePasswordSuccess ? Constants.ACCOUNT_PASSWORD_CHANGE_SUCCESS
+                            : id == ManageMessageId.SetPasswordSuccess ? Constants.ACCOUNT_PASSWORD_SET
+                            : id == ManageMessageId.RemoveLoginSuccess ? Constants.ACCOUNT_EXTERNAL_LOGIN_REMOVED
+                            : "";
+
+            return message;
         }
 
         internal class ExternalLoginResult : ActionResult

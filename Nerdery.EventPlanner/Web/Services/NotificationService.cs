@@ -30,7 +30,7 @@ namespace Web.Services
             var notifications = new List<SystemNotification>();
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             _personRepository.GetAll().Where(x => x.AmAttending.Select(y => y.EventId == eventId).Any() ||
-                x.AmInvitedToThese.Select(y => y.EventId == eventId).Any())
+                x.MyInvitations.Select(y => y.EventId == eventId).Any())
                 .ToList().ForEach(x => notifications.Add(new SystemNotification
                     {
                         PersonId = x.PersonId,
@@ -52,7 +52,7 @@ namespace Web.Services
             var notifications = new List<SystemNotification>();
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             _personRepository.GetAll().Where(x => x.AmAttending.Select(y => y.EventId == eventId).Any() ||
-                x.AmInvitedToThese.Select(y => y.EventId == eventId).Any())
+                x.MyInvitations.Select(y => y.EventId == eventId).Any())
                 .ToList().ForEach(x => notifications.Add(new SystemNotification
                 {
                     PersonId = x.PersonId,

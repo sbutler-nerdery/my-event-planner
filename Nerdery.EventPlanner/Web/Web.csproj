@@ -178,6 +178,8 @@
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\EventController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\Response.cs" />
+    <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Data\EntityFrameworkRepository.cs" />
     <Compile Include="Data\EventPlannerContext.cs" />
     <Compile Include="Data\IRepository.cs" />
@@ -200,6 +202,7 @@
     <Compile Include="ViewModels\ExternalLoginViewModel.cs" />
     <Compile Include="ViewModels\FoodItemViewModel.cs" />
     <Compile Include="ViewModels\GameViewModel.cs" />
+    <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\LocalPasswordViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\ManageNonPasswordViewModel.cs" />

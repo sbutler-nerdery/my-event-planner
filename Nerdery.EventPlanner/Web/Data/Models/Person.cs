@@ -23,7 +23,7 @@ namespace Web.Data.Models
         /// <summary>
         /// Get or set events that this user is invited to
         /// </summary>
-        public virtual List<Event> AmInvitedToThese { get; set; }
+        public virtual List<Event> MyInvitations { get; set; }
         /// <summary>
         /// Get or set events that this user is attending
         /// </summary>

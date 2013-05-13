@@ -11,13 +11,27 @@ namespace Web.Controllers
 {
     public class EventController : Controller
     {
+        #region Fields
+
         private readonly IRepository<Event> _repository;
+
+        #endregion
+
+        #region Constructors
 
         public EventController(IRepository<Event> repository)
         {
             _repository = repository;
         }
 
+        #endregion
+
+        #region Event Methods
+
+        /// <summary>
+        /// Create a new event
+        /// </summary>
+        /// <returns></returns>
         public ActionResult Create()
         {
             return View();
@@ -29,6 +43,11 @@ namespace Web.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Edit an existing event
+        /// </summary>
+        /// <param name="id">The specified event id</param>
+        /// <returns></returns>
         public ActionResult Edit(int id)
         {
             return View();
@@ -40,10 +59,17 @@ namespace Web.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Delete an event, which is the same as cancelling an event.
+        /// </summary>
+        /// <param name="id">The specified event id</param>
+        /// <returns></returns>
         [HttpPost]
-        public ActionResult DeleteEvent(int id)
+        public ActionResult Delete(int id)
         {
             return RedirectToAction("Index", "Home");
         }
+
+        #endregion
     }
 }

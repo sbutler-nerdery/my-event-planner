@@ -35,10 +35,10 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set events that this user has declined
         /// </summary>
-        public virtual List<EventViewModel> HaveDeclined { get; set; }
-        public virtual List<FoodItemViewModel> MyFoodItems { get; set; }
-        public virtual List<GameViewModel> MyGames { get; set; }
-        public virtual List<PersonViewModel> MyFriends { get; set; }
+        public List<EventViewModel> HaveDeclined { get; set; }
+        public List<FoodItemViewModel> MyFoodItems { get; set; }
+        public List<GameViewModel> MyGames { get; set; }
+        public List<PersonViewModel> MyFriends { get; set; }
         /// <summary>
         /// Get or set if the user will receive notifications via facebook. If false, send via email.
         /// </summary>
