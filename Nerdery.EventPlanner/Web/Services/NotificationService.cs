@@ -94,6 +94,9 @@ namespace Web.Services
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == acceptingId);
 
+            var foodItemsText = "";
+            var gamesText = "";
+
             notification.SendToFacebook = thePerson.NotifyWithFacebook;
             notification.SendToEmail = thePerson.NotifyWithEmail;
             notification.PersonId = acceptingId;
@@ -101,7 +104,8 @@ namespace Web.Services
             notification.Message = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
                                                  thePerson.LastName,
                                                  theEvent.Title, theEvent.StartDate.ToShortDateString(),
-                                                 theEvent.StartDate.ToShortTimeString());
+                                                 theEvent.StartDate.ToShortTimeString(),
+                                                 foodItemsText, gamesText);
 
             return notification;
         }

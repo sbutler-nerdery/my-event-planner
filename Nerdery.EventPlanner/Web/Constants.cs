@@ -46,12 +46,15 @@ namespace Web
         public const string BASE_DELETE_SUCCESS = "An error occurrred while trying to delete.";
         public const string BASE_DELETE_FAIL = "Delete succedssful.";
         public const string BASE_BUILD_VIEW_FAIL = "An error occurrred while retrieving your data.";
+        public const string BASE_ACCEPT_INVITATION_FAIL = "An error occurred. Unable to accept invitation.";
+        public const string BASE_ACCEPT_INVITATION_SUCCESS = "You have accepted the invitation!";
 
         #endregion 
 
         #region Service controller message
 
-        public const string SERVICE_ACCEPT_INVITATION_FAIL = "An error occurred. Unable to accept invitation.";
+        public const string SERVICE_ADD_FOOD_ITEM_FAIL = "An error occurred. Unable to add the specified food item.";
+        public const string SERVICE_REMOVE_FOOD_ITEM_FAIL = "An error occurred. Unable to remove the specified food item.";
 
         #endregion
 
@@ -108,9 +111,11 @@ namespace Web
         /// {2} = Event name
         /// {3} = Event date
         /// {4} = event time
+        /// {5} = food items
+        /// {6} = games
         /// </summary>
         public const string MESSAGE_ACCEPT_TEMPLATE =
-            "{0} {1} has accepted your generous invitation for the event '{2}' starting on {3} at {4}.";
+            "{0} {1} has accepted your generous invitation for the event '{2}' starting on {3} at {4}.{5}{6}";
         /// <summary>
         /// The title used when a user accepts an invitation
         /// </summary>

@@ -201,6 +201,7 @@
     <Compile Include="Services\INotificationService.cs" />
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\UserService.cs" />
+    <Compile Include="ViewModels\AcceptInvitationViewModel.cs" />
     <Compile Include="ViewModels\EventViewModel.cs" />
     <Compile Include="ViewModels\ExternalLoginViewModel.cs" />
     <Compile Include="ViewModels\FoodItemViewModel.cs" />

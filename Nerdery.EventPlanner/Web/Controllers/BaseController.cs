@@ -16,7 +16,9 @@ namespace Web.Controllers
             SaveModelFailed,
             DeleteSuccessful,
             DeleteFailed,
-            BuildViewModelFail
+            BuildViewModelFail,
+            AcceptInvitationFail,
+            AcceptInvitationSuccess
         }
 
         /// <summary>
@@ -30,6 +32,8 @@ namespace Web.Controllers
                             : id == BaseControllerMessageId.SaveModelFailed ? Constants.BASE_SAVE_FAIL
                             : id == BaseControllerMessageId.SaveModelFailed ? Constants.BASE_SAVE_FAIL
                             : id == BaseControllerMessageId.BuildViewModelFail ? Constants.BASE_BUILD_VIEW_FAIL
+                            : id == BaseControllerMessageId.AcceptInvitationFail ? Constants.BASE_ACCEPT_INVITATION_FAIL
+                            : id == BaseControllerMessageId.AcceptInvitationSuccess ? Constants.BASE_ACCEPT_INVITATION_SUCCESS
                             : "";
             return message;
         }

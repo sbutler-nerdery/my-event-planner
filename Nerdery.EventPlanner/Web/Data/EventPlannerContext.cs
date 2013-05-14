@@ -14,6 +14,9 @@ namespace Web.Data
         {
         }
 
-        public DbSet<Person> UserProfiles { get; set; }
+        public DbSet<Person> People { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<FoodItem> FoodItems { get; set; }
+        public DbSet<Game> Games { get; set; }
     }
 }

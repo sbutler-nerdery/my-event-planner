@@ -267,12 +267,12 @@ namespace Web.Controllers
                 // Insert a new user into the database
                 using (EventPlannerContext db = new EventPlannerContext())
                 {
-                    Person user = db.UserProfiles.FirstOrDefault(u => u.UserName.ToLower() == model.UserName.ToLower());
+                    Person user = db.People.FirstOrDefault(u => u.UserName.ToLower() == model.UserName.ToLower());
                     // Check if user already exists
                     if (user == null)
                     {
                         // Insert name into the profile table
-                        db.UserProfiles.Add(new Person { UserName = model.UserName });
+                        db.People.Add(new Person { UserName = model.UserName });
                         db.SaveChanges();
 
                         OAuthWebSecurity.CreateOrUpdateAccount(provider, providerUserId, model.UserName);
