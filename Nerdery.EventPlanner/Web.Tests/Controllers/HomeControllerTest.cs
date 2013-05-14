@@ -20,7 +20,7 @@ namespace Web.Tests.Controllers
     public class HomeControllerTest : BaseTestFixture
     {
         /// <summary>
-        /// Make sure that the status message is correct if an exception is caught
+        /// Make sure that the status message is correct if an exception is caught while building the view model
         /// </summary>
         [TestMethod]
         public void Index_Build_View_Model_Fail()
@@ -75,7 +75,9 @@ namespace Web.Tests.Controllers
             Assert.AreEqual(acceptedInvitationsCount, 1);
             Assert.AreEqual(declinedInvitationsCount, 1);
         }
-
+        /// <summary>
+        /// Make sure that the status message is correct if an exception is caught while building the view model
+        /// </summary>
         [TestMethod]
         public void AcceptInvitation_Build_View_Model_Fail()
         {
@@ -88,7 +90,9 @@ namespace Web.Tests.Controllers
             //Assert
             Assert.AreEqual(Constants.BASE_BUILD_VIEW_FAIL, result.ViewBag.StatusMessage);            
         }
-
+        /// <summary>
+        /// Make sure we get back the view model that we are expecting if the user and the event are found.
+        /// </summary>
         [TestMethod]
         public void AcceptInvitation_Build_View_Model_Success()
         {
