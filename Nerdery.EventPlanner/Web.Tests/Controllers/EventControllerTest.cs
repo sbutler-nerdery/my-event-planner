@@ -160,7 +160,7 @@ namespace Web.Tests.Controllers
         public void Edit_Event_Build_View_Model_Success()
         {
             //Arrange
-            var dataModel = GetTestEventDataModel();
+            var dataModel = GetTestEventDataModel(1);
             var theHost = dataModel.Coordinator;
             var friendOne = new Person{PersonId = 4, FirstName = "Mark", LastName = "Walburg"};
             var friendTwo = new Person { PersonId = 5, FirstName = "Drew", LastName = "Smith" };
