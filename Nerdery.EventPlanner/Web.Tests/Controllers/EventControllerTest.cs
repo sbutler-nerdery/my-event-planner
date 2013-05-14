@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Globalization;
 using System.Web.Mvc;
 using FakeItEasy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -151,7 +153,25 @@ namespace Web.Tests.Controllers
         [TestMethod]
         public void Edit_Event_Model_Not_Valid()
         {
+            //Arrange
+            var viewModel = new EventViewModel();
+            var contoller = new EventController(_eventRepo, _personRepo, _eventService, _userService);
 
+            var modelBinder = new ModelBindingContext
+                {
+                    ModelMetadata = ModelMetadataProviders.Current.GetMetadataForType(() => viewModel, viewModel.GetType()),
+                    ValueProvider = new NameValueCollectionValueProvider(new NameValueCollection(), CultureInfo.InvariantCulture)
+                };
+
+            var binder = new DefaultModelBinder().BindModel(new ControllerContext(), modelBinder);
+            contoller.ModelState.Clear();
+            contoller.ModelState.Merge(modelBinder.ModelState);
+            //Act
+            var result = contoller.Create(viewModel) as ViewResult;
+
+            //Assert
+            Assert.IsFalse(result.ViewData.ModelState.Count == 7);
+            Assert.IsFalse(result.ViewData.ModelState.IsValid);
         }
 
         /// <summary>
