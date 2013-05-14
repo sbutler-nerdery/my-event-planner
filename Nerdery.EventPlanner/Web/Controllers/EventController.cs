@@ -47,8 +47,9 @@ namespace Web.Controllers
                 var model = new EventViewModel();
 
                 //Populate the total list of people who could be invited to an event.
+                var userName = (User != null) ? User.Identity.Name : string.Empty;
                 _personRepository.GetAll()
-                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(User.Identity.Name))
+                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(userName))
                                  .MyFriends
                                  .ToList()
                                  .ForEach(
@@ -123,8 +124,9 @@ namespace Web.Controllers
                 var model = new EventViewModel(dataModel);
 
                 //Populate the total list of people who could be invited to an event.
+                var userName = (User != null) ? User.Identity.Name : string.Empty;
                 _personRepository.GetAll()
-                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(User.Identity.Name))
+                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(userName))
                                  .MyFriends
                                  .ToList()
                                  .ForEach(
@@ -136,6 +138,8 @@ namespace Web.Controllers
                                          LastName = x.LastName
                                      }));
 
+                //Nothing to report if everything succeeds
+                ViewBag.StatusMessage = string.Empty;
                 return View(model);
             }
             catch (Exception)
@@ -164,8 +168,6 @@ namespace Web.Controllers
                     //Update the date / time for the event
                     _eventService.SetEventDates(updateMe, model);
 
-                    //Update the collection properties
-
                     //Food items
                     _eventService.AppendNewFoodItems(updateMe, model);
                     _eventService.RemoveFoodItems(updateMe, model);
@@ -182,6 +184,9 @@ namespace Web.Controllers
 
                     return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
                 }
+
+                //Return the model if the state is invalid...
+                return View(model);
             }
             catch (Exception)
             {

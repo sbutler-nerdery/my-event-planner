@@ -95,6 +95,9 @@ namespace Web.ViewModels
             dataModel.Games = new List<Game>();
             FoodItems.ForEach(x => dataModel.FoodItems.Add(x.GetDataModel()));
             Games.ForEach(x => dataModel.Games.Add(x.GetDataModel()));
+            dataModel.PeopleInvited = new List<Person>();
+            dataModel.PeopleWhoAccepted = new List<Person>();
+            dataModel.PeopleWhoDeclined = new List<Person>();
 
             return dataModel;
         }

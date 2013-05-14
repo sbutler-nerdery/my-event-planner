@@ -56,3 +56,4 @@ C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\Ninject.We
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\Ninject.Web.Common.xml
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\Ninject.Web.Mvc.pdb
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\Ninject.Web.Mvc.xml
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\obj\Debug\Web.csprojResolveAssemblyReference.cache
