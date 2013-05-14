@@ -1,4 +1,3 @@
-C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\obj\Debug\Web.csprojResolveAssemblyReference.cache
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\Web.dll
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\Web.pdb
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\Antlr3.Runtime.dll

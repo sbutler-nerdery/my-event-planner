@@ -81,11 +81,16 @@ namespace Web.Controllers
                     var createMe = model.GetDataModel();
 
                     //Update the date / time for the event
-                    createMe.StartDate = _eventService.GetEventStartDate(model.StartDate, model.StartTime);
-                    createMe.EndDate = _eventService.GetEventEndDate(createMe.StartDate, model.EndTime);
+                    _eventService.SetEventDates(createMe, model);
 
                     //Invite people
                     _eventService.InviteNewPeople(createMe, model);
+
+                    //Add food
+                    _eventService.AppendNewFoodItems(createMe, model);
+
+                    //Add games
+                    _eventService.AppendNewGames(createMe, model);
 
                     _eventRepository.Insert(createMe);
                     _eventRepository.SubmitChanges();
@@ -93,12 +98,12 @@ namespace Web.Controllers
                     return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
                 }
 
+                //Return the model if the state is invalid...
                 return View(model);
             }
             catch (Exception)
             {
                 //TODO: log to database
-                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.SaveModelFailed);
             }
 
             //If it makes it this far something is wrong.
@@ -157,8 +162,7 @@ namespace Web.Controllers
                     updateMe.Coordinator = model.Coordinator.GetDataModel();
 
                     //Update the date / time for the event
-                    updateMe.StartDate = _eventService.GetEventStartDate(model.StartDate, model.StartTime);
-                    updateMe.EndDate = _eventService.GetEventEndDate(updateMe.StartDate, model.EndTime);
+                    _eventService.SetEventDates(updateMe, model);
 
                     //Update the collection properties
 

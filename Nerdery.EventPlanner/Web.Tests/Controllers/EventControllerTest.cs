@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Web.Mvc;
 using FakeItEasy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,7 +25,7 @@ namespace Web.Tests.Controllers
             _personRepo = A.Fake<IRepository<Person>>();
             _eventRepo = A.Fake<IRepository<Event>>();
             _userService = A.Fake<IUserService>();
-            _eventService = A.Fake<IEventService>();
+            _eventService = new EventService();
         }
 
         /// <summary>
@@ -51,7 +52,6 @@ namespace Web.Tests.Controllers
         public void Create_Event_Fail()
         {
             //Arrange
-            A.CallTo(() => _eventRepo.SubmitChanges()).Throws(new Exception("Error saving to the database!"));
             var contoller = new EventController(_eventRepo, _personRepo, _eventService, _userService);
 
             //Act
@@ -69,7 +69,80 @@ namespace Web.Tests.Controllers
         [TestMethod]
         public void Create_Event_Success()
         {
+            //Arrange
 
+            //People
+            var theHost = new PersonViewModel
+                {
+                    PersonId = 1,
+                    UserName = "jsmith",
+                    FirstName = "Joe",
+                    LastName = "Smith"
+                };
+            var guestOne = new PersonViewModel
+                {
+                    PersonId = 2, 
+                    UserName = "bbufford",
+                    FirstName = "Ben",
+                    LastName = "Bufford"
+                };
+            var guestTwo = new PersonViewModel
+                {
+                    PersonId = 3,
+                    UserName = "shart",
+                    FirstName = "Sally",
+                    LastName = "Hart"
+                };
+            var theInvitees = new List<PersonViewModel> { guestOne, guestTwo };
+
+            //Food
+            var burgers = new FoodItemViewModel
+                {
+                    FoodItemId = 1,
+                    Title = "Hambergers",
+                    Description = "Apple bacon smoked burgers for 10 people."
+                };
+            var coke = new FoodItemViewModel { FoodItemId = 2, Title = "Coke", Description = "Two 6 packs"};
+            var foodForTheParty = new List<FoodItemViewModel> { burgers, coke };
+
+            //Games
+            var settlers = new GameViewModel { GameId = 1, Title = "Settlers of Catan", Description = "The best game ever for up to four people"};
+            var blockus = new GameViewModel { GameId = 2, Title= "Blockus", Description = "Fun game of shape fitting for up four people."};
+            var gamesForTheParty = new List<GameViewModel> { settlers, blockus };
+            var viewModel = new EventViewModel
+                {
+                    Title = "My Test Event",
+                    Description = "This is a fun test event",
+                    Coordinator = theHost,
+                    StartDate = DateTime.Now,
+                    StartTime = DateTime.Now.Date.AddHours(17),
+                    EndTime = DateTime.Now.AddHours(26),
+                    FoodItems = foodForTheParty,
+                    Games = gamesForTheParty,
+                    PeopleInvited = theInvitees
+                };
+
+            //Data model result
+            var expectedDataModel = viewModel.GetDataModel();
+            _eventService.SetEventDates(expectedDataModel, viewModel);
+            _eventService.AppendNewFoodItems(expectedDataModel, viewModel);
+            _eventService.AppendNewGames(expectedDataModel, viewModel);
+            _eventService.InviteNewPeople(expectedDataModel, viewModel);
+
+            var contoller = new EventController(_eventRepo, _personRepo, _eventService, _userService);
+
+            //Act
+            var result = contoller.Create(viewModel) as RedirectToRouteResult;
+
+            //Assert
+            //That the data model being passed to the repository is what we expect.
+            A.CallTo(() => _eventRepo.Insert(A<Event>.That.Matches(x => x != expectedDataModel))).MustHaveHappened();
+            A.CallTo(() => _eventRepo.SubmitChanges()).MustHaveHappened();
+
+            //Tthat the route values are what we expect.
+            Assert.AreEqual(result.RouteValues["action"], "Index");
+            Assert.AreEqual(result.RouteValues["controller"], "Home");
+            Assert.AreEqual(result.RouteValues["message"].ToString(), "SaveModelSuccess");
         }
 
         /// <summary>

@@ -14,26 +14,16 @@ namespace Web.Services
     public interface IEventService
     {
         /// <summary>
-        /// Get the event start time by putting together the date values from the first parameter with the time values
-        /// of the second parameter
+        /// Set the event start date and end date for the data model
         /// </summary>
-        /// <param name="startDate">The start date of the event</param>
-        /// <param name="startTime">The start time of the event... the date portion of this parameter will be ignored</param>
-        /// <returns></returns>
-        DateTime GetEventStartDate(DateTime startDate, DateTime startTime);
-        /// <summary>
-        /// Get the correct end date value for the start and end date pair provided.
-        /// </summary>
-        /// <param name="startDate">The specified start date</param>
-        /// <param name="endDate">The specified end date to be modified.</param>
-        /// <example>start date: 4/4/2012 4:15 PM, end date: 4/4/2012 1:00 AM will return an end date value of 4/5/2012 1:00 AM</example>
-        DateTime GetEventEndDate(DateTime startDate, DateTime endDate);
+        /// <param name="dataModel">The specified event data model</param>
+        /// <param name="viewModel">The specified event view model</param>
+        void SetEventDates(Event dataModel, EventViewModel viewModel);
         /// <summary>
         /// Add the appropriate food items to the data model
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
-        /// <returns></returns>
         void AppendNewFoodItems(Event dataModel, EventViewModel viewModel);
         /// <summary>
         /// Remove the appropriate food items from the event data model.

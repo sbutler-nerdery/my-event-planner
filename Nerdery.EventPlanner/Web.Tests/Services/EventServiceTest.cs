@@ -26,29 +26,21 @@ namespace Web.Tests.Services
         /// values that would be supplied from a view model
         /// </summary>
         [TestMethod]
-        public void Create_Event_Parse_Start_Date()
-        {
-            var startDateValue = DateTime.Now;
-            var startTimeValue = DateTime.Now.Date.AddHours(4).AddMinutes(30); //4:30 AM today
-            var compiledStartDate = _eventService.GetEventStartDate(startDateValue, startTimeValue);
-            Assert.AreEqual(compiledStartDate, startTimeValue);
-        }
-        /// <summary>
-        /// This test ensures that if the end time in the view model is past midnight the end date of the data model
-        /// is adjusted to the next day properly.
-        /// </summary>
-        [TestMethod]
-        public void Create_Event_Handle_Past_Midnight()
+        public void Parse_Event_Dates()
         {
             //Arrange
-            var startDate = DateTime.Now.Date.AddHours(19); //7PM
-            var endDate = DateTime.Now.Date.AddHours(2); //This SHOULD be 2AM the next day...
+            var hours = 4;
+            var startTimeValue = DateTime.Now.Date.AddHours(hours); //4:00 AM today
+            var endTimeValue = DateTime.Now.Date.AddHours(2); //This SHOULD be 2AM the next day...
+            var dataModel = new Event();
+            var viewModel = new EventViewModel { StartDate = DateTime.Now, StartTime = startTimeValue, EndTime = endTimeValue };
 
             //Act
-            var modifiedEndDate = _eventService.GetEventEndDate(startDate, endDate);
+            _eventService.SetEventDates(dataModel, viewModel);
 
-            //Assert that the new date is 2AM the next day
-            Assert.AreEqual(DateTime.Now.Date.AddHours(26), modifiedEndDate);
+            //Assert
+            Assert.AreEqual(dataModel.StartDate, startTimeValue);
+            Assert.AreEqual(dataModel.EndDate, DateTime.Now.Date.AddHours(26));
         }
         /// <summary>
         /// This unit test will ensure that people can be invited to an event

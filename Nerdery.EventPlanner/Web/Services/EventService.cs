@@ -9,20 +9,20 @@ namespace Web.Services
 {
     public class EventService : IEventService
     {
-        public DateTime GetEventStartDate(DateTime startDate, DateTime startTime)
+        public void SetEventDates(Event dataModel, EventViewModel viewModel)
         {
-            int hours = startTime.Hour;
-            int minutes = startTime.Minute;
+            int hours = viewModel.StartTime.Hour;
+            int minutes = viewModel.StartTime.Minute;
 
-            return startDate.Date.AddHours(hours).AddMinutes(minutes);
-        }
-        public DateTime GetEventEndDate(DateTime startDate, DateTime endDate)
-        {
-            int endHour = endDate.Hour;
-            if (startDate.Hour > endDate.Hour)
-                endDate = startDate.AddDays(1).Date.AddHours(endHour);
-            
-            return endDate;
+            //Set the data model start date...
+            dataModel.StartDate = viewModel.StartDate.Date.AddHours(hours).AddMinutes(minutes);
+
+            int endHour = viewModel.EndTime.Hour;
+            dataModel.EndDate = dataModel.StartDate.AddHours(endHour);
+
+            //Change the end date if...
+            if (dataModel.StartDate.Hour > viewModel.EndTime.Hour)
+                dataModel.EndDate = dataModel.StartDate.AddDays(1).Date.AddHours(endHour); 
         }
 
         public void AppendNewFoodItems(Event dataModel, EventViewModel viewModel)
