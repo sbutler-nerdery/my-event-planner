@@ -29,7 +29,7 @@ namespace Web.ViewModels
         /// </summary>
         public List<FoodItemViewModel> CurrentEventFoodItems { get; set; }
         /// <summary>
-        /// Get or set the list of tames that people are already bringing to the event
+        /// Get or set the list of games that people are already bringing to the event
         /// </summary>
         public List<GameViewModel> CurrentEventGames { get; set; }
         /// <summary>

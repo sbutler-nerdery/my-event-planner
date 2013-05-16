@@ -116,7 +116,7 @@ namespace Web.Controllers
             catch (Exception)
             {
                 //TODO:log to database
-                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.BuildViewModelFail);
+                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.AcceptInvitationFail);
             }
 
             //If we get to here there is a problem

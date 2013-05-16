@@ -117,5 +117,74 @@ namespace Web.Tests.Controllers
             Assert.AreNotEqual(((AcceptInvitationViewModel)result.Model).WillBringTheseFoodItems, null);
             Assert.AreNotEqual(((AcceptInvitationViewModel)result.Model).WillBringTheseGames, null);   
         }
+        /// <summary>
+        /// Make sure we get the correct error message if accepting the invitation fails
+        /// </summary>
+        [TestMethod]
+        public void AcceptInvitation_Fail()
+        {
+            //Arrange
+            var eventId = 1;
+            var accepteeId = 10;
+            var theEvent = GetTestEventDataModel(eventId);
+            var theInvitee = GetTestInviteeDataModel(accepteeId);
+            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+
+            A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theInvitee }.AsQueryable());
+            var result = controller.AcceptInvitation(eventId, accepteeId) as ViewResult;
+            var viewModel = result.Model as AcceptInvitationViewModel;
+
+            //Act
+            A.CallTo(() => EventRepo.GetAll()).Throws(new Exception("Database error!"));
+            result = controller.AcceptInvitation(viewModel) as ViewResult;
+
+            //Assert
+            Assert.AreEqual(result.ViewBag.StatusMessage, Constants.BASE_ACCEPT_INVITATION_FAIL);
+        }
+        /// <summary>
+        /// Make sure that we get the correct page redirect if the invitation is acceped successfully.
+        /// </summary>
+        [TestMethod]
+        public void AcceptInvitation_Succeed()
+        {
+            //Arrange
+            var eventId = 1;
+            var accepteeId = 10;
+            var theEvent = GetTestEventDataModel(eventId);
+            var theInvitee = GetTestInviteeDataModel(accepteeId);
+            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+
+            var newFoodItems = new List<FoodItemViewModel>
+                {
+                    new FoodItemViewModel { FoodItemId = 10, Title = "Twizzlers", Description = "Tasty red candy"},
+                    new FoodItemViewModel { FoodItemId = 11, Title = "Milk Duds", Description = "Zero nutritional value"},
+                };
+
+            var newGames = new List<GameViewModel>
+                {
+                    new GameViewModel { GameId = 10, Title = "Citeis and Knights", Description = "A great expansion"},
+                    new GameViewModel { GameId = 11, Title = "Star Craft", Description = "Lan parties only"},
+                };
+
+            A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theInvitee }.AsQueryable());
+            var result = controller.AcceptInvitation(eventId, accepteeId) as ViewResult;
+            var viewModel = result.Model as AcceptInvitationViewModel;
+
+            //Act
+            newFoodItems.ForEach(x => viewModel.WillBringTheseFoodItems.Add(x));
+            newGames.ForEach(x => viewModel.WillBringTheseGames.Add(x));
+            var redirectResult = controller.AcceptInvitation(viewModel) as RedirectToRouteResult;
+
+            //Assert
+            //That submit changes is called
+            A.CallTo(() => EventRepo.SubmitChanges()).MustHaveHappened();
+            A.CallTo(() => PersonRepo.SubmitChanges()).MustHaveHappened();
+
+            //That the route values are what we expect.
+            Assert.AreEqual(redirectResult.RouteValues["action"], "Index");
+            Assert.AreEqual(redirectResult.RouteValues["message"].ToString(), "AcceptInvitationSuccess");           
+        }
     }
 }

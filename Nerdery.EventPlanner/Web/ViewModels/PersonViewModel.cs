@@ -96,8 +96,12 @@ namespace Web.ViewModels
             dataModel.NotifyWithFacebook = NotifyWithFacebook;
             dataModel.MyFoodItems = new List<FoodItem>();
             dataModel.MyGames = new List<Game>();
+            dataModel.AmAttending = new List<Event>();
+            dataModel.HaveDeclined = new List<Event>();
             MyFoodItems.ForEach(x => dataModel.MyFoodItems.Add(x.GetDataModel()));
             MyGames.ForEach(x => dataModel.MyGames.Add(x.GetDataModel()));
+            AmAttending.ForEach(x => dataModel.AmAttending.Add(x.GetDataModel()));
+            HaveDeclined.ForEach(x => dataModel.HaveDeclined.Add(x.GetDataModel()));
             return dataModel;
         }
 
