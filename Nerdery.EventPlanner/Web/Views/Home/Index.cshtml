@@ -38,27 +38,27 @@
     <ul>
         @foreach (var item in Model.MyInvitations)
         {
-            if (!item.HasAccepted.HasValue && !item.HasDeclined.HasValue)
+            if (!item.HasAccepted.Value && !item.HasDeclined.Value)
             {
-                <li>@item.Title - @Html.ActionLink("Accept", "AcceptInvitation", "Home", new {id = item.EventId, userId = userId}, null) | @Html.ActionLink("Decline", "DeclineInviation", "Service", new {id = item.EventId, userId = userId}, null)</li>
+                <li>@item.Title - @Html.ActionLink("Accept", "AcceptInvitation", "Home", new {eventId = item.EventId, accepteeId = userId}, null) | @Html.ActionLink("Decline", "DeclineInviation", "Home", new {eventId = item.EventId, accepteeId = userId}, null)</li>
             }
             else if(item.HasAccepted.Value)
             {
-                <li>@item.Title - @Html.ActionLink("Decline", "DeclineInviation", "Service", new {id = item.EventId, userId = userId}, null)</li>
+                <li>@item.Title - @Html.ActionLink("Decline", "DeclineInviation", "Home", new {eventId = item.EventId, accepteeId = userId}, null)</li>
             }
             else if(item.HasDeclined.Value)
             {
-                <li>@item.Title - @Html.ActionLink("Accept", "AcceptInvitation", "Home", new {id = item.EventId, userId = userId}, null)</li>
+                <li>@item.Title - @Html.ActionLink("Accept", "AcceptInvitation", "Home", new {eventId = item.EventId, accepteeId = userId}, null)</li>
             }            
         }
-    </ul>
+    </ul>@*
 
     <h3>Accepted</h3>
     <p>These are event invitations that you have accepted.</p>
     <ul>
         @foreach (var item in Model.AmAttending)
         {
-            <li>@item.Title - @Html.ActionLink("Cancel", "DeclineInviation", "Service", new { id = item.EventId, userId = userId}, null)</li>
+            <li>@item.Title - @Html.ActionLink("Cancel", "DeclineInviation", "Home", new { eventId = item.EventId, accepteeId = userId}, null)</li>
         }
     </ul>
 
@@ -67,8 +67,8 @@
     <ul>
         @foreach (var item in Model.HaveDeclined)
         {
-            <li>@item.Title - @Html.ActionLink("Edit", "AcceptInvitation", "Home", new { eventId = item.EventId, userId = userId}, null)</li>
+            <li>@item.Title - @Html.ActionLink("Accept", "AcceptInvitation", "Home", new { eventId = item.EventId, accepteeId = userId}, null)</li>
         }
-    </ul>    
+    </ul>*@    
 }
 

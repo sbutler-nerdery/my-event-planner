@@ -28,10 +28,11 @@ namespace Web.Data
             if (!WebSecurity.UserExists(userName))
             {
                 WebSecurity.CreateUserAndAccount(userName, userName,
-                    new { 
-                        FirstName = "Stan", 
-                        LastName = "Butler", 
-                        PhoneNumber = "816.123.4567", 
+                    new
+                    {
+                        FirstName = "Stan",
+                        LastName = "Butler",
+                        PhoneNumber = "816.123.4567",
                         Email = "sbutler@nerdery.com",
                         NotifyWithEmail = true,
                         NotifyWithFacebook = false
@@ -45,42 +46,43 @@ namespace Web.Data
                 .FirstOrDefault(x => x.UserName == userName);
 
             //Insert some friends for inviting / un-inviting, etc.
-            var ben = new Person
-                {
-                    UserName = "bbufford",
-                    FirstName = "Ben",
-                    LastName = "Bufford",
-                    PhoneNumber = "719.562.2255",
-                    Email = "bbufford@somedomain.com",
-                    NotifyWithEmail = true,
-                    NotifyWithFacebook = false
-                };
+            var benUserName = "bbufford";
+            WebSecurity.CreateUserAndAccount(benUserName, benUserName,
+                                new
+                                {
+                                    FirstName = "Ben",
+                                    LastName = "Bufford",
+                                    PhoneNumber = "719.562.2255",
+                                    Email = "bbufford@somedomain.com",
+                                    NotifyWithEmail = true,
+                                    NotifyWithFacebook = false
+                                });
 
-            var joe = new Person
-            {
-                UserName = "jsmith",
-                FirstName = "Joe",
-                LastName = "Smith",
-                PhoneNumber = "816.232.5566",
-                Email = "jsmith@somedomain.com",
-                NotifyWithEmail = true,
-                NotifyWithFacebook = false
-            };
-
-            context.People.Add(ben);
-            context.People.Add(joe);
+            var joeUserName = "jsmith";
+            WebSecurity.CreateUserAndAccount(joeUserName, joeUserName,
+                                            new
+                                            {
+                                                FirstName = "Joe",
+                                                LastName = "Smith",
+                                                PhoneNumber = "816.232.5566",
+                                                Email = "jsmith@somedomain.com",
+                                                NotifyWithEmail = true,
+                                                NotifyWithFacebook = false
+                                            });
 
             //Add some test food items and games
-            var chipsAndDip = new FoodItem {Title = "Chips and Dip", Description = "Tortilla chips and mango salsa. Mmmm. "};
-            var settlers = new Game { Title = "Settlers of Catan", Description = "A fun game for 3-4 people."};
+            var chipsAndDip = new FoodItem { Title = "Chips and Dip", Description = "Tortilla chips and mango salsa. Mmmm. " };
+            var settlers = new Game { Title = "Settlers of Catan", Description = "A fun game for 3-4 people." };
 
             context.Games.Add(settlers);
             context.FoodItems.Add(chipsAndDip);
 
             //Push changes to the db
             context.SaveChanges();
-            
+
             //Make sure to add friends to the coordinator
+            var ben = context.People.FirstOrDefault(x => x.UserName == benUserName);
+            var joe = context.People.FirstOrDefault(x => x.UserName == joeUserName);
             coordinator.MyFriends.Add(ben);
             coordinator.MyFriends.Add(joe);
 
@@ -98,8 +100,8 @@ namespace Web.Data
                     Description = "A seed event",
                     Coordinator = coordinator,
                     Location = "562 Main Street KCMO 64123",
-                    PeopleInvited = new List<Person> {joe},
-                    FoodItems = new List<FoodItem>{ chipsAndDip },
+                    PeopleInvited = new List<Person> { joe },
+                    FoodItems = new List<FoodItem> { chipsAndDip },
                     Games = new List<Game> { settlers },
                     StartDate = DateTime.Now.Date.AddHours(17),
                     EndDate = DateTime.Now.Date.AddHours(20)
@@ -114,7 +116,7 @@ namespace Web.Data
             if (!Roles.GetRolesForUser(userName).Contains(adminRoleName))
             {
                 Roles.AddUserToRole(userName, adminRoleName);
-            } 
+            }
         }
     }
 }

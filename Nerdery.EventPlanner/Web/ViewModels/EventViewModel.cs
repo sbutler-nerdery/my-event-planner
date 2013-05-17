@@ -14,9 +14,9 @@ namespace Web.ViewModels
 
         public EventViewModel()
         {
-            FoodItems = new List<FoodItemViewModel>();
-            Games = new List<GameViewModel>();
             PeopleInvited = new List<int>();
+            FoodItemsSelected = new List<int>();
+            GamesSelected = new List<int>();
             PeopleWhoAccepted = new List<int>();
             PeopleWhoDeclined = new List<int>();
         }
@@ -30,8 +30,8 @@ namespace Web.ViewModels
             StartDate = model.StartDate;
             StartTime = model.StartDate.ToString("h:mm tt");
             EndTime = model.EndDate.ToString("h:mm tt");
-            model.FoodItems.ForEach(x => FoodItems.Add(new FoodItemViewModel(x)));
-            model.Games.ForEach(x => Games.Add(new GameViewModel(x)));
+            model.FoodItems.ForEach(x => FoodItemsSelected.Add(x.FoodItemId));
+            model.Games.ForEach(x => GamesSelected.Add(x.GameId));
             model.PeopleInvited.ForEach(x => PeopleInvited.Add(x.PersonId));
             model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(x.PersonId));
             model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(x.PersonId));
@@ -63,8 +63,10 @@ namespace Web.ViewModels
         [Required]
         [Display(Name = "End time")]
         public string EndTime { get; set; }
-        public List<FoodItemViewModel> FoodItems { get; set; }
-        public List<GameViewModel> Games { get; set; }
+        public MultiSelectList FoodItems { get; set; }
+        public MultiSelectList Games { get; set; }
+        public List<int> FoodItemsSelected { get; set; }
+        public List<int> GamesSelected { get; set; }
         /// <summary>
         /// Get or set the complete list of people who could be invited to an event
         /// </summary>
@@ -93,8 +95,6 @@ namespace Web.ViewModels
             dataModel.PeopleInvited = new List<Person>();
             dataModel.FoodItems = new List<FoodItem>();
             dataModel.Games = new List<Game>();
-            FoodItems.ForEach(x => dataModel.FoodItems.Add(x.GetDataModel()));
-            Games.ForEach(x => dataModel.Games.Add(x.GetDataModel()));
             dataModel.PeopleInvited = new List<Person>();
             dataModel.PeopleWhoAccepted = new List<Person>();
             dataModel.PeopleWhoDeclined = new List<Person>();

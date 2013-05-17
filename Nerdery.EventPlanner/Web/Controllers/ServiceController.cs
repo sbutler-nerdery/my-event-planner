@@ -30,38 +30,6 @@ namespace Web.Controllers
             _userService = userService;
             _eventService = eventService;
         }
-
-        /// <summary>
-        /// Decline an invitation to an event
-        /// </summary>
-        /// <param name="eventId">The specified event id</param>
-        /// <param name="userId">The specified user id</param>
-        /// <returns></returns>
-        [HttpPost]
-        public ActionResult DeclineInviation(int eventId, int userId)
-        {
-            var response = new Response { Error = false };
-
-            try
-            {
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
-                var thePerson =
-                    _personRepository.GetAll()
-                                     .FirstOrDefault(x => x.PersonId == userId);
-
-                thePerson.AmAttending.Remove(theEvent);
-                thePerson.HaveDeclined.Add(theEvent);
-                _personRepository.SubmitChanges();
-            }
-            catch (Exception)
-            {
-                //TODO: log error to database
-                response.Error = true;
-                response.Message = Constants.BASE_ACCEPT_INVITATION_FAIL;
-            }
-
-            return Json(response);
-        }
         /// <summary>
         /// Add a food item to the current event and / or to the user's personal list of food items.
         /// </summary>

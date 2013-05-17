@@ -74,7 +74,7 @@ namespace Web.Controllers
                 var theAcceptee = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == accepteeId);
 
                 //Build the view model
-                var viewModel = new AcceptInvitationViewModel{EventId = eventId, AccepteeId = accepteeId};
+                var viewModel = new AcceptInvitationViewModel{EventId = eventId, Title = theEvent.Title, Description = theEvent.Description, AccepteeId = accepteeId};
                 theEvent.FoodItems.ForEach(x => viewModel.CurrentEventFoodItems.Add(new FoodItemViewModel(x)));
                 theEvent.Games.ForEach(x => viewModel.CurrentEventGames.Add(new GameViewModel(x)));
                 theAcceptee.MyFoodItems.ForEach(x => viewModel.AccepteeFoodItems.Add(new FoodItemViewModel(x)));
@@ -98,13 +98,19 @@ namespace Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == model.EventId);
+                    var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
                     var thePerson =
                         _personRepository.GetAll()
                                          .FirstOrDefault(x => x.PersonId == model.AccepteeId);
 
                     thePerson.AmAttending.Add(theEvent);
                     thePerson.HaveDeclined.Remove(theEvent);
+                    
+                    //Add the coordinator to this peron's friend list.
+                    var exists = thePerson.MyFriends.FirstOrDefault(x => x.PersonId == theEvent.Coordinator.PersonId);
+
+                    if (exists == null)
+                        thePerson.MyFriends.Add(theEvent.Coordinator);
 
                     model.WillBringTheseFoodItems.ForEach(x => theEvent.FoodItems.Add(x.GetDataModel()));
                     model.WillBringTheseGames.ForEach(x => theEvent.Games.Add(x.GetDataModel()));
@@ -123,6 +129,34 @@ namespace Web.Controllers
 
             //If we get to here there is a problem
             return View(model);
+        }
+
+        /// <summary>
+        /// Decline an invitation to an event
+        /// </summary>
+        /// <param name="eventId">The specified event id</param>
+        /// <param name="accepteeId">The specified user id</param>
+        /// <returns></returns>
+        public ActionResult DeclineInviation(int eventId, int accepteeId)
+        {
+            try
+            {
+                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var thePerson =
+                    _personRepository.GetAll()
+                                     .FirstOrDefault(x => x.PersonId == accepteeId);
+
+                thePerson.AmAttending.Remove(theEvent);
+                thePerson.HaveDeclined.Add(theEvent);
+                _personRepository.SubmitChanges();
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                return RedirectToAction("Index", new {message = BaseControllerMessageId.DeclineInvitationFail});
+            }
+
+            return RedirectToAction("Index", new { message = BaseControllerMessageId.DeclineInvitationSuccess });
         }
 
         #endregion

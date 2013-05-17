@@ -19,7 +19,7 @@ namespace Web
                         "~/Scripts/jquery.validate*"));
 
             bundles.Add(new ScriptBundle("~/bundles/eventplanner").Include(
-                        "~/select2*",
+                        "~/Scripts/select2*",
                         "~/Scripts/global.js"));
 
             // Use the development version of Modernizr to develop with and learn from. Then, when you're
@@ -27,7 +27,9 @@ namespace Web
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
-            bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/site.css"));
+            bundles.Add(new StyleBundle("~/Content/css").Include(
+                "~/Content/site.css",
+                "~/Content/select2.css"));
 
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
                         "~/Content/themes/base/jquery.ui.core.css",

@@ -21,6 +21,14 @@ namespace Web.ViewModels
         /// </summary>
         public int EventId { get; set; }
         /// <summary>
+        /// Get or set the title of the event.
+        /// </summary>
+        public string Title { get; set; }
+        /// <summary>
+        /// Get or set the description of an event.
+        /// </summary>
+        public string Description { get; set; }
+        /// <summary>
         /// Get or set the person id for the user accepting the invitation
         /// </summary>
         public int AccepteeId { get; set; }

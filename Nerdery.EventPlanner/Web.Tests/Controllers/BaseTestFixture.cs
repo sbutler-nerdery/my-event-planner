@@ -62,7 +62,7 @@ namespace Web.Tests.Controllers
                 Description = "Apple bacon smoked burgers for 10 people."
             };
             var coke = new FoodItemViewModel { FoodItemId = 2, Title = "Coke", Description = "Two 6 packs" };
-            var foodForTheParty = new List<FoodItemViewModel> { burgers, coke };
+            var foodForTheParty = new List<int> { 2, 3 };
 
             //Games
             var settlers = new GameViewModel
@@ -77,7 +77,7 @@ namespace Web.Tests.Controllers
                 Title = "Blockus",
                 Description = "Fun game of shape fitting for up four people."
             };
-            var gamesForTheParty = new List<GameViewModel> { settlers, blockus };
+            var gamesForTheParty = new List<int> { 1,2 };
             var viewModel = new EventViewModel
             {
                 EventId = id,
@@ -86,8 +86,8 @@ namespace Web.Tests.Controllers
                 StartDate = DateTime.Now,
                 StartTime = "5:00 PM",
                 EndTime = "2:00 AM",
-                FoodItems = foodForTheParty,
-                Games = gamesForTheParty,
+                FoodItemsSelected = foodForTheParty,
+                GamesSelected = gamesForTheParty,
                 PeopleInvited = theInvitees
             };
             return viewModel;

@@ -5,7 +5,18 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>AcceptInvitation</h2>
+@section featured {
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>@Model.Title</h1>
+            </hgroup>
+            <p>
+                @Model.Description
+            </p>
+        </div>
+    </section>
+}
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
@@ -13,30 +24,30 @@
     <fieldset>
         <legend>AcceptInvitationViewModel</legend>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.EventId)
-        </div>
         <div class="editor-field">
-            @Html.EditorFor(model => model.EventId)
-            @Html.ValidationMessageFor(model => model.EventId)
+            @Html.HiddenFor(model => model.EventId)
+            @Html.HiddenFor(model => model.AccepteeId)
         </div>
 
-        <div class="editor-label">
-            @Html.LabelFor(model => model.AccepteeId)
+        @*        <div class="editor-label">
+            @Html.LabelFor(model => model.Foo)
         </div>
         <div class="editor-field">
             @Html.EditorFor(model => model.AccepteeId)
             @Html.ValidationMessageFor(model => model.AccepteeId)
-        </div>
+        </div>*@
+        
+        <h3>Food items I can bring</h3>
+        <h3>Games I can bring</h3>
 
         <p>
-            <input type="submit" value="Create" />
+            <input type="submit" value="Accept" />
         </p>
     </fieldset>
 }
 
 <div>
-    @Html.ActionLink("Back to List", "Index")
+    @Html.ActionLink("Nevermind", "Index")
 </div>
 
 @section Scripts {

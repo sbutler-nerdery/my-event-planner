@@ -54,6 +54,8 @@ namespace Web
         public const string BASE_BUILD_VIEW_FAIL = "An error occurrred while retrieving your data.";
         public const string BASE_ACCEPT_INVITATION_FAIL = "An error occurred. Unable to accept invitation.";
         public const string BASE_ACCEPT_INVITATION_SUCCESS = "You have accepted the invitation!";
+        public const string BASE_DECLINE_INVITATION_FAIL = "An error occurred. Unable to decline invitation.";
+        public const string BASE_DECLINE_INVITATION_SUCCESS = "You have declined the invitation!";
 
         #endregion 
 
