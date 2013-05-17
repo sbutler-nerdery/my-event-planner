@@ -9,20 +9,45 @@ namespace Web.Services
 {
     public class EventService : IEventService
     {
+        public List<string> GetTimeList()
+        {
+            var timeList = new List<string>();
+
+            //Build the time list
+            for (int hour = 0; hour < 24; hour++)
+            {
+                var hourString = FormatHour(hour);
+                var ampm = (hour < 12) ? "AM" : "PM";
+                for (int minute = 0; minute < 60; minute += 15)
+                {
+                    var minuteString = (minute == 0) ? "00" : minute.ToString();
+                    timeList.Add(string.Format("{0}:{1} {2}", hourString, minuteString, ampm));
+                }
+            }
+
+            return timeList;
+        }
+
         public void SetEventDates(Event dataModel, EventViewModel viewModel)
         {
-            int hours = viewModel.StartTime.Hour;
-            int minutes = viewModel.StartTime.Minute;
+            DateTime startTime =
+                DateTime.Parse(viewModel.StartDate.Value.ToShortDateString() + " " + viewModel.StartTime);
+            DateTime endTime =
+                DateTime.Parse(viewModel.StartDate.Value.ToShortDateString() + " " + viewModel.EndTime);
+
+            int hours = startTime.Hour;
+            int minutes = startTime.Minute;
 
             //Set the data model start date...
-            dataModel.StartDate = viewModel.StartDate.Date.AddHours(hours).AddMinutes(minutes);
+            dataModel.StartDate = viewModel.StartDate.Value.Date.AddHours(hours).AddMinutes(minutes);
 
-            int endHour = viewModel.EndTime.Hour;
-            dataModel.EndDate = dataModel.StartDate.AddHours(endHour);
+            int endHour = endTime.Hour;
+            int endMinute = endTime.Minute;
+            dataModel.EndDate = dataModel.StartDate.AddHours(endHour).AddMinutes(endMinute);
 
             //Change the end date if...
-            if (dataModel.StartDate.Hour > viewModel.EndTime.Hour)
-                dataModel.EndDate = dataModel.StartDate.AddDays(1).Date.AddHours(endHour); 
+            if (dataModel.StartDate.Hour > endTime.Hour)
+                dataModel.EndDate = dataModel.StartDate.AddDays(1).Date.AddHours(endHour).AddMinutes(endMinute); 
         }
 
         public void AppendNewFoodItems(Event dataModel, EventViewModel viewModel)
@@ -102,6 +127,23 @@ namespace Web.Services
                     if (removeDeclined != null)
                         dataModel.PeopleWhoDeclined.Remove(removeDeclined);
                 });
+        }
+
+        /// <summary>
+        /// Format a numeric hour (in military time) to a string
+        /// </summary>
+        /// <param name="hour"></param>
+        /// <returns></returns>
+        private string FormatHour(int hour)
+        {
+            //If the number is greater then 12 then subtract 12 from it to get AM / PM friendly values.
+            if (hour >= 12)
+                hour -= 12;
+
+            if (hour == 0)
+                return "12";
+
+            return hour.ToString();
         }
     }
 }

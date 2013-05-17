@@ -25,13 +25,36 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             A.CallTo(() => PersonRepo.GetAll()).Returns(null);
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             var result = contoller.Create() as ViewResult;
 
             //Assert
             Assert.AreEqual(result.ViewBag.StatusMessage, Constants.BASE_BUILD_VIEW_FAIL);
+        }
+
+        [TestMethod]
+        public void Create_Event_Fail_Model_Success()
+        {
+            //Arrange
+            var thePerson = new Person
+                {
+                    PersonId = 1,
+                    UserName = "jsmith",
+                    FirstName = "Joe",
+                    LastName = "Smith",
+                    MyFriends = new List<Person>()
+                };
+            A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { thePerson }.AsQueryable());
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
+
+            //Act
+            var result = contoller.Create() as ViewResult;
+
+            //Assert
+            Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
         }
 
         /// <summary>
@@ -41,7 +64,7 @@ namespace Web.Tests.Controllers
         public void Create_Event_Fail()
         {
             //Arrange
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             var result = contoller.Create(new EventViewModel()) as RedirectToRouteResult;
@@ -60,7 +83,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             var viewModel = new EventViewModel();
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             var modelBinder = new ModelBindingContext
             {
@@ -75,7 +98,7 @@ namespace Web.Tests.Controllers
             var result = contoller.Create(viewModel) as ViewResult;
 
             //Assert
-            Assert.AreEqual(result.ViewData.ModelState.Count, 4);
+            Assert.AreEqual(result.ViewData.ModelState.Count, 7);
             Assert.IsFalse(result.ViewData.ModelState.IsValid);
         }
 
@@ -88,7 +111,7 @@ namespace Web.Tests.Controllers
             //Arrange
             var viewModel = GetTestEventViewModel();
             var expectedDataModel = GetTestEventDataModel();
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             var result = contoller.Create(viewModel) as RedirectToRouteResult;
@@ -112,7 +135,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             A.CallTo(() => PersonRepo.GetAll()).Returns(null);
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             var result = contoller.Edit(1) as ViewResult;
@@ -128,7 +151,7 @@ namespace Web.Tests.Controllers
         public void Edit_Event_Fail()
         {
             //Arrange
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             var result = contoller.Edit(new EventViewModel()) as RedirectToRouteResult;
@@ -152,7 +175,7 @@ namespace Web.Tests.Controllers
             var friendTwo = new Person { PersonId = 5, FirstName = "Drew", LastName = "Smith" };
             theHost.MyFriends = new List<Person>{friendOne, friendTwo};
 
-            var controller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var controller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { dataModel }.AsQueryable());
@@ -175,7 +198,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             var viewModel = new EventViewModel();
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             var modelBinder = new ModelBindingContext
             {
@@ -190,7 +213,7 @@ namespace Web.Tests.Controllers
             var result = contoller.Edit(viewModel) as ViewResult;
 
             //Assert
-            Assert.AreEqual(result.ViewData.ModelState.Count, 4);
+            Assert.AreEqual(result.ViewData.ModelState.Count, 7);
             Assert.IsFalse(result.ViewData.ModelState.IsValid);
         }
 
@@ -203,7 +226,7 @@ namespace Web.Tests.Controllers
             //Arrange
             var viewModel = GetTestEventViewModel(1);
             var expectedDataModel = GetTestEventDataModel(1);
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { expectedDataModel }.AsQueryable());
@@ -225,7 +248,7 @@ namespace Web.Tests.Controllers
         public void Delete_Event_Fail()
         {
             //Arrange
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Throws(new Exception("Database error!"));
@@ -247,7 +270,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             var expectedDataModel = GetTestEventDataModel(1);
-            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService);
+            var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event>{expectedDataModel}.AsQueryable());

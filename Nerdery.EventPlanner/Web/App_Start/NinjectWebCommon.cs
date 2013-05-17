@@ -1,3 +1,8 @@
+using System.Data.Entity;
+using Web.Data;
+using Web.Data.Models;
+using Web.Services;
+
 [assembly: WebActivator.PreApplicationStartMethod(typeof(Web.App_Start.NinjectWebCommon), "Start")]
 [assembly: WebActivator.ApplicationShutdownMethodAttribute(typeof(Web.App_Start.NinjectWebCommon), "Stop")]
 
@@ -53,6 +58,12 @@ namespace Web.App_Start
         /// <param name="kernel">The kernel.</param>
         private static void RegisterServices(IKernel kernel)
         {
+            kernel.Bind<IEventService>().To<EventService>();
+            kernel.Bind<INotificationService>().To<NotificationService>();
+            kernel.Bind<IRepository<Event>>().To<EntityFrameworkRepository<Event>>();
+            kernel.Bind<IRepository<Person>>().To<EntityFrameworkRepository<Person>>();
+            kernel.Bind<IUserService>().To<UserService>();
+            kernel.Bind<DbContext>().To<EventPlannerContext>().InRequestScope();
         }        
     }
 }

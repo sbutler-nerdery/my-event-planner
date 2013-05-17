@@ -152,7 +152,7 @@ namespace Web.Tests.Services
             string expectedMessage = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
                                                     thePerson.LastName,
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
-                                                    theEvent.StartDate.ToShortTimeString());
+                                                    theEvent.StartDate.ToShortTimeString(), string.Empty, string.Empty);
 
             Assert.AreEqual(notification.PersonId, thePerson.PersonId);
             Assert.AreEqual(notification.SendToEmail, personList[0].NotifyWithEmail);

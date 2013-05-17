@@ -30,8 +30,8 @@ namespace Web.Tests.Services
         {
             //Arrange
             var hours = 4;
-            var startTimeValue = DateTime.Now.Date.AddHours(hours); //4:00 AM today
-            var endTimeValue = DateTime.Now.Date.AddHours(2); //This SHOULD be 2AM the next day...
+            var startTimeValue = "4:00 AM"; //today
+            var endTimeValue = "2:30 AM"; //This SHOULD be 2AM the next day...
             var dataModel = new Event();
             var viewModel = new EventViewModel { StartDate = DateTime.Now, StartTime = startTimeValue, EndTime = endTimeValue };
 
@@ -39,8 +39,8 @@ namespace Web.Tests.Services
             _eventService.SetEventDates(dataModel, viewModel);
 
             //Assert
-            Assert.AreEqual(dataModel.StartDate, startTimeValue);
-            Assert.AreEqual(dataModel.EndDate, DateTime.Now.Date.AddHours(26));
+            Assert.AreEqual(dataModel.StartDate, DateTime.Now.Date.AddHours(4));
+            Assert.AreEqual(dataModel.EndDate, DateTime.Now.Date.AddHours(26).AddMinutes(30));
         }
         /// <summary>
         /// This unit test will ensure that people can be invited to an event
@@ -92,6 +92,16 @@ namespace Web.Tests.Services
             Assert.AreEqual(dataModel.PeopleInvited.Count, 0);
             Assert.AreEqual(dataModel.PeopleWhoAccepted.Count, 0);
             Assert.AreEqual(dataModel.PeopleWhoDeclined.Count, 0);            
+        }
+        /// <summary>
+        /// Get a list of am / pm friendly times for the UI
+        /// </summary>
+        [TestMethod]
+        public void Get_Time_List()
+        {
+            var timeList = _eventService.GetTimeList();
+
+            Assert.AreEqual(timeList.Count, 96);
         }
     }
 }

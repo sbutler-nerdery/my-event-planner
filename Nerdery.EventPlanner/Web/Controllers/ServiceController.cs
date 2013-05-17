@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 using Web.Data;
 using Web.Data.Models;
 using Web.Extensions;
@@ -15,17 +16,19 @@ namespace Web.Controllers
     /// This controller is used exclusively for AJAX calls. All of the methods
     /// return JSON objects.
     /// </summary>
-    public class ServiceController : Controller
+    public class ServiceController : BaseController
     {
         private readonly IRepository<Event> _eventRepository;
         private readonly IRepository<Person> _personRepository;
         private readonly IUserService _userService;
+        private readonly IEventService _eventService;
 
-        public ServiceController(IRepository<Event> eventRepo, IRepository<Person> personRepo, IUserService userService)
+        public ServiceController(IRepository<Event> eventRepo, IRepository<Person> personRepo, IUserService userService, IEventService eventService)
         {
             _eventRepository = eventRepo;
             _personRepository = personRepo;
             _userService = userService;
+            _eventService = eventService;
         }
 
         /// <summary>
@@ -157,6 +160,28 @@ namespace Web.Controllers
                 //TODO: log error to database
                 response.Error = true;
                 response.Message = Constants.SERVICE_REMOVE_FOOD_ITEM_FAIL;
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Get a list of the times that are used to autocomplete an event's start and end time.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult GetTimeList()
+        {
+            var response = new Response { Error = false, Message = ""};
+
+            try
+            {
+               response.Data = JsonConvert.SerializeObject(_eventService.GetTimeList());
+            }
+            catch (Exception)
+            {
+                //TODO: log to database
+                response.Error = true;
+                response.Message = "An error occured while trying to get the event times list";
             }
 
             return Json(response);

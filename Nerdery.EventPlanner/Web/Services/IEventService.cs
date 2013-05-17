@@ -14,6 +14,11 @@ namespace Web.Services
     public interface IEventService
     {
         /// <summary>
+        /// Get a list of AM / PM friendly times for a 12 hour period
+        /// </summary>
+        /// <returns></returns>
+        List<string> GetTimeList();
+        /// <summary>
         /// Set the event start date and end date for the data model
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>

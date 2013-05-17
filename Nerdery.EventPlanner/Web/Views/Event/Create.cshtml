@@ -1,0 +1,82 @@
+﻿@model Web.ViewModels.EventViewModel
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Create New Event</h2>
+
+<p class="message-success">@ViewBag.StatusMessage</p>
+
+    @if (Model != null)
+    {
+        using (Html.BeginForm())
+        {
+            @Html.ValidationSummary(true)
+
+            <fieldset>
+                <legend>EventViewModel</legend>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Title)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.Title)
+                    @Html.ValidationMessageFor(model => model.Title)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Description)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.Description)
+                    @Html.ValidationMessageFor(model => model.Description)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.Location)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.Location)
+                    @Html.ValidationMessageFor(model => model.Location)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.StartDate)
+                </div>
+                <div class="editor-field">
+                    @Html.EditorFor(model => model.StartDate)
+                    @Html.ValidationMessageFor(model => model.StartDate)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.StartTime)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(model => model.StartTime, new { data_autocomplete="true" })
+                    @Html.ValidationMessageFor(model => model.StartTime)
+                </div>
+
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.EndTime)
+                </div>
+                <div class="editor-field">
+                    @Html.TextBoxFor(model => model.EndTime, new { data_autocomplete="true" })
+                    @Html.ValidationMessageFor(model => model.EndTime)
+                    @Html.HiddenFor(model => model.EventId)
+                </div>
+
+                <p>
+                    <input type="submit" value="Create" />
+                </p>
+            </fieldset>
+        }
+    }
+<div>
+    @Html.ActionLink("Back to Dashboard", "Index","Home")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

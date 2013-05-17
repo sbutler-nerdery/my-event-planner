@@ -31,6 +31,12 @@ namespace Web
 
         #endregion
 
+        #region Roles
+
+        public const string ROLES_ADMIN = "Admin";
+
+        #endregion 
+
         #region Account controller messages
 
         public const string ACCOUNT_PASSWORD_CHANGE_SUCCESS = "Your password has been changed.";

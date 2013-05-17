@@ -19,5 +19,9 @@ namespace Web.Controllers
         /// Get or set the message to send back to the UI
         /// </summary>
         public string Message { get; set; }
+        /// <summary>
+        /// Get or set the json data the the response will return
+        /// </summary>
+        public string Data { get; set; }
     }
 }

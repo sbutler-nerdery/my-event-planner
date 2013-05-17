@@ -38,10 +38,7 @@ namespace Web.Filters
                         }
                     }
 
-                    WebSecurity.InitializeDatabaseConnection(Constants.DB_CONNECTION_STRING, 
-                        Constants.DB_USER_TABLE_NAME, 
-                        Constants.DB_USER_ID_COLUMN, 
-                        Constants.DB_USER_NAME_COLUMN, autoCreateTables: true);
+
                 }
                 catch (Exception ex)
                 {

@@ -21,6 +21,7 @@ namespace Web.Tests.Controllers
         protected IRepository<Event> EventRepo;
         protected IUserService UserService;
         protected IEventService EventService;
+        protected INotificationService NotificationService;
 
         [TestInitialize]
         public void SpinUp()
@@ -29,6 +30,7 @@ namespace Web.Tests.Controllers
             EventRepo = A.Fake<IRepository<Event>>();
             UserService = A.Fake<IUserService>();
             EventService = new EventService();
+            NotificationService = new NotificationService(PersonRepo, EventRepo);
         }
 
         #endregion
@@ -96,8 +98,8 @@ namespace Web.Tests.Controllers
                 Description = "This is a fun test event",
                 Coordinator = theHost,
                 StartDate = DateTime.Now,
-                StartTime = DateTime.Now.Date.AddHours(17),
-                EndTime = DateTime.Now.AddHours(26),
+                StartTime = "5:00 PM",
+                EndTime = "2:00 AM",
                 FoodItems = foodForTheParty,
                 Games = gamesForTheParty,
                 PeopleInvited = theInvitees

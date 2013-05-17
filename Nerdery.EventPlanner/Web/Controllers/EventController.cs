@@ -18,18 +18,20 @@ namespace Web.Controllers
         private readonly IRepository<Person> _personRepository;
         private readonly IEventService _eventService;
         private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
 
         #endregion
 
         #region Constructors
 
         public EventController(IRepository<Event> eventRepo, IRepository<Person> personRepo, 
-            IEventService service, IUserService userService)
+            IEventService service, IUserService userService, INotificationService notificationService)
         {
             _eventRepository = eventRepo;
             _personRepository = personRepo;
             _eventService = service;
             _userService = userService;
+            _notificationService = notificationService;
         }
 
         #endregion
@@ -44,12 +46,18 @@ namespace Web.Controllers
         {
             try
             {
-                var model = new EventViewModel();
+                var model = new EventViewModel
+                    {
+                        StartDate = DateTime.Now.Date,
+                        StartTime = "7:00 PM",
+                        EndTime = "9:00 PM"
+                    };
 
                 //Populate the total list of people who could be invited to an event.
                 var userName = (User != null) ? User.Identity.Name : string.Empty;
+                var userId = _userService.GetCurrentUserId(userName);
                 _personRepository.GetAll()
-                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(userName))
+                                 .FirstOrDefault(x => x.PersonId == userId)
                                  .MyFriends
                                  .ToList()
                                  .ForEach(
@@ -60,6 +68,7 @@ namespace Web.Controllers
                                          FirstName = x.FirstName,
                                          LastName = x.LastName
                                      }));
+                model.TimeList = _eventService.GetTimeList();
 
                 return View(model);
             }
@@ -80,6 +89,12 @@ namespace Web.Controllers
                 if (ModelState.IsValid)
                 {
                     var createMe = model.GetDataModel();
+
+                    //Set the event coordinator
+                    var userName = (User != null) ? User.Identity.Name : string.Empty;
+                    var userId = _userService.GetCurrentUserId(userName);
+                    var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
+                    createMe.Coordinator = coordinator;
 
                     //Update the date / time for the event
                     _eventService.SetEventDates(createMe, model);
@@ -125,8 +140,9 @@ namespace Web.Controllers
 
                 //Populate the total list of people who could be invited to an event.
                 var userName = (User != null) ? User.Identity.Name : string.Empty;
+                var userId = _userService.GetCurrentUserId(userName);
                 _personRepository.GetAll()
-                                 .FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(userName))
+                                 .FirstOrDefault(x => x.PersonId == userId)
                                  .MyFriends
                                  .ToList()
                                  .ForEach(
@@ -163,7 +179,6 @@ namespace Web.Controllers
                     updateMe.Title = model.Title;
                     updateMe.Description = model.Description;
                     updateMe.Location = model.Location;
-                    updateMe.Coordinator = model.Coordinator.GetDataModel();
 
                     //Update the date / time for the event
                     _eventService.SetEventDates(updateMe, model);
@@ -194,7 +209,8 @@ namespace Web.Controllers
             }
 
             //If it makes it this far something is wrong.
-            return RedirectToAction("Index", "Home", new { message = BaseControllerMessageId.SaveModelFailed });
+            ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.SaveModelFailed);
+            return View(model);
         }
 
         /// <summary>

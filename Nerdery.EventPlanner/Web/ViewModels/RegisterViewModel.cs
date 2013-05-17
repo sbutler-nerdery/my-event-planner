@@ -37,5 +37,9 @@ namespace Web.ViewModels
         public string Email { get; set; }
         [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; }
+        [Display(Name = "Send notifications to email")]
+        public bool NotifyWithEmail { get; set; }
+        [Display(Name = "Send notifications to Facebook")]
+        public bool NotifyWithFacebook { get; set; }
     }
 }

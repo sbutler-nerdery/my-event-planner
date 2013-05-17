@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Web.Data;
 using Web.Data.Models;
+using Web.Extensions;
 using Web.Services;
 using Web.ViewModels;
 using WebMatrix.WebData;
@@ -43,8 +44,9 @@ namespace Web.Controllers
             {
                 //This is here for unit testing... the assumption is that you would not get this far if the user was not logged in.
                 var userName = User != null ? User.Identity.Name : "";
+                var userId = _userService.GetCurrentUserId(userName);
                 var currentUser =
-                    _personRepository.GetAll().FirstOrDefault(x => x.PersonId == _userService.GetCurrentUserId(userName));
+                    _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
 
                 //Build the view model for the home page
                 var model = new HomeViewModel(currentUser);

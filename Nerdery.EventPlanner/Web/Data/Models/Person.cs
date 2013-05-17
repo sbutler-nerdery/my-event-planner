@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Web.Data.Models
 {
-    [Table(Constants.DB_USER_NAME_COLUMN)]
+    [Table(Constants.DB_USER_TABLE_NAME)]
     public class Person
     {
         [Key]

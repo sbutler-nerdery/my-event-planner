@@ -27,10 +27,9 @@ namespace Web.ViewModels
             Title = model.Title;
             Description = model.Description;
             Location = model.Location;
-            Coordinator = new PersonViewModel(model.Coordinator);
             StartDate = model.StartDate;
-            StartTime = model.StartDate;
-            EndTime = model.EndDate;
+            StartTime = model.StartDate.ToString("h:mm tt");
+            EndTime = model.EndDate.ToString("h:mm tt");
             model.FoodItems.ForEach(x => FoodItems.Add(new FoodItemViewModel(x)));
             model.Games.ForEach(x => Games.Add(new GameViewModel(x)));
             model.PeopleInvited.ForEach(x => PeopleInvited.Add(new PersonViewModel(x)));
@@ -53,17 +52,17 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set the person who is coordinating this event
         /// </summary>
-        [Required]
         public PersonViewModel Coordinator { get; set; }
         [Required]
         [Display(Name = "Date")]
-        public DateTime StartDate { get; set; }
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        public DateTime? StartDate { get; set; }
         [Required]
         [Display(Name = "Start time")]
-        public DateTime StartTime { get; set; }
+        public string StartTime { get; set; }
         [Required]
         [Display(Name = "End time")]
-        public DateTime EndTime { get; set; }
+        public string EndTime { get; set; }
         public List<FoodItemViewModel> FoodItems { get; set; }
         public List<GameViewModel> Games { get; set; }
         /// <summary>
@@ -73,6 +72,7 @@ namespace Web.ViewModels
         public List<PersonViewModel> PeopleInvited { get; set; }
         public List<PersonViewModel> PeopleWhoAccepted { get; set; }
         public List<PersonViewModel> PeopleWhoDeclined { get; set; }
+        public List<string> TimeList { get; set; }
 
         #endregion
 
@@ -89,7 +89,6 @@ namespace Web.ViewModels
             dataModel.Title = Title;
             dataModel.Description = Description;
             dataModel.Location = Location;
-            dataModel.Coordinator = Coordinator.GetDataModel();
             dataModel.PeopleInvited = new List<Person>();
             dataModel.FoodItems = new List<FoodItem>();
             dataModel.Games = new List<Game>();

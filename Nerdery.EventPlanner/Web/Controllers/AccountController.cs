@@ -11,13 +11,10 @@ using Web.Data;
 using Web.Data.Models;
 using Web.ViewModels;
 using WebMatrix.WebData;
-using Web.Filters;
 
 namespace Web.Controllers
 {
-    [Authorize]
-    [InitializeSimpleMembership]
-    public class AccountController : Controller
+    public class AccountController : BaseController
     {
         #region Public Methods
 
@@ -85,7 +82,15 @@ namespace Web.Controllers
                 // Attempt to register the user
                 try
                 {
-                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password, new{model.FirstName, model.LastName, model.Email, model.PhoneNumber});
+                    WebSecurity.CreateUserAndAccount(model.UserName, model.Password, new
+                        {
+                            model.FirstName, 
+                            model.LastName, 
+                            model.Email, 
+                            model.PhoneNumber,
+                            model.NotifyWithEmail,
+                            model.NotifyWithFacebook
+                        });
                     WebSecurity.Login(model.UserName, model.Password);
                     return RedirectToAction("Index", "Home");
                 }
