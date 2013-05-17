@@ -56,18 +56,19 @@ namespace Web.Controllers
                 //Populate the total list of people who could be invited to an event.
                 var userName = (User != null) ? User.Identity.Name : string.Empty;
                 var userId = _userService.GetCurrentUserId(userName);
+                var people = new List<PersonViewModel>();
                 _personRepository.GetAll()
                                  .FirstOrDefault(x => x.PersonId == userId)
                                  .MyFriends
                                  .ToList()
                                  .ForEach(
-                                     x =>
-                                     model.PeopleList.Add(new PersonViewModel
+                                     x => people.Add(new PersonViewModel
                                      {
                                          PersonId = x.PersonId,
-                                         FirstName = x.FirstName,
-                                         LastName = x.LastName
+                                         UserName = x.FirstName + " " + x.LastName
                                      }));
+
+                model.PeopleList = new MultiSelectList(people, "PersonId", "UserName");
                 model.TimeList = _eventService.GetTimeList();
 
                 return View(model);
@@ -141,18 +142,18 @@ namespace Web.Controllers
                 //Populate the total list of people who could be invited to an event.
                 var userName = (User != null) ? User.Identity.Name : string.Empty;
                 var userId = _userService.GetCurrentUserId(userName);
+                var people = new List<PersonViewModel>();
                 _personRepository.GetAll()
                                  .FirstOrDefault(x => x.PersonId == userId)
-                                 .MyFriends
-                                 .ToList()
+                                 .MyFriends.ToList()
                                  .ForEach(
-                                     x =>
-                                     model.PeopleList.Add(new PersonViewModel
-                                     {
-                                         PersonId = x.PersonId,
-                                         FirstName = x.FirstName,
-                                         LastName = x.LastName
-                                     }));
+                                     x => people.Add(new PersonViewModel
+                                                 {
+                                                     PersonId = x.PersonId,
+                                                     UserName = x.FirstName + " " + x.LastName
+                                                 }));
+                //Get the people who are invited
+                model.PeopleList = new MultiSelectList(people, "PersonId", "UserName", model.PeopleInvited);
 
                 //Nothing to report if everything succeeds
                 ViewBag.StatusMessage = string.Empty;
@@ -218,7 +219,6 @@ namespace Web.Controllers
         /// </summary>
         /// <param name="id">The specified event id</param>
         /// <returns></returns>
-        [HttpPost]
         public ActionResult Delete(int id)
         {
             try

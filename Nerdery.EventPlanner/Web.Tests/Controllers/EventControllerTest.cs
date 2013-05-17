@@ -54,7 +54,7 @@ namespace Web.Tests.Controllers
             var result = contoller.Create() as ViewResult;
 
             //Assert
-            Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
+            Assert.AreEqual(result.ViewBag.StatusMessage, null);
         }
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Web.Tests.Controllers
             var result = contoller.Create(viewModel) as ViewResult;
 
             //Assert
-            Assert.AreEqual(result.ViewData.ModelState.Count, 7);
+            Assert.AreEqual(result.ViewData.ModelState.Count, 6);
             Assert.IsFalse(result.ViewData.ModelState.IsValid);
         }
 
@@ -112,13 +112,14 @@ namespace Web.Tests.Controllers
             var viewModel = GetTestEventViewModel();
             var expectedDataModel = GetTestEventDataModel();
             var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> {new Person {PersonId = 1}}.AsQueryable());
 
             //Act
             var result = contoller.Create(viewModel) as RedirectToRouteResult;
 
             //Assert
             //That the data model being passed to the repository is what we expect.
-            A.CallTo(() => EventRepo.Insert(A<Event>.That.Matches(x => x != expectedDataModel))).MustHaveHappened();
+            A.CallTo(() => EventRepo.Insert(A<Event>._)).MustHaveHappened();
             A.CallTo(() => EventRepo.SubmitChanges()).MustHaveHappened();
 
             //That the route values are what we expect.
@@ -154,12 +155,10 @@ namespace Web.Tests.Controllers
             var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotificationService);
 
             //Act
-            var result = contoller.Edit(new EventViewModel()) as RedirectToRouteResult;
+            var result = contoller.Edit(new EventViewModel()) as ViewResult;
 
             //Assert
-            Assert.AreEqual(result.RouteValues["action"], "Index");
-            Assert.AreEqual(result.RouteValues["controller"], "Home");
-            Assert.AreEqual(result.RouteValues["message"].ToString(), "SaveModelFailed");
+            Assert.AreEqual(result.ViewBag.StatusMessage, Constants.BASE_SAVE_FAIL);
         }
 
         /// <summary>
@@ -170,7 +169,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             var dataModel = GetTestEventDataModel(1);
-            var theHost = dataModel.Coordinator;
+            var theHost = new Person { PersonId = 1};
             var friendOne = new Person{PersonId = 4, FirstName = "Mark", LastName = "Walburg"};
             var friendTwo = new Person { PersonId = 5, FirstName = "Drew", LastName = "Smith" };
             theHost.MyFriends = new List<Person>{friendOne, friendTwo};
@@ -186,7 +185,7 @@ namespace Web.Tests.Controllers
 
             //Assert
             Assert.AreEqual(((EventViewModel)result.Model).Title, dataModel.Title);
-            Assert.IsTrue(((EventViewModel)result.Model).PeopleList.Count == 2);
+            Assert.IsTrue(((EventViewModel)result.Model).PeopleList.ToList().Count == 2);
             Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
         }
 
@@ -213,7 +212,7 @@ namespace Web.Tests.Controllers
             var result = contoller.Edit(viewModel) as ViewResult;
 
             //Assert
-            Assert.AreEqual(result.ViewData.ModelState.Count, 7);
+            Assert.AreEqual(result.ViewData.ModelState.Count, 6);
             Assert.IsFalse(result.ViewData.ModelState.IsValid);
         }
 

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
+using Web.Data;
 using Web.Data.Models;
 using Web.ViewModels;
 
@@ -9,6 +11,17 @@ namespace Web.Services
 {
     public class EventService : IEventService
     {
+        private readonly IRepository<Person> _personPersonRepo;
+        private readonly IRepository<Game> _gameRepository;
+        private readonly IRepository<FoodItem> _foodRepository;
+
+        public EventService(IRepository<Person> personRepo, IRepository<Game> gameRepo, IRepository<FoodItem> foodRepo)
+        {
+            _personPersonRepo = personRepo;
+            _gameRepository = gameRepo;
+            _foodRepository = foodRepo;
+        }
+
         public List<string> GetTimeList()
         {
             var timeList = new List<string>();
@@ -56,7 +69,11 @@ namespace Web.Services
             var newFoodItems = viewModel.FoodItems.Where(x => !dataFoodIds.Contains(x.FoodItemId)).ToList();
 
             //Add new items
-            newFoodItems.ForEach(x => dataModel.FoodItems.Add(x.GetDataModel()));
+            newFoodItems.ForEach(food =>
+                {
+                    var addMe = _foodRepository.GetAll().FirstOrDefault(y => y.FoodItemId == food.FoodItemId);
+                    dataModel.FoodItems.Add(addMe);
+                });
         }
 
         public void RemoveFoodItems(Event dataModel, EventViewModel viewModel)
@@ -78,7 +95,11 @@ namespace Web.Services
             var newGameItems = viewModel.Games.Where(x => !dataGameIds.Contains(x.GameId)).ToList();
 
             //Add new items
-            newGameItems.ForEach(x => dataModel.Games.Add(x.GetDataModel()));
+            newGameItems.ForEach(game =>
+                {
+                    var addMe = _gameRepository.GetAll().FirstOrDefault(y => y.GameId == game.GameId);
+                    dataModel.Games.Add(addMe);
+                });
         }
 
         public void RemoveGames(Event dataModel, EventViewModel viewModel)
@@ -97,16 +118,20 @@ namespace Web.Services
         public void InviteNewPeople(Event dataModel, EventViewModel viewModel)
         {
                 var dataPeopleIds = dataModel.PeopleInvited.Select(x => x.PersonId).ToArray(); //Items in the database
-                var newPeople = viewModel.PeopleInvited.Where(x => !dataPeopleIds.Contains(x.PersonId)).ToList();
+                var newPeople = viewModel.PeopleInvited.Where(x => !dataPeopleIds.Contains(x)).ToList();
 
                 //Add new people
-                newPeople.ForEach(x => dataModel.PeopleInvited.Add(new Person{ PersonId = x.PersonId, FirstName = x.FirstName, LastName = x.LastName }));
+                newPeople.ForEach(personId =>
+                    {
+                        var inviteMe = _personPersonRepo.GetAll().FirstOrDefault(person => person.PersonId == personId);
+                        dataModel.PeopleInvited.Add(inviteMe);
+                    });
 
         }
 
         public void UninvitePeople(Event dataModel, EventViewModel viewModel)
         {
-                var modelPeopleIds = viewModel.PeopleInvited.Select(x => x.PersonId).ToArray(); //Items in local view model
+                var modelPeopleIds = viewModel.PeopleInvited.Select(x => x).ToArray(); //Items in local view model
                 var deletedPeopleIds = dataModel.PeopleInvited.Where(x => !modelPeopleIds.Contains(x.PersonId)).Select(x => x.PersonId).ToList();
 
                 //Delete items

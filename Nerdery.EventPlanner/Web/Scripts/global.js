@@ -19,7 +19,11 @@
         }
     },
     APP.Autocomplete = {
-        init: function() {
+        init: function () {
+            //Setup select 2 stuff...
+            $('.fancy-list-box').select2();
+
+            //jQuery autocomplete
             $.ajax({
                 url: "/Service/GetTimeList",
                 type: "POST",

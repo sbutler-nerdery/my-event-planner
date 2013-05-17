@@ -3,24 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
+using FakeItEasy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Web.Data;
 using Web.Data.Models;
 using Web.Services;
+using Web.Tests.Controllers;
 using Web.ViewModels;
 
 namespace Web.Tests.Services
 {
-    [TestClass]
-    public class EventServiceTest
+    public class EventServiceTest : BaseTestFixture
     {
-        private IEventService _eventService;
-
-        [TestInitialize]
-        public void SpinUp()
-        {
-            _eventService = new EventService();
-        }
-
         /// <summary>
         /// This test ensures that the start date for an event is parsed together correctly from the parameter
         /// values that would be supplied from a view model
@@ -36,7 +31,7 @@ namespace Web.Tests.Services
             var viewModel = new EventViewModel { StartDate = DateTime.Now, StartTime = startTimeValue, EndTime = endTimeValue };
 
             //Act
-            _eventService.SetEventDates(dataModel, viewModel);
+            EventService.SetEventDates(dataModel, viewModel);
 
             //Assert
             Assert.AreEqual(dataModel.StartDate, DateTime.Now.Date.AddHours(4));
@@ -49,18 +44,18 @@ namespace Web.Tests.Services
         public void Invite_New_People()
         {
             //Arrange
-            var personOne = new PersonViewModel {PersonId = 1, FirstName = "Joe", LastName = "Smith"};
-            var personTwo = new PersonViewModel {PersonId = 2, FirstName = "Sally", LastName = "Smith"};
-            var personThree = new PersonViewModel {PersonId = 3, FirstName = "Joe", LastName = "Smith"};
-            var viewModel = new EventViewModel{ PeopleInvited = new List<PersonViewModel>{personTwo, personThree} };
+            var personOne = 1;
+            var personTwo = 2;
+            var personThree = 3;
+            var viewModel = new EventViewModel{ PeopleInvited = new List<int>{personTwo, personThree} };
             var dataModel = new Event
                 {
-                    PeopleInvited = new List<Person> {personTwo.GetDataModel(), personThree.GetDataModel()}
+                    PeopleInvited = new List<Person> {new Person{PersonId = 2}, new Person{PersonId = 3}}
                 };
 
             //Act
             viewModel.PeopleInvited.Add(personOne);
-            _eventService.InviteNewPeople(dataModel, viewModel);
+            EventService.InviteNewPeople(dataModel, viewModel);
 
             //Assert
             Assert.AreEqual(dataModel.PeopleInvited.Count, 3);
@@ -72,21 +67,21 @@ namespace Web.Tests.Services
         public void Uninvite_People()
         {
             //Arrange
-            var personOne = new PersonViewModel { PersonId = 1, FirstName = "Joe", LastName = "Smith" };
-            var personTwo = new PersonViewModel { PersonId = 2, FirstName = "Sally", LastName = "Smith" };
-            var personThree = new PersonViewModel { PersonId = 3, FirstName = "Joe", LastName = "Smith" };
-            var viewModel = new EventViewModel { PeopleInvited = new List<PersonViewModel> { personTwo, personThree } };
+            var personOne = 1;
+            var personTwo = 2;
+            var personThree = 3;
+            var viewModel = new EventViewModel { PeopleInvited = new List<int> { personTwo, personThree } };
             var dataModel = new Event
             {
-                PeopleInvited = new List<Person> { personTwo.GetDataModel(), personThree.GetDataModel() },
-                PeopleWhoAccepted = new List<Person> { personTwo.GetDataModel() },
-                PeopleWhoDeclined = new List<Person> { personThree.GetDataModel() }
+                PeopleInvited = new List<Person> { new Person{PersonId = 2}, new Person{PersonId = 3} },
+                PeopleWhoAccepted = new List<Person> { new Person { PersonId = 2 } },
+                PeopleWhoDeclined = new List<Person> { new Person { PersonId = 3 } }
             };
 
             //Act
             viewModel.PeopleInvited.Remove(personThree);
             viewModel.PeopleInvited.Remove(personTwo);
-            _eventService.UninvitePeople(dataModel, viewModel);
+            EventService.UninvitePeople(dataModel, viewModel);
 
             //Assert
             Assert.AreEqual(dataModel.PeopleInvited.Count, 0);
@@ -99,7 +94,7 @@ namespace Web.Tests.Services
         [TestMethod]
         public void Get_Time_List()
         {
-            var timeList = _eventService.GetTimeList();
+            var timeList = EventService.GetTimeList();
 
             Assert.AreEqual(timeList.Count, 96);
         }

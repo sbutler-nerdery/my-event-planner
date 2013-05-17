@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Mvc;
 using FakeItEasy;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Web.Data;
@@ -19,6 +20,8 @@ namespace Web.Tests.Controllers
 
         protected IRepository<Person> PersonRepo;
         protected IRepository<Event> EventRepo;
+        protected IRepository<FoodItem> FoodRepo;
+        protected IRepository<Game> GameRepo;
         protected IUserService UserService;
         protected IEventService EventService;
         protected INotificationService NotificationService;
@@ -28,8 +31,10 @@ namespace Web.Tests.Controllers
         {
             PersonRepo = A.Fake<IRepository<Person>>();
             EventRepo = A.Fake<IRepository<Event>>();
+            FoodRepo = A.Fake<IRepository<FoodItem>>();
+            GameRepo = A.Fake<IRepository<Game>>();
             UserService = A.Fake<IUserService>();
-            EventService = new EventService();
+            EventService = new EventService(PersonRepo, GameRepo, FoodRepo);
             NotificationService = new NotificationService(PersonRepo, EventRepo);
         }
 
@@ -44,28 +49,10 @@ namespace Web.Tests.Controllers
         protected EventViewModel GetTestEventViewModel(int id = 0)
         {
             //People
-            var theHost = new PersonViewModel
-            {
-                PersonId = 1,
-                UserName = "jsmith",
-                FirstName = "Joe",
-                LastName = "Smith"
-            };
-            var guestOne = new PersonViewModel
-            {
-                PersonId = 2,
-                UserName = "bbufford",
-                FirstName = "Ben",
-                LastName = "Bufford"
-            };
-            var guestTwo = new PersonViewModel
-            {
-                PersonId = 3,
-                UserName = "shart",
-                FirstName = "Sally",
-                LastName = "Hart"
-            };
-            var theInvitees = new List<PersonViewModel> { guestOne, guestTwo };
+            var theHost = 1;
+            var guestOne = 2;
+            var guestTwo = 3;
+            var theInvitees = new List<int> { guestOne, guestTwo };
 
             //Food
             var burgers = new FoodItemViewModel
@@ -96,7 +83,6 @@ namespace Web.Tests.Controllers
                 EventId = id,
                 Title = "My Test Event",
                 Description = "This is a fun test event",
-                Coordinator = theHost,
                 StartDate = DateTime.Now,
                 StartTime = "5:00 PM",
                 EndTime = "2:00 AM",

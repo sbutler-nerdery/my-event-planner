@@ -60,8 +60,10 @@ namespace Web.App_Start
         {
             kernel.Bind<IEventService>().To<EventService>();
             kernel.Bind<INotificationService>().To<NotificationService>();
-            kernel.Bind<IRepository<Event>>().To<EntityFrameworkRepository<Event>>();
-            kernel.Bind<IRepository<Person>>().To<EntityFrameworkRepository<Person>>();
+            kernel.Bind<IRepository<Event>>().To<EntityFrameworkRepository<Event>>().InRequestScope();
+            kernel.Bind<IRepository<Person>>().To<EntityFrameworkRepository<Person>>().InRequestScope();
+            kernel.Bind<IRepository<FoodItem>>().To<EntityFrameworkRepository<FoodItem>>().InRequestScope();
+            kernel.Bind<IRepository<Game>>().To<EntityFrameworkRepository<Game>>().InRequestScope();
             kernel.Bind<IUserService>().To<UserService>();
             kernel.Bind<DbContext>().To<EventPlannerContext>().InRequestScope();
         }        

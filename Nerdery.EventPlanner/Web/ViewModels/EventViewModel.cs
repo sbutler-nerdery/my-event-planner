@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 using Web.Data.Models;
 
 namespace Web.ViewModels
@@ -15,10 +16,9 @@ namespace Web.ViewModels
         {
             FoodItems = new List<FoodItemViewModel>();
             Games = new List<GameViewModel>();
-            PeopleList = new List<PersonViewModel>();
-            PeopleInvited = new List<PersonViewModel>();
-            PeopleWhoAccepted = new List<PersonViewModel>();
-            PeopleWhoDeclined = new List<PersonViewModel>();
+            PeopleInvited = new List<int>();
+            PeopleWhoAccepted = new List<int>();
+            PeopleWhoDeclined = new List<int>();
         }
 
         public EventViewModel(Event model) :this()
@@ -32,9 +32,9 @@ namespace Web.ViewModels
             EndTime = model.EndDate.ToString("h:mm tt");
             model.FoodItems.ForEach(x => FoodItems.Add(new FoodItemViewModel(x)));
             model.Games.ForEach(x => Games.Add(new GameViewModel(x)));
-            model.PeopleInvited.ForEach(x => PeopleInvited.Add(new PersonViewModel(x)));
-            model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(new PersonViewModel(x)));
-            model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(new PersonViewModel(x)));
+            model.PeopleInvited.ForEach(x => PeopleInvited.Add(x.PersonId));
+            model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(x.PersonId));
+            model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(x.PersonId));
         }
 
         #endregion
@@ -68,10 +68,11 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set the complete list of people who could be invited to an event
         /// </summary>
-        public List<PersonViewModel> PeopleList { get; set; }
-        public List<PersonViewModel> PeopleInvited { get; set; }
-        public List<PersonViewModel> PeopleWhoAccepted { get; set; }
-        public List<PersonViewModel> PeopleWhoDeclined { get; set; }
+        public MultiSelectList PeopleList { get; set; }
+        [Display(Name = "People who are invited")]
+        public List<int> PeopleInvited { get; set; }
+        public List<int> PeopleWhoAccepted { get; set; }
+        public List<int> PeopleWhoDeclined { get; set; }
         public List<string> TimeList { get; set; }
 
         #endregion

@@ -66,6 +66,14 @@
                     @Html.ValidationMessageFor(model => model.EndTime)
                     @Html.HiddenFor(model => model.EventId)
                 </div>
+                
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.PeopleInvited)
+                </div>
+                <div class="editor-field">
+                    @Html.ListBoxFor(model => model.PeopleInvited, new MultiSelectList(Model.PeopleList, "Value", "Text")) @*new {name="PeopleInvited",@style="width:300px;", @class="fancy-list-box"}*@
+                    @Html.HiddenFor(model => model.EventId)
+                </div>                
 
                 <p>
                     <input type="submit" value="Save" />
