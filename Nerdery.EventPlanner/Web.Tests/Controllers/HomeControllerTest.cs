@@ -112,8 +112,8 @@ namespace Web.Tests.Controllers
             Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
             Assert.AreEqual(((AcceptInvitationViewModel)result.Model).AccepteeFoodItems.Count, 2);
             Assert.AreEqual(((AcceptInvitationViewModel)result.Model).AccepteeGames.Count, 2);
-            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).CurrentEventFoodItems.Count, 2);
-            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).CurrentEventGames.Count, 2);
+            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).CurrentEventFoodItems.Count, 0);
+            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).CurrentEventGames.Count, 0);
             Assert.AreNotEqual(((AcceptInvitationViewModel)result.Model).WillBringTheseFoodItems, null);
             Assert.AreNotEqual(((AcceptInvitationViewModel)result.Model).WillBringTheseGames, null);   
         }
@@ -153,6 +153,7 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
+            theInvitee.MyFriends = new List<Person>();
             var controller = new HomeController(PersonRepo, EventRepo, UserService);
 
             var newFoodItems = new List<FoodItemViewModel>

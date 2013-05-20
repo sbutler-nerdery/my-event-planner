@@ -102,6 +102,9 @@ namespace Web.Tests.Controllers
         {
             var viewModel = GetTestEventViewModel(id);
             var dataModel = viewModel.GetDataModel();
+            A.CallTo(() => FoodRepo.GetAll()).Returns(new List<FoodItem>().AsQueryable());
+            A.CallTo(() => GameRepo.GetAll()).Returns(new List<Game>().AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person>().AsQueryable());
             EventService.SetEventDates(dataModel, viewModel);
             EventService.AppendNewFoodItems(dataModel, viewModel);
             EventService.AppendNewGames(dataModel, viewModel);

@@ -72,7 +72,9 @@ namespace Web.Services
             newFoodItems.ForEach(foodId =>
                 {
                     var addMe = _foodRepository.GetAll().FirstOrDefault(y => y.FoodItemId == foodId);
-                    dataModel.FoodItems.Add(addMe);
+
+                    if (addMe != null)
+                        dataModel.FoodItems.Add(addMe);
                 });
         }
 
@@ -98,7 +100,9 @@ namespace Web.Services
             newGameItems.ForEach(gameId =>
                 {
                     var addMe = _gameRepository.GetAll().FirstOrDefault(y => y.GameId == gameId);
-                    dataModel.Games.Add(addMe);
+
+                    if (addMe != null)
+                        dataModel.Games.Add(addMe);
                 });
         }
 
@@ -124,7 +128,9 @@ namespace Web.Services
                 newPeople.ForEach(personId =>
                     {
                         var inviteMe = _personPersonRepo.GetAll().FirstOrDefault(person => person.PersonId == personId);
-                        dataModel.PeopleInvited.Add(inviteMe);
+
+                        if (inviteMe != null)
+                            dataModel.PeopleInvited.Add(inviteMe);
                     });
 
         }
