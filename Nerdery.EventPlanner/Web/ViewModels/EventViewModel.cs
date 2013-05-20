@@ -76,7 +76,14 @@ namespace Web.ViewModels
         public List<int> PeopleWhoAccepted { get; set; }
         public List<int> PeopleWhoDeclined { get; set; }
         public List<string> TimeList { get; set; }
-
+        /// <summary>
+        /// Get or set the person template used to send invitations via email
+        /// </summary>
+        public PersonViewModel EmailInvite { get; set; }
+        /// <summary>
+        /// Get or set the list of Facebook friends for the current user
+        /// </summary>
+        public List<PersonViewModel> FacebookFriends { get; set; }
         #endregion
 
         #region Methods

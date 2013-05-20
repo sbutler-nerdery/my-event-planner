@@ -1,0 +1,43 @@
+﻿@model Web.ViewModels.EventViewModel
+
+<div data-dialog="true" title="Invite More People" data-action="invite-person-to-event">
+    <div data-tabs="true">
+        <ul>
+            <li><a href="#email-invite">Email Invite</a></li>
+            <li><a href="#facebook-invite">Facebook Invite</a></li>
+        </ul>
+        <div id="email-invite">
+            @using (Ajax.BeginForm("EmailInvite", "Service", new AjaxOptions { UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
+            {
+                <fieldset>
+                    <legend>EmailInvite</legend>
+                    <div class="editor-label">
+                        @Html.LabelFor(model => model.EmailInvite.Email)
+                    </div>
+                    <div class="editor-field">
+                        @Html.EditorFor(model => model.EmailInvite.Email)
+                        @Html.ValidationMessageFor(model => model.EmailInvite.Email)
+                    </div>  
+                    <input type="submit" value="Invite this person" />
+                </fieldset>                  
+            }    
+        </div>
+        <div id="facebook-invite">
+            @using (Ajax.BeginForm("FacebookInvite", "Service", new AjaxOptions { UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
+            {
+                <fieldset>
+                    <legend>FacebookFriends</legend>
+                    @foreach (var friend in Model.FacebookFriends)
+                    {
+                        var userName = friend.FirstName + " " + friend.LastName;
+                        <div class="editor-field">
+                            @Html.CheckBoxFor(m => friend.Selected)
+                            @userName
+                        </div>                      
+                    }
+                    <input type="submit" value="Invite these people" />
+                </fieldset>                  
+            }         
+        </div>
+    </div>
+</div>

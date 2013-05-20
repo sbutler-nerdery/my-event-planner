@@ -73,6 +73,10 @@ namespace Web.ViewModels
         /// Get or set if the user will receive notifications via email.
         /// </summary>
         public bool NotifyWithEmail { get; set; }
+        /// <summary>
+        /// Get or set whether or not this person is selected in a checkbox list
+        /// </summary>
+        public bool Selected { get; set; }
 
         #endregion
 

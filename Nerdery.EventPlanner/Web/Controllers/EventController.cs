@@ -70,6 +70,7 @@ namespace Web.Controllers
 
                 model.PeopleList = new MultiSelectList(people, "PersonId", "UserName");
                 model.TimeList = _eventService.GetTimeList();
+                model.FacebookFriends = new List<PersonViewModel>();
 
                 return View(model);
             }

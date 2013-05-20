@@ -67,20 +67,18 @@
                     @Html.HiddenFor(model => model.EventId)
                 </div>
                 
-                <div class="editor-label">
-                    @Html.LabelFor(model => model.PeopleInvited)
-                </div>
-                <div class="editor-field">
-                    @Html.ListBoxFor(model => model.PeopleInvited, Model.PeopleList, new {name="PeopleInvited",@style="width:300px;", @class="fancy-list-box"})
-                    @Html.ValidationMessageFor(model => model.EndTime)
-                    @Html.HiddenFor(model => model.EventId)
-                </div>                
+                <div id="people-invited">
+                    @Html.Partial("_PeopleInvited", Model)
+                </div>               
 
                 <p>
+                    @Html.HiddenFor(model => model.EventId)
                     <input type="submit" value="Create" />
                 </p>
             </fieldset>
         }
+ 
+        @Html.Partial("_InvitePeopleDialog", Model)
     }
 <div>
     @Html.ActionLink("Back to Dashboard", "Index","Home")
@@ -88,4 +86,5 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/eventplanner")
 }

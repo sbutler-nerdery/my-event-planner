@@ -5,6 +5,8 @@
     $(function () {
         APP.Calendars.init();
         APP.Autocomplete.init();
+        APP.Tabs.init();
+        APP.Models.init();
     });
 
     APP.Timer = {
@@ -16,6 +18,42 @@
     APP.Calendars = {
         init: function() {
             $("[data-calendar=true]").datepicker();
+        }
+    },
+    APP.Models = {
+        $defaultWidth: null,
+        $defaultHeight: null,
+        $modals: null,
+        init: function () {
+            $defaultWidth = $(window).width() - 200;
+            $defaultHeight = $(window).height() - 400;
+            //Set up modals
+            $modals = $("[data-dialog=true]"); //invite-person-to-event
+            $modals.dialog({
+                autoOpen: false,
+                width: $defaultWidth,
+                height: $defaultHeight,
+                modal: true
+            });
+            
+            //Set up triggers to open modals
+            $modals.each(function () {
+                var modal = this;
+                var actionKey = $(modal).data("action");
+                var trigger = $("[data-open-modal=" + actionKey + "]").first();
+                trigger.click(function () {
+                    $(modal).dialog("open");
+                });
+            });
+        },
+        dismiss: function (actionKey) {
+            var targetModal = $modals.find("[data-action=" + actionKey + "]").first();
+            targetModal.close();
+        }
+    },
+    APP.Tabs = {
+        init: function () {
+            $("[data-tabs=true]").tabs();
         }
     },
     APP.Autocomplete = {
