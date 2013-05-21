@@ -14,6 +14,10 @@ namespace Web.Data.Models
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
+        /// <summary>
+        /// Get or set the person's facebook id
+        /// </summary>
+        public string FacebookId { get; set; }
         public string PhoneNumber { get; set; }
         public string ProfilePicUrl { get; set; }
         /// <summary>

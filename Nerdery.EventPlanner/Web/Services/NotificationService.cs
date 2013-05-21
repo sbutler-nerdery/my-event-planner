@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Web;
 using Web.Data;
 using Web.Data.Models;
@@ -12,26 +13,39 @@ namespace Web.Services
     {
         private readonly IRepository<Person> _personRepository;
         private readonly IRepository<Event> _eventRepository;
+        private readonly SmtpClient _emailClient;
 
         public NotificationService(IRepository<Person> personRepo, IRepository<Event> eventRepo)
         {
             _personRepository = personRepo;
             _eventRepository = eventRepo;
+            _emailClient = new SmtpClient();
         }
 
-        public void SendNotifications(List<SystemNotification> notifications)
+        public void SendNotifications(List<EventPlannerNotification> notifications)
         {
             //TODO: Add logic that will actually send a facebook message.
-            throw new NotImplementedException();
+            foreach (var eventPlannerNotification in notifications)
+            {
+                if (eventPlannerNotification.SendToEmail)
+                {
+                    var email = new MailMessage();
+                    email.To.Add(eventPlannerNotification.Email);
+                    email.IsBodyHtml = true;
+                    email.Subject = eventPlannerNotification.Title;
+                    email.Body = eventPlannerNotification.Message;
+                    _emailClient.Send(email);
+                }
+            }
         }
 
-        public List<SystemNotification> GetNotificationsForEventUpdate(int eventId)
+        public List<EventPlannerNotification> GetNotificationsForEventUpdate(int eventId)
         {
-            var notifications = new List<SystemNotification>();
+            var notifications = new List<EventPlannerNotification>();
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             _personRepository.GetAll().Where(x => x.AmAttending.Select(y => y.EventId == eventId).Any() ||
                 x.MyInvitations.Select(y => y.EventId == eventId).Any())
-                .ToList().ForEach(x => notifications.Add(new SystemNotification
+                .ToList().ForEach(x => notifications.Add(new EventPlannerNotification
                     {
                         PersonId = x.PersonId,
                         SendToFacebook = x.NotifyWithFacebook,
@@ -47,13 +61,13 @@ namespace Web.Services
             return notifications;
         }
 
-        public List<SystemNotification> GetNotificationsForEventCancelled(int eventId)
+        public List<EventPlannerNotification> GetNotificationsForEventCancelled(int eventId)
         {
-            var notifications = new List<SystemNotification>();
+            var notifications = new List<EventPlannerNotification>();
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             _personRepository.GetAll().Where(x => x.AmAttending.Select(y => y.EventId == eventId).Any() ||
                 x.MyInvitations.Select(y => y.EventId == eventId).Any())
-                .ToList().ForEach(x => notifications.Add(new SystemNotification
+                .ToList().ForEach(x => notifications.Add(new EventPlannerNotification
                 {
                     PersonId = x.PersonId,
                     SendToFacebook = x.NotifyWithFacebook,
@@ -67,9 +81,9 @@ namespace Web.Services
             return notifications;
         }
 
-        public SystemNotification GetNewInvitationNotification(int eventId, int inviteeId, string invitationUrl)
+        public EventPlannerNotification GetNewInvitationNotification(int eventId, int inviteeId, string invitationUrl)
         {
-            var notification = new SystemNotification();
+            var notification = new EventPlannerNotification();
 
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == inviteeId);
@@ -87,9 +101,9 @@ namespace Web.Services
             return notification;            
         }
 
-        public SystemNotification GetInvitationAcceptedNotification(int eventId, int acceptingId)
+        public EventPlannerNotification GetInvitationAcceptedNotification(int eventId, int acceptingId)
         {
-            var notification = new SystemNotification();
+            var notification = new EventPlannerNotification();
 
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == acceptingId);
@@ -110,9 +124,9 @@ namespace Web.Services
             return notification;
         }
 
-        public SystemNotification GetInvitationDeclinedNotification(int eventId, int decliningId)
+        public EventPlannerNotification GetInvitationDeclinedNotification(int eventId, int decliningId)
         {
-            var notification = new SystemNotification();
+            var notification = new EventPlannerNotification();
 
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == decliningId);
@@ -129,9 +143,9 @@ namespace Web.Services
             return notification;
         }
 
-        public SystemNotification GetPersonRemovedFromEventNotification(int eventId, int removeThisPersonId)
+        public EventPlannerNotification GetPersonRemovedFromEventNotification(int eventId, int removeThisPersonId)
         {
-            var notification = new SystemNotification();
+            var notification = new EventPlannerNotification();
 
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == removeThisPersonId);

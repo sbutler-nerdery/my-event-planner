@@ -65,5 +65,25 @@ namespace Web.Services
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
         void UninvitePeople(Event dataModel, EventViewModel viewModel);
+        /// <summary>
+        /// Get a serialized JSON string of the required fields of the event model.
+        /// </summary>
+        /// <param name="dataModel">An event model</param>
+        /// <returns></returns>
+        string GetSerializedModelState(Event dataModel, bool includeInvites = false);
+        /// <summary>
+        /// Get the list of invited people that appear in the current event but not in the previous event
+        /// </summary>
+        /// <param name="previousData">The previous state of the event</param>
+        /// <param name="currentData">A current event</param>
+        /// <returns></returns>
+        List<Person> GetRegisteredInvites(Event previousData, Event currentData);
+        /// <summary>
+        /// Get the list of non-registered invited people that appear in the current event but not in the previous event
+        /// </summary>
+        /// <param name="previousData">The previous state of the event</param>
+        /// <param name="currentData">A current event</param>
+        /// <returns></returns>
+        List<PendingInvitation> GetNonRegisteredInvites(Event previousData, Event currentData);
     }
 }

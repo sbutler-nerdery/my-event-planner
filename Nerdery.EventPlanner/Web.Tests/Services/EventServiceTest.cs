@@ -74,7 +74,7 @@ namespace Web.Tests.Services
             var viewModel = new EventViewModel { PeopleInvited = new List<string> { dan, herb } };
             var dataModel = new Event
             {
-                Coordinator = new Person { PersonId = 1},
+                Coordinator = new Person { PersonId = 1, MyPendingFriends = new List<PendingInvitation>()},
                 PendingInvitations = new List<PendingInvitation> { new PendingInvitation { Email = "dan@email.com" }, new PendingInvitation { Email = "herb@email.com" } },
                 PeopleInvited = new List<Person>()
             };
@@ -99,7 +99,7 @@ namespace Web.Tests.Services
             var viewModel = new EventViewModel { PeopleInvited = new List<string> { dan, herb } };
             var dataModel = new Event
             {
-                Coordinator = new Person { PersonId = 1 },
+                Coordinator = new Person { PersonId = 1, MyPendingFriends = new List<PendingInvitation>()},
                 PendingInvitations = new List<PendingInvitation> { new PendingInvitation { FacebookId = "11111" }, new PendingInvitation { FacebookId = "22222" } },
                 PeopleInvited = new List<Person>()
             };
@@ -156,6 +156,52 @@ namespace Web.Tests.Services
             var timeList = EventService.GetTimeList();
 
             Assert.AreEqual(timeList.Count, 96);
+        }
+        [TestMethod]
+        public void Get_Event_Model_State()
+        {
+            var model = new Event
+                {
+                    Title = "My title", 
+                    Description = "Test description", 
+                    Location = "My House", 
+                    StartDate = DateTime.Now, 
+                    EndDate = DateTime.Now.AddHours(3),
+                    PendingInvitations = new List<PendingInvitation>(),
+                    PeopleInvited = new List<Person>()
+                };
+
+            var modelState = EventService.GetSerializedModelState(model);
+
+            Assert.AreNotEqual(modelState, string.Empty);
+        }
+        [TestMethod]
+        public void Get_Newly_Invited_Registered_users()
+        {
+            //Arrange
+            var previousState = new Event
+                {
+                    PeopleInvited = new List<Person>
+                        {
+                            new Person { PersonId = 1}
+                        }
+                };
+
+            var currentState = new Event
+            {
+                PeopleInvited = new List<Person>
+                        {
+                            new Person { PersonId = 1},
+                            new Person { PersonId = 2},
+                            new Person { PersonId = 3},
+                        }
+            };
+
+            //Act
+            var list = EventService.GetRegisteredInvites(previousState, currentState);
+
+            //Assert
+            Assert.AreEqual(list.Count, 2);
         }
     }
 }

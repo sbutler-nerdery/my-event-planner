@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Newtonsoft.Json;
 using Web.Data;
 using Web.Data.Models;
 using Web.ViewModels;
@@ -58,11 +59,11 @@ namespace Web.Services
 
             int endHour = endTime.Hour;
             int endMinute = endTime.Minute;
-            dataModel.EndDate = dataModel.StartDate.AddHours(endHour).AddMinutes(endMinute);
+            dataModel.EndDate = dataModel.StartDate.Date.AddHours(endHour).AddMinutes(endMinute);
 
             //Change the end date if...
             if (dataModel.StartDate.Hour > endTime.Hour)
-                dataModel.EndDate = dataModel.StartDate.AddDays(1).Date.AddHours(endHour).AddMinutes(endMinute);
+                dataModel.EndDate = dataModel.StartDate.Date.AddDays(1).Date.AddHours(endHour).AddMinutes(endMinute);
         }
 
         public void AppendNewFoodItems(Event dataModel, EventViewModel viewModel)
@@ -320,6 +321,55 @@ namespace Web.Services
                 //Remove from the invitation list
                 dataModel.PendingInvitations.Remove(removeInvitation);
             });
+        }
+
+        public string GetSerializedModelState(Event dataModel, bool includeInvites)
+        {
+            if (includeInvites)
+            {
+                var modelState =
+                    new
+                    {
+                        dataModel.Title,
+                        dataModel.Description,
+                        dataModel.Location,
+                        dataModel.StartDate,
+                        dataModel.EndDate,
+                        dataModel.PeopleInvited,
+                        dataModel.PendingInvitations
+                    };
+                return JsonConvert.SerializeObject(modelState);
+            }
+            else
+            {
+                var modelState =
+                    new
+                    {
+                        dataModel.Title,
+                        dataModel.Description,
+                        dataModel.Location,
+                        dataModel.StartDate,
+                        dataModel.EndDate
+                    };
+
+                return JsonConvert.SerializeObject(modelState);
+            }
+        }
+
+        public List<Person> GetRegisteredInvites(Event previousData, Event currentData)
+        {
+            var oldPeopleIds = previousData.PeopleInvited.Select(x => x.PersonId).ToArray(); //Items in the database
+            var newPeople = currentData.PeopleInvited
+                .Where(x => !oldPeopleIds.Contains(x.PersonId)).ToList();
+            return newPeople;
+        }
+
+        public List<PendingInvitation> GetNonRegisteredInvites(Event previousData, Event currentData)
+        {
+            var oldPeopleIds = previousData.PendingInvitations.Select(x => x.PendingInvitationId).ToArray(); //Items in the database
+            var newPeople = currentData.PendingInvitations
+                .Where(x => !oldPeopleIds.Contains(x.PendingInvitationId)).ToList();
+            return newPeople;
         }
 
         /// <summary>
