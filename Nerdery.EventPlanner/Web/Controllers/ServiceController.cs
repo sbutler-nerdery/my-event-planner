@@ -154,5 +154,49 @@ namespace Web.Controllers
 
             return Json(response);
         }
+        /// <summary>
+        /// Invite a user to partake in an event by email
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult EmailInvite()
+        {
+            var response = new Response { Error = false, Message = "" };
+
+            try
+            {
+                //TODO: something...
+            }
+            catch (Exception)
+            {
+                //TODO: log to database
+                response.Error = true;
+                response.Message = "An error occured while trying to send this invitation";
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Invite one or more users to partake in an event by facebook message.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult FacebookInvite()
+        {
+            var response = new Response { Error = false, Message = "" };
+
+            try
+            {
+                //TODO: something...
+            }
+            catch (Exception)
+            {
+                //TODO: log to database
+                response.Error = true;
+                response.Message = "An error occured while trying to send facebook invitations";
+            }
+
+            return Json(response);
+        }
     }
 }

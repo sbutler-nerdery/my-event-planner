@@ -6,7 +6,7 @@
         APP.Calendars.init();
         APP.Autocomplete.init();
         APP.Tabs.init();
-        APP.Models.init();
+        APP.Modals.init();
     });
 
     APP.Timer = {
@@ -20,7 +20,7 @@
             $("[data-calendar=true]").datepicker();
         }
     },
-    APP.Models = {
+    APP.Modals = {
         $defaultWidth: null,
         $defaultHeight: null,
         $modals: null,
@@ -41,14 +41,20 @@
                 var modal = this;
                 var actionKey = $(modal).data("action");
                 var trigger = $("[data-open-modal=" + actionKey + "]").first();
+                var longList = $("[data-list=long]");
+                longList.height($defaultHeight - 200);
+                longList.css({ "overflow-y":"scroll" });
                 trigger.click(function () {
                     $(modal).dialog("open");
                 });
             });
         },
         dismiss: function (actionKey) {
-            var targetModal = $modals.find("[data-action=" + actionKey + "]").first();
-            targetModal.close();
+            var targetModal = $.grep($modals, function (modal) {
+                return $(modal).attr("data-action") == actionKey;
+            });
+            
+            $(targetModal).dialog("close");
         }
     },
     APP.Tabs = {

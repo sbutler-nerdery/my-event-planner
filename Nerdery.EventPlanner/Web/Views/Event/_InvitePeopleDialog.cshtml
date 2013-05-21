@@ -7,7 +7,7 @@
             <li><a href="#facebook-invite">Facebook Invite</a></li>
         </ul>
         <div id="email-invite">
-            @using (Ajax.BeginForm("EmailInvite", "Service", new AjaxOptions { UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
+            @using (Ajax.BeginForm("EmailInvite", "Service", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
             {
                 <fieldset>
                     <legend>EmailInvite</legend>
@@ -23,18 +23,21 @@
             }    
         </div>
         <div id="facebook-invite">
-            @using (Ajax.BeginForm("FacebookInvite", "Service", new AjaxOptions { UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
+            @using (Ajax.BeginForm("FacebookInvite", "Service", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
             {
                 <fieldset>
                     <legend>FacebookFriends</legend>
-                    @foreach (var friend in Model.FacebookFriends)
-                    {
-                        var userName = friend.FirstName + " " + friend.LastName;
-                        <div class="editor-field">
-                            @Html.CheckBoxFor(m => friend.Selected)
-                            @userName
-                        </div>                      
-                    }
+                    <div data-list="long">
+                        @foreach (var friend in Model.FacebookFriends)
+                        {
+                            var userName = friend.FirstName + " " + friend.LastName;
+                            <div class="editor-field">
+                                @Html.CheckBoxFor(m => friend.Selected)
+                                <img src="@friend.ProfilePicUrl" alt="Profile Pic" style="width: 50px"/>
+                                @userName
+                            </div>                      
+                        }
+                    </div>
                     <input type="submit" value="Invite these people" />
                 </fieldset>                  
             }         
