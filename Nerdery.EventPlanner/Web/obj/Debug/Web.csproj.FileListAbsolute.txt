@@ -56,3 +56,4 @@ C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\DotNetOpen
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\bin\DotNetOpenAuth.OpenId.RelyingParty.xml
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\obj\Debug\Web.dll
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web\obj\Debug\Web.pdb
+C:\development\personal\my-event-planner\Nerdery.EventPlanner\Web\obj\Debug\Web.csprojResolveAssemblyReference.cache

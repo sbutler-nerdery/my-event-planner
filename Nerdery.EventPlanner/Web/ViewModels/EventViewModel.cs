@@ -33,6 +33,20 @@ namespace Web.ViewModels
             model.FoodItems.ForEach(x => FoodItemsSelected.Add(x.FoodItemId));
             model.Games.ForEach(x => GamesSelected.Add(x.GameId));
             model.PeopleInvited.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
+            model.PendingInvitations.ForEach(x =>
+                {
+                    if (x.Email != null)
+                    {
+                        var value = string.Format("{0}|{1}|{2}", x.Email, x.FirstName, x.LastName);
+                        PeopleInvited.Add(value);
+                    }
+
+                    if (x.FacebookId != null)
+                    {
+                        var value = string.Format("{0}|{1} {2}", x.FacebookId, x.FirstName, x.LastName);
+                        PeopleInvited.Add(value);                        
+                    }
+                });
             model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(x.PersonId));
             model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(x.PersonId));
         }

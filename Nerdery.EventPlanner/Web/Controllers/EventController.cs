@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Web.Data;
 using Web.Data.Models;
+using Web.Extensions;
 using Web.Services;
 using Web.ViewModels;
 
@@ -24,7 +25,7 @@ namespace Web.Controllers
 
         #region Constructors
 
-        public EventController(IRepository<Event> eventRepo, IRepository<Person> personRepo, 
+        public EventController(IRepository<Event> eventRepo, IRepository<Person> personRepo,
             IEventService service, IUserService userService, INotificationService notificationService)
         {
             _eventRepository = eventRepo;
@@ -56,19 +57,27 @@ namespace Web.Controllers
                 //Populate the total list of people who could be invited to an event.
                 var userName = (User != null) ? User.Identity.Name : string.Empty;
                 var userId = _userService.GetCurrentUserId(userName);
-                var people = new List<PersonViewModel>();
-                _personRepository.GetAll()
-                                 .FirstOrDefault(x => x.PersonId == userId)
-                                 .MyFriends
+                var people = new List<SelectListItem>();
+                var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
+                coordinator.MyFriends
                                  .ToList()
                                  .ForEach(
-                                     x => people.Add(new PersonViewModel
+                                     x => people.Add(new SelectListItem
                                      {
-                                         PersonId = x.PersonId,
-                                         UserName = x.FirstName + " " + x.LastName
+                                         Value = x.PersonId.ToString(),
+                                         Text = x.FirstName + " " + x.LastName
                                      }));
 
-                model.PeopleList = new MultiSelectList(people, "PersonId", "UserName");
+                coordinator.MyPendingFriends
+                                 .ToList()
+                                 .ForEach(
+                                     x => people.Add(new SelectListItem
+                                     {
+                                         Value = (x.Email != null) ? x.Email + "|" + x.FirstName + "|" + x.LastName : x.FacebookId + "|" + x.FirstName + " " + x.LastName,
+                                         Text = x.FirstName + " " + x.LastName
+                                     }));
+
+                model.PeopleList = new MultiSelectList(people, "Value", "Text");
                 model.TimeList = _eventService.GetTimeList();
                 model.FacebookFriends = _userService.GetFacebookFriends(userName);
 
@@ -143,18 +152,29 @@ namespace Web.Controllers
                 //Populate the total list of people who could be invited to an event.
                 var userName = (User != null) ? User.Identity.Name : string.Empty;
                 var userId = _userService.GetCurrentUserId(userName);
-                var people = new List<PersonViewModel>();
-                _personRepository.GetAll()
-                                 .FirstOrDefault(x => x.PersonId == userId)
-                                 .MyFriends.ToList()
+                var people = new List<SelectListItem>();
+                var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
+                coordinator.MyFriends
+                                 .ToList()
                                  .ForEach(
-                                     x => people.Add(new PersonViewModel
-                                                 {
-                                                     PersonId = x.PersonId,
-                                                     UserName = x.FirstName + " " + x.LastName
-                                                 }));
-                //Get the people who are invited
-                model.PeopleList = new MultiSelectList(people, "PersonId", "UserName", model.PeopleInvited);
+                                     x => people.Add(new SelectListItem
+                                     {
+                                         Value = x.PersonId.ToString(),
+                                         Text = x.FirstName + " " + x.LastName
+                                     }));
+
+                coordinator.MyPendingFriends
+                                 .ToList()
+                                 .ForEach(
+                                     x => people.Add(new SelectListItem
+                                     {
+                                         Value = (x.Email != null) ? x.Email + "|" + x.FirstName + "|" + x.LastName : x.FacebookId + "|" + x.FirstName + " " + x.LastName,
+                                         Text = x.FirstName + " " + x.LastName
+                                     }));
+
+                model.PeopleList = new MultiSelectList(people, "Value", "Text");
+                model.TimeList = _eventService.GetTimeList();
+                model.FacebookFriends = _userService.GetFacebookFriends(userName);
 
                 //Nothing to report if everything succeeds
                 ViewBag.StatusMessage = string.Empty;
@@ -176,7 +196,7 @@ namespace Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var updateMe = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == model.EventId);
+                    var updateMe = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
 
                     updateMe.Title = model.Title;
                     updateMe.Description = model.Description;

@@ -16,7 +16,7 @@
             var lastNameField = $("#EmailInvite_LastName");
             var name = firstNameField.val() + " " + lastNameField.val();
             var value = emailField.val() + "|" + firstNameField.val() + "|" + lastNameField.val();
-            $("#" + controlId).append("<option value='" + email + "'>" + name + "</option>");
+            $("#" + controlId).append("<option value='" + value + "'>" + name + "</option>");
             APP.Autocomplete.addSelectedItem(controlId, value);
             
             //Clear the fields...
@@ -106,7 +106,11 @@
         init: function () {
             //Setup select 2 stuff...
             $selectControls = $('.fancy-list-box');
-            $selectControls.select2();
+            var friendLists = $.grep($selectControls, function (select) {
+                return $(select).data("placeholder-type") == "friend-list";
+            });
+            
+            $(friendLists).select2({ placeholder: "Click here to see a list of your friends... " });
 
             //jQuery autocomplete
             $.ajax({
@@ -121,9 +125,6 @@
                     } else {
                         alert(response.Message);
                     }
-                },
-                error: function() {
-                    alert('Unable to contact service contoller. Please inform your system administrator.');
                 }
             });
         },

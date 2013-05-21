@@ -21,7 +21,7 @@ namespace Web.Tests.Controllers
         /// This unit test ensures that all of the required fields for the event view model must be filled out on create.
         /// </summary>
         [TestMethod]
-        public void Create_Event_Fail_Model_Build()
+        public void Create_Event_Build_ViewModel_Fail()
         {
             //Arrange
             A.CallTo(() => PersonRepo.GetAll()).Returns(null);
@@ -35,7 +35,7 @@ namespace Web.Tests.Controllers
         }
 
         [TestMethod]
-        public void Create_Event_Fail_Model_Success()
+        public void Create_Event_Build_ViewModel_Success()
         {
             //Arrange
             var thePerson = new Person
@@ -44,7 +44,8 @@ namespace Web.Tests.Controllers
                     UserName = "jsmith",
                     FirstName = "Joe",
                     LastName = "Smith",
-                    MyFriends = new List<Person>()
+                    MyFriends = new List<Person>(),
+                    MyPendingFriends = new List<PendingInvitation>()
                 };
             A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { thePerson }.AsQueryable());
@@ -169,7 +170,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             var dataModel = GetTestEventDataModel(1);
-            var theHost = new Person { PersonId = 1};
+            var theHost = new Person { PersonId = 1, MyPendingFriends = new List<PendingInvitation>()};
             var friendOne = new Person{PersonId = 4, FirstName = "Mark", LastName = "Walburg"};
             var friendTwo = new Person { PersonId = 5, FirstName = "Drew", LastName = "Smith" };
             theHost.MyFriends = new List<Person>{friendOne, friendTwo};

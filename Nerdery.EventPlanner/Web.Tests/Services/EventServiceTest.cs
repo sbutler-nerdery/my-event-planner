@@ -123,10 +123,13 @@ namespace Web.Tests.Services
             var personOne = "1";
             var personTwo = "2";
             var personThree = "3";
-            var viewModel = new EventViewModel { PeopleInvited = new List<string> { personTwo, personThree } };
+            var emailPerson = "bart@email.com|Bart|Simpson";
+            var facebookPerson = "00000|Homer Simpson";
+            var viewModel = new EventViewModel { PeopleInvited = new List<string> { personTwo, personThree, emailPerson, facebookPerson } };
             var dataModel = new Event
             {
-                PeopleInvited = new List<Person> { new Person{PersonId = 2}, new Person{PersonId = 3} },
+                PeopleInvited = new List<Person> { new Person { PersonId = 2 }, new Person { PersonId = 3 } },
+                PendingInvitations = new List<PendingInvitation> { new PendingInvitation { Email = "bart@email.com" }, new PendingInvitation { FacebookId = "00000" } },
                 PeopleWhoAccepted = new List<Person> { new Person { PersonId = 2 } },
                 PeopleWhoDeclined = new List<Person> { new Person { PersonId = 3 } }
             };
@@ -134,10 +137,13 @@ namespace Web.Tests.Services
             //Act
             viewModel.PeopleInvited.Remove(personThree);
             viewModel.PeopleInvited.Remove(personTwo);
+            viewModel.PeopleInvited.Remove(emailPerson);
+            viewModel.PeopleInvited.Remove(facebookPerson);
             EventService.UninvitePeople(dataModel, viewModel);
 
             //Assert
             Assert.AreEqual(dataModel.PeopleInvited.Count, 0);
+            Assert.AreEqual(dataModel.PendingInvitations.Count, 0);
             Assert.AreEqual(dataModel.PeopleWhoAccepted.Count, 0);
             Assert.AreEqual(dataModel.PeopleWhoDeclined.Count, 0);            
         }
