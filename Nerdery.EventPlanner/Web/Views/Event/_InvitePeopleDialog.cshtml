@@ -7,10 +7,24 @@
             <li><a href="#facebook-invite">Facebook Invite</a></li>
         </ul>
         <div id="email-invite">
-            @using (Ajax.BeginForm("EmailInvite", "Service", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
+            @using (Ajax.BeginForm("Dummy", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addEmailInvite('PeopleInvited'); EventPlanner.Modals.dismiss('invite-person-to-event');" }))
             {
                 <fieldset>
                     <legend>EmailInvite</legend>
+                    <div class="editor-label">
+                        @Html.LabelFor(model => model.EmailInvite.FirstName)
+                    </div>
+                    <div class="editor-field">
+                        @Html.EditorFor(model => model.EmailInvite.FirstName)
+                        @Html.ValidationMessageFor(model => model.EmailInvite.FirstName)
+                    </div>  
+                    <div class="editor-label">
+                        @Html.LabelFor(model => model.EmailInvite.LastName)
+                    </div>
+                    <div class="editor-field">
+                        @Html.EditorFor(model => model.EmailInvite.LastName)
+                        @Html.ValidationMessageFor(model => model.EmailInvite.LastName)
+                    </div>  
                     <div class="editor-label">
                         @Html.LabelFor(model => model.EmailInvite.Email)
                     </div>
@@ -23,21 +37,28 @@
             }    
         </div>
         <div id="facebook-invite">
-            @using (Ajax.BeginForm("FacebookInvite", "Service", new AjaxOptions { HttpMethod = "POST", UpdateTargetId = "people-invited", OnSuccess = "EventPlanner.Modals.dismiss('invite-person-to-event')", OnFailure = "alert('Invitations failed.')" }))
+            @using (Ajax.BeginForm("Dummy", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addFacebookInvites('PeopleInvited'); EventPlanner.Modals.dismiss('invite-person-to-event');" }))
             {
                 <fieldset>
                     <legend>FacebookFriends</legend>
                     <div data-list="long">
-                        @foreach (var friend in Model.FacebookFriends)
+                        @for (int i = 0; i < Model.FacebookFriends.Count; i++)
                         {
+                            var friend = Model.FacebookFriends[i];
                             var userName = friend.FirstName + " " + friend.LastName;
                             <div class="editor-field">
-                                @Html.CheckBoxFor(m => friend.Selected)
-                                <img src="@friend.ProfilePicUrl" alt="Profile Pic" style="width: 50px"/>
+                                <input type="checkbox" id="FacebookFriends_FacebookId" class="facebook-invites" value = "@string.Format("facbookid{0}", i)" title="@userName"/>
+                                <img src="@friend.ProfilePicUrl" alt="Profile Pic" style="width: 50px"/>                                
                                 @userName
                             </div>                      
                         }
                     </div>
+                    @Html.HiddenFor(m => m.Title)
+                    @Html.HiddenFor(m => m.Description)
+                    @Html.HiddenFor(m => m.Location)
+                    @Html.HiddenFor(m => m.StartDate)
+                    @Html.HiddenFor(m => m.StartTime)
+                    @Html.HiddenFor(m => m.EndTime)
                     <input type="submit" value="Invite these people" />
                 </fieldset>                  
             }         

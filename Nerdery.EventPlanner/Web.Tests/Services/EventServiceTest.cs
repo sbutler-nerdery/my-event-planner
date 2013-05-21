@@ -14,6 +14,7 @@ using Web.ViewModels;
 
 namespace Web.Tests.Services
 {
+    [TestClass]
     public class EventServiceTest : BaseTestFixture
     {
         /// <summary>
@@ -44,14 +45,17 @@ namespace Web.Tests.Services
         public void Invite_New_People()
         {
             //Arrange
-            var personOne = 1;
-            var personTwo = 2;
-            var personThree = 3;
-            var viewModel = new EventViewModel{ PeopleInvited = new List<int>{personTwo, personThree} };
+            var personOne = "1";
+            var personTwo = "2";
+            var personThree = "3";
+            var viewModel = new EventViewModel{ PeopleInvited = new List<string>{personTwo, personThree} };
             var dataModel = new Event
                 {
-                    PeopleInvited = new List<Person> {new Person{PersonId = 2}, new Person{PersonId = 3}}
+                    PeopleInvited = new List<Person> {new Person{PersonId = 2}, new Person{PersonId = 3}},
+                    PendingInvitations = new List<PendingInvitation>()
                 };
+
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { new Person() { PersonId = 1 } }.AsQueryable());
 
             //Act
             viewModel.PeopleInvited.Add(personOne);
@@ -60,6 +64,55 @@ namespace Web.Tests.Services
             //Assert
             Assert.AreEqual(dataModel.PeopleInvited.Count, 3);
         }
+        [TestMethod]
+        public void Invite_New_People_By_Email()
+        {
+            //Arrange
+            var ben = "ben@email.com|Ben|Bufford";
+            var dan = "dan@email.com|Dan|Gidman";
+            var herb = "herb@email.com|Herb|Nease";
+            var viewModel = new EventViewModel { PeopleInvited = new List<string> { dan, herb } };
+            var dataModel = new Event
+            {
+                Coordinator = new Person { PersonId = 1},
+                PendingInvitations = new List<PendingInvitation> { new PendingInvitation { Email = "dan@email.com" }, new PendingInvitation { Email = "herb@email.com" } },
+                PeopleInvited = new List<Person>()
+            };
+
+            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation> { new PendingInvitation { Email = "ben@email.com" } }.AsQueryable());
+
+            //Act
+            viewModel.PeopleInvited.Add(ben);
+            EventService.InviteNewPeople(dataModel, viewModel);
+
+            //Assert
+            Assert.AreEqual(dataModel.PendingInvitations.Count, 3);
+
+        }
+        [TestMethod]
+        public void Invite_New_People_By_Facebook()
+        {
+            //Arrange
+            var ben = "00000|Ben Van Orm Bufford";
+            var dan = "11111|Dan Gidman";
+            var herb = "22222|Herb Nease";
+            var viewModel = new EventViewModel { PeopleInvited = new List<string> { dan, herb } };
+            var dataModel = new Event
+            {
+                Coordinator = new Person { PersonId = 1 },
+                PendingInvitations = new List<PendingInvitation> { new PendingInvitation { FacebookId = "11111" }, new PendingInvitation { FacebookId = "22222" } },
+                PeopleInvited = new List<Person>()
+            };
+
+            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation> { new PendingInvitation { FacebookId = "00000" } }.AsQueryable());
+
+            //Act
+            viewModel.PeopleInvited.Add(ben);
+            EventService.InviteNewPeople(dataModel, viewModel);
+
+            //Assert
+            Assert.AreEqual(dataModel.PendingInvitations.Count, 3);
+        }
         /// <summary>
         /// This unit test will ensure that people can be un-invited to an event
         /// </summary>
@@ -67,10 +120,10 @@ namespace Web.Tests.Services
         public void Uninvite_People()
         {
             //Arrange
-            var personOne = 1;
-            var personTwo = 2;
-            var personThree = 3;
-            var viewModel = new EventViewModel { PeopleInvited = new List<int> { personTwo, personThree } };
+            var personOne = "1";
+            var personTwo = "2";
+            var personThree = "3";
+            var viewModel = new EventViewModel { PeopleInvited = new List<string> { personTwo, personThree } };
             var dataModel = new Event
             {
                 PeopleInvited = new List<Person> { new Person{PersonId = 2}, new Person{PersonId = 3} },

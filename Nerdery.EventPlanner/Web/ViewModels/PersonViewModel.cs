@@ -47,6 +47,10 @@ namespace Web.ViewModels
         public string PhoneNumber { get; set; }
         public string ProfilePicUrl { get; set; }
         /// <summary>
+        /// Get or set the facebook id for this person
+        /// </summary>
+        public string FacebookId { get; set; }
+        /// <summary>
         /// Get or set events that this user is coordinating
         /// </summary>
         public virtual List<EventViewModel> MyEvents { get; set; }

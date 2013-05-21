@@ -14,12 +14,14 @@ namespace Web.Services
         private readonly IRepository<Person> _personPersonRepo;
         private readonly IRepository<Game> _gameRepository;
         private readonly IRepository<FoodItem> _foodRepository;
+        private readonly IRepository<PendingInvitation> _invitationRepository;
 
-        public EventService(IRepository<Person> personRepo, IRepository<Game> gameRepo, IRepository<FoodItem> foodRepo)
+        public EventService(IRepository<Person> personRepo, IRepository<Game> gameRepo, IRepository<FoodItem> foodRepo, IRepository<PendingInvitation> pendingInvitationRepo)
         {
             _personPersonRepo = personRepo;
             _gameRepository = gameRepo;
             _foodRepository = foodRepo;
+            _invitationRepository = pendingInvitationRepo;
         }
 
         public List<string> GetTimeList()
@@ -121,23 +123,118 @@ namespace Web.Services
 
         public void InviteNewPeople(Event dataModel, EventViewModel viewModel)
         {
-                var dataPeopleIds = dataModel.PeopleInvited.Select(x => x.PersonId).ToArray(); //Items in the database
-                var newPeople = viewModel.PeopleInvited.Where(x => !dataPeopleIds.Contains(x)).ToList();
+            int tParse;
 
-                //Add new people
-                newPeople.ForEach(personId =>
+            //Add the temp user ids to the pending invitations table
+            var emailList = new List<string>();
+            var facebookIdList = new List<string>();
+            var emailInvites = viewModel.PeopleInvited.Where(x => x.Split('|').Length == 3).ToList();
+            var facebookInvites = viewModel.PeopleInvited.Where(x => x.Split('|').Length == 2).ToList();
+
+            emailInvites.ForEach(x =>
+                {
+                    var tempUserArray = x.Split('|');
+                    var emailAddress = tempUserArray[0];
+                    emailList.Add(emailAddress);
+
+                    //Make sure it doesn't exist already
+                    var exists = _invitationRepository.GetAll().FirstOrDefault(y => y.Email == emailAddress);
+
+                    if (exists == null)
                     {
-                        var inviteMe = _personPersonRepo.GetAll().FirstOrDefault(person => person.PersonId == personId);
+                        var emailInvite = new PendingInvitation
+                        {
+                            PersonId = dataModel.Coordinator.PersonId,
+                            Email = emailAddress,
+                            FirstName = tempUserArray[1],
+                            LastName = tempUserArray[2]
+                        };
+                        
+                        _invitationRepository.Insert(emailInvite);
+                    }
+                });
 
-                        if (inviteMe != null)
-                            dataModel.PeopleInvited.Add(inviteMe);
-                    });
+            facebookInvites.ForEach(x =>
+            {
+                var tempUserArray = x.Split('|');
+                var facebookId = tempUserArray[0];
 
+                //Get the first and last name values
+                var nameArray = tempUserArray[1].Split(new [] {" "}, StringSplitOptions.RemoveEmptyEntries);
+                var firstName = nameArray[0];
+                var lastName = nameArray[nameArray.Length - 1];
+
+                facebookIdList.Add(facebookId);
+
+                //Make sure it doesn't exist already
+                var exists = _invitationRepository.GetAll().FirstOrDefault(y => y.FacebookId == facebookId);
+
+                if (exists == null)
+                {
+                    var facebookInvite = new PendingInvitation
+                    {
+                        PersonId = dataModel.Coordinator.PersonId,
+                        FacebookId = facebookId,
+                        FirstName = firstName,
+                        LastName = lastName
+                    };
+
+                    _invitationRepository.Insert(facebookInvite);
+                }
+            });
+
+            _invitationRepository.SubmitChanges();
+
+            //Find the existing user ids
+            var dataPeopleIds = dataModel.PeopleInvited.Select(x => x.PersonId).ToArray(); //Items in the database
+            var newPeople = viewModel.PeopleInvited
+                .Where(x => int.TryParse(x, out tParse)) //only get the values that parse as ints
+                .Where(x => !dataPeopleIds.Contains(int.Parse(x))).ToList();
+
+            //Add new people
+            newPeople.ForEach(personId =>
+                {
+                    var id = int.Parse(personId);
+                    var inviteMe = _personPersonRepo.GetAll().FirstOrDefault(person => person.PersonId == id);
+
+                    if (inviteMe != null)
+                        dataModel.PeopleInvited.Add(inviteMe);
+                });
+
+            //Find the existing temp emails
+            var emailPeople = dataModel.PendingInvitations.Where(x => emailList.Contains(x.Email))
+                .Select(x => x.Email).ToArray(); //Items in the database
+            var newEmailPeople = emailList
+                .Where(x => !emailPeople.Contains(x)).ToList();
+
+            //Add people invited by email
+            newEmailPeople.ForEach(email =>
+            {
+                var inviteMe = _invitationRepository.GetAll().FirstOrDefault(invite => invite.Email == email);
+
+                if (inviteMe != null)
+                    dataModel.PendingInvitations.Add(inviteMe);
+            });
+
+            //Find the existing temp facebook ids
+            var facebookPeople = dataModel.PendingInvitations.Where(x => facebookIdList.Contains(x.FacebookId))
+                .Select(x => x.FacebookId).ToArray(); //Items in the database
+            var newFacebookPeople = facebookIdList
+                .Where(x => !facebookPeople.Contains(x)).ToList();
+
+            //Add new people invited by facebook
+            newFacebookPeople.ForEach(facebookId =>
+            {
+                var inviteMe = _invitationRepository.GetAll().FirstOrDefault(invite => invite.FacebookId == facebookId);
+
+                if (inviteMe != null)
+                    dataModel.PendingInvitations.Add(inviteMe);
+            });
         }
 
         public void UninvitePeople(Event dataModel, EventViewModel viewModel)
         {
-                var modelPeopleIds = viewModel.PeopleInvited.Select(x => x).ToArray(); //Items in local view model
+                var modelPeopleIds = viewModel.PeopleInvited.Select(x => int.Parse(x)).ToArray(); //Items in local view model
                 var deletedPeopleIds = dataModel.PeopleInvited.Where(x => !modelPeopleIds.Contains(x.PersonId)).Select(x => x.PersonId).ToList();
 
                 //Delete items

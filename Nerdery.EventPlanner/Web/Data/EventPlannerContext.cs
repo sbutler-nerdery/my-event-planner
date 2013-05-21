@@ -18,6 +18,7 @@ namespace Web.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<FoodItem> FoodItems { get; set; }
         public DbSet<Game> Games { get; set; }
+        public DbSet<PendingInvitation> PendingInvitations { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -30,6 +31,15 @@ namespace Web.Data
                         mc.MapLeftKey("PersonId");
                         mc.MapRightKey("FriendId");
                     });
+
+            modelBuilder.Entity<Person>().HasMany(p => p.MyPendingFriends)
+                .WithMany(pn => pn.MyFriends)
+                .Map(mc =>
+                {
+                    mc.ToTable("TempFriends");
+                    mc.MapLeftKey("PersonId");
+                    mc.MapRightKey("PendingInvitationId");
+                });
 
             //Food
             modelBuilder.Entity<Person>().HasMany(e => e.MyFoodItems)
@@ -77,6 +87,16 @@ namespace Web.Data
                     mc.ToTable("PeopleInvited");
                     mc.MapLeftKey("EventId");
                     mc.MapRightKey("PersonId");
+                });
+
+            //People Invited Who Don't Have an Account Yet
+            modelBuilder.Entity<Event>().HasMany(e => e.PendingInvitations)
+                .WithMany(p => p.MyInvitations)
+                .Map(mc =>
+                {
+                    mc.ToTable("TempPeopleInvited");
+                    mc.MapLeftKey("EventId");
+                    mc.MapRightKey("PendingInvitationId");
                 });
 
             //People who accepted

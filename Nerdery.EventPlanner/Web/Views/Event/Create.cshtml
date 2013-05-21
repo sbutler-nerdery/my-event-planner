@@ -67,9 +67,14 @@
                     @Html.HiddenFor(model => model.EventId)
                 </div>
                 
-                <div id="people-invited">
-                    @Html.Partial("_PeopleInvited", Model)
-                </div>               
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.PeopleInvited)
+                </div>
+                <div class="editor-field">
+                    <a href="javascript:;" data-open-modal="invite-person-to-event">Invite people to my friends list</a><br/>
+                    @Html.ListBoxFor(model => model.PeopleInvited, Model.PeopleList, new {name="PeopleInvited",@style="width:300px;", @class="fancy-list-box"})
+                    @Html.ValidationMessageFor(model => model.EndTime)
+                </div>         
 
                 <p>
                     @Html.HiddenFor(model => model.EventId)

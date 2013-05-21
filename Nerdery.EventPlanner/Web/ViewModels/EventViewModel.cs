@@ -14,7 +14,7 @@ namespace Web.ViewModels
 
         public EventViewModel()
         {
-            PeopleInvited = new List<int>();
+            PeopleInvited = new List<string>();
             FoodItemsSelected = new List<int>();
             GamesSelected = new List<int>();
             PeopleWhoAccepted = new List<int>();
@@ -32,7 +32,7 @@ namespace Web.ViewModels
             EndTime = model.EndDate.ToString("h:mm tt");
             model.FoodItems.ForEach(x => FoodItemsSelected.Add(x.FoodItemId));
             model.Games.ForEach(x => GamesSelected.Add(x.GameId));
-            model.PeopleInvited.ForEach(x => PeopleInvited.Add(x.PersonId));
+            model.PeopleInvited.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
             model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(x.PersonId));
             model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(x.PersonId));
         }
@@ -72,7 +72,7 @@ namespace Web.ViewModels
         /// </summary>
         public MultiSelectList PeopleList { get; set; }
         [Display(Name = "People who are invited")]
-        public List<int> PeopleInvited { get; set; }
+        public List<string> PeopleInvited { get; set; }
         public List<int> PeopleWhoAccepted { get; set; }
         public List<int> PeopleWhoDeclined { get; set; }
         public List<string> TimeList { get; set; }
@@ -105,7 +105,7 @@ namespace Web.ViewModels
             dataModel.PeopleInvited = new List<Person>();
             dataModel.PeopleWhoAccepted = new List<Person>();
             dataModel.PeopleWhoDeclined = new List<Person>();
-
+            dataModel.PendingInvitations = new List<PendingInvitation>();
             return dataModel;
         }
 

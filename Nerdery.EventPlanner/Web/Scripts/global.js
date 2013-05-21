@@ -9,6 +9,45 @@
         APP.Modals.init();
     });
 
+    APP.Events = {
+        addEmailInvite: function (controlId) {
+            var emailField = $("#EmailInvite_Email");
+            var firstNameField = $("#EmailInvite_FirstName");
+            var lastNameField = $("#EmailInvite_LastName");
+            var name = firstNameField.val() + " " + lastNameField.val();
+            var value = emailField.val() + "|" + firstNameField.val() + "|" + lastNameField.val();
+            $("#" + controlId).append("<option value='" + email + "'>" + name + "</option>");
+            APP.Autocomplete.addSelectedItem(controlId, value);
+            
+            //Clear the fields...
+            emailField.val("");
+            firstNameField.val("");
+            lastNameField.val("");
+        },
+        addFacebookInvites: function(controlId) {
+            var selectedCheckBoxes = $("input:checkbox:checked.facebook-invites");
+            var facebookInviteValues = selectedCheckBoxes.map(function() {
+                return $(this).val();
+            });
+            var names = selectedCheckBoxes.map(function() {
+                return $(this).attr("Title");
+            });
+
+            for (var i = 0; i < facebookInviteValues.length; i++) {
+                var facebookId = facebookInviteValues[i];
+                var facebookName = names[i];
+                var value = facebookId + "|" + facebookName;
+                $("#" + controlId).append("<option value='" + value + "'>" + facebookName + "</option>");
+                APP.Autocomplete.addSelectedItem(controlId, value);
+            }
+
+            //Clear the fields...
+            selectedCheckBoxes.each(function () {
+                $(this).prop("checked",false);
+            });
+        }
+    },
+
     APP.Timer = {
         doOnce: function (callback, interval) {
             var myTimer = null;
@@ -63,9 +102,11 @@
         }
     },
     APP.Autocomplete = {
+        $selectControls: null,
         init: function () {
             //Setup select 2 stuff...
-            $('.fancy-list-box').select2();
+            $selectControls = $('.fancy-list-box');
+            $selectControls.select2();
 
             //jQuery autocomplete
             $.ajax({
@@ -86,8 +127,18 @@
                 }
             });
         },
-        postJson: function (blogs, callback) {
+        addSelectedItem: function (controlId, newVal) {
+            //Get the select control
+            var control = $.grep($selectControls, function (select) {
+                return $(select).attr("id") == controlId;
+            });
 
+            //Get the previously selected values
+            var previousValues = $(control).select2("val");
+            
+            //Set the new values
+            previousValues.push(newVal);
+            $(control).select2("val", previousValues);
         }
     };
 }(jQuery, EventPlanner));

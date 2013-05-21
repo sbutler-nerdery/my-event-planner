@@ -21,6 +21,7 @@ namespace Web.Tests.Controllers
         protected IRepository<Person> PersonRepo;
         protected IRepository<Event> EventRepo;
         protected IRepository<FoodItem> FoodRepo;
+        protected IRepository<PendingInvitation> InvitationRepo;
         protected IRepository<Game> GameRepo;
         protected IUserService UserService;
         protected IEventService EventService;
@@ -31,10 +32,11 @@ namespace Web.Tests.Controllers
         {
             PersonRepo = A.Fake<IRepository<Person>>();
             EventRepo = A.Fake<IRepository<Event>>();
+            InvitationRepo = A.Fake<IRepository<PendingInvitation>>();
             FoodRepo = A.Fake<IRepository<FoodItem>>();
             GameRepo = A.Fake<IRepository<Game>>();
             UserService = A.Fake<IUserService>();
-            EventService = new EventService(PersonRepo, GameRepo, FoodRepo);
+            EventService = new EventService(PersonRepo, GameRepo, FoodRepo, InvitationRepo);
             NotificationService = new NotificationService(PersonRepo, EventRepo);
         }
 
@@ -49,10 +51,10 @@ namespace Web.Tests.Controllers
         protected EventViewModel GetTestEventViewModel(int id = 0)
         {
             //People
-            var theHost = 1;
-            var guestOne = 2;
-            var guestTwo = 3;
-            var theInvitees = new List<int> { guestOne, guestTwo };
+            var theHost = "1";
+            var guestOne = "2";
+            var guestTwo = "3";
+            var theInvitees = new List<string> { guestOne, guestTwo };
 
             //Food
             var burgers = new FoodItemViewModel

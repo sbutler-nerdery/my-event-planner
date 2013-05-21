@@ -36,6 +36,10 @@ namespace Web.Data.Models
         public virtual List<Game> MyGames { get; set; }
         public virtual List<Person> MyFriends { get; set; }
         /// <summary>
+        /// Get or set a list of friends that have been invited to an event, but have not created user accounts yet.
+        /// </summary>
+        public virtual List<PendingInvitation> MyPendingFriends { get; set; }
+        /// <summary>
         /// Get or set if the user will receive notifications via facebook.
         /// </summary>
         public bool NotifyWithFacebook { get; set; }
