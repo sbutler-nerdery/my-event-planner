@@ -10,6 +10,44 @@
     });
 
     APP.Events = {
+        addFoodItem: function (controlId, response) {
+            if (response.Error) {
+                alert(response.Message);
+                return;
+            }
+
+            var id = response.Data.FoodItemId;
+            var title = response.Data.Title;
+            var description = response.Data.Description;
+            var text = title + " " + description;
+            var value = id;
+            $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
+            APP.Autocomplete.addSelectedItem(controlId, value);
+
+            //Clear the fields...
+            $("[data-action=add-food-item] :input").each(function() {
+                $(this).val("");
+            });  
+        },
+        addGame: function (controlId, data) {
+            if (data.Error) {
+                alert(data.Message);
+                return;
+            }
+            
+            var id = response.Data.FoodItemId;
+            var title = response.Data.Title;
+            var description = response.Data.Description;
+            var text = title + " " + description;
+            var value = id;
+            $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
+            APP.Autocomplete.addSelectedItem(controlId, value);
+            
+            //Clear the fields...
+            $("[data-action=add-game-item] :input").each(function () {
+                $(this).val("");
+            });
+        },
         addEmailInvite: function (controlId) {
             var emailField = $("#EmailInvite_Email");
             var firstNameField = $("#EmailInvite_FirstName");

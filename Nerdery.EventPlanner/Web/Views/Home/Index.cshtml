@@ -44,7 +44,7 @@
             }
             else if(item.HasAccepted.Value)
             {
-                <li>@item.Title - @Html.ActionLink("Decline", "DeclineInviation", "Home", new {eventId = item.EventId, accepteeId = userId}, null)</li>
+                <li>@item.Title - @Html.ActionLink("Decline", "DeclineInviation", "Home", new {eventId = item.EventId, accepteeId = userId}, null) | @Html.ActionLink("View", "ViewInvitation", "Home", new {eventId = item.EventId, accepteeId = userId}, null)</li>
             }
             else if(item.HasDeclined.Value)
             {

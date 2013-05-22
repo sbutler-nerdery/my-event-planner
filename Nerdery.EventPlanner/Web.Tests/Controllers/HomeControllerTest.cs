@@ -27,7 +27,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             A.CallTo(() => PersonRepo.GetAll()).Throws(new Exception("I can't find the database!"));
-            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
 
             //Act
             var result = controller.Index(null) as ViewResult;
@@ -58,7 +58,7 @@ namespace Web.Tests.Controllers
                 };
             A.CallTo(() => PersonRepo.GetAll()).Returns(personResults.AsQueryable());
             A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
-            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
 
             //Act
             var result = controller.Index(null) as ViewResult;
@@ -82,7 +82,7 @@ namespace Web.Tests.Controllers
         public void AcceptInvitation_Build_View_Model_Fail()
         {
             //Arrange
-            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
 
             //Act
             var result = controller.AcceptInvitation(1, 1) as ViewResult;
@@ -101,7 +101,7 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
-            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
@@ -110,12 +110,12 @@ namespace Web.Tests.Controllers
 
             //Assert
             Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
-            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).AccepteeFoodItems.Count, 2);
-            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).AccepteeGames.Count, 2);
-            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).CurrentEventFoodItems.Count, 0);
-            Assert.AreEqual(((AcceptInvitationViewModel)result.Model).CurrentEventGames.Count, 0);
-            Assert.AreNotEqual(((AcceptInvitationViewModel)result.Model).WillBringTheseFoodItems, null);
-            Assert.AreNotEqual(((AcceptInvitationViewModel)result.Model).WillBringTheseGames, null);   
+            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).MyFoodItems.ToList().Count, 2);
+            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).MyGames.ToList().Count, 2);
+            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).CurrentEventFoodItems.Count, 0);
+            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).CurrentEventGames.Count, 0);
+            Assert.AreNotEqual(((InvitationDetailsViewModel)result.Model).WillBringTheseFoodItems, null);
+            Assert.AreNotEqual(((InvitationDetailsViewModel)result.Model).WillBringTheseGames, null);   
         }
         /// <summary>
         /// Make sure we get the correct error message if accepting the invitation fails
@@ -128,12 +128,12 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
-            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
 
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theInvitee }.AsQueryable());
             var result = controller.AcceptInvitation(eventId, accepteeId) as ViewResult;
-            var viewModel = result.Model as AcceptInvitationViewModel;
+            var viewModel = result.Model as InvitationDetailsViewModel;
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Throws(new Exception("Database error!"));
@@ -155,7 +155,7 @@ namespace Web.Tests.Controllers
             theEvent.Coordinator = new Person { PersonId = 1, Email = "sbutler@nerdery.com", FacebookId = "00000"};
             var theInvitee = GetTestInviteeDataModel(accepteeId);
             theInvitee.MyRegisteredFriends = new List<Person>();
-            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
 
             var newFoodItems = new List<FoodItemViewModel>
                 {
@@ -171,12 +171,14 @@ namespace Web.Tests.Controllers
 
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theInvitee }.AsQueryable());
+            A.CallTo(() => FoodRepo.GetAll()).Returns(new List<FoodItem>().AsQueryable());
+            A.CallTo(() => GameRepo.GetAll()).Returns(new List<Game>().AsQueryable());
             var result = controller.AcceptInvitation(eventId, accepteeId) as ViewResult;
-            var viewModel = result.Model as AcceptInvitationViewModel;
+            var viewModel = result.Model as InvitationDetailsViewModel;
 
             //Act
-            newFoodItems.ForEach(x => viewModel.WillBringTheseFoodItems.Add(x));
-            newGames.ForEach(x => viewModel.WillBringTheseGames.Add(x));
+            newFoodItems.ForEach(x => viewModel.WillBringTheseFoodItems.Add(x.FoodItemId.ToString()));
+            newGames.ForEach(x => viewModel.WillBringTheseGames.Add(x.GameId.ToString()));
             var redirectResult = controller.AcceptInvitation(viewModel) as RedirectToRouteResult;
 
             //Assert

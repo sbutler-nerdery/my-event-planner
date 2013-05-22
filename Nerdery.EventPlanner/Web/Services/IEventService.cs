@@ -72,28 +72,28 @@ namespace Web.Services
         /// <returns></returns>
         string GetSerializedModelState(Event dataModel);
         /// <summary>
-        /// Get the list of invited people that appear in the current event but not in the previous event
+        /// Get the list of invited people that appear in the current list but not in the previous list
         /// </summary>
         /// <param name="previousInvites">The list of previously invited people</param>
         /// <param name="currentInvites">The list of currently invited people</param>
         /// <returns></returns>
         List<Person> GetRegisteredInvites(List<Person> previousInvites, List<Person> currentInvites);
         /// <summary>
-        /// Get the list of non-registered invited people that appear in the current event but not in the previous event
+        /// Get the list of non-registered invited people that appear in the current list but not in the previous list
         /// </summary>
         /// <param name="previousInvites">The list of previously invited people</param>
         /// <param name="currentInvites">The list of currently invited people</param>
         /// <returns></returns>
         List<PendingInvitation> GetNonRegisteredInvites(List<PendingInvitation> previousInvites, List<PendingInvitation> currentInvites);
         /// <summary>
-        /// Get the list of uninvited people that appear in the current event but not in the previous event
+        /// Get the list of uninvited people that appear in the current list but not in the previous list
         /// </summary>
         /// <param name="previousInvites">The list of previously invited people</param>
         /// <param name="currentInvites">The list of currently invited people</param>
         /// <returns></returns>
         List<Person> GetRegisteredUninvites(List<Person> previousInvites, List<Person> currentInvites);
         /// <summary>
-        /// Get the list of non-registered uninvited people that appear in the current event but not in the previous event
+        /// Get the list of non-registered uninvited people that appear in the current list but not in the previous list
         /// </summary>
         /// <param name="previousInvites">The list of previously invited people</param>
         /// <param name="currentInvites">The list of currently invited people</param>

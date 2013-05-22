@@ -22,6 +22,6 @@ namespace Web.Controllers
         /// <summary>
         /// Get or set the json data the the response will return
         /// </summary>
-        public string Data { get; set; }
+        public object Data { get; set; }
     }
 }
