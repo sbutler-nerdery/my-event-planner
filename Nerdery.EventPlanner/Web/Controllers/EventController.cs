@@ -247,6 +247,10 @@ namespace Web.Controllers
             try
             {
                 var deleteMe = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == id);
+
+                //Send cancellation notifications
+                SendCancellationNotifications(deleteMe);
+
                 _eventRepository.Delete(deleteMe);
                 _eventRepository.SubmitChanges();
 
@@ -302,9 +306,9 @@ namespace Web.Controllers
         /// <summary>
         /// Send update notifications to everyone who was invited.
         /// </summary>
-        /// <param name="theEvent"></param>
-        /// <param name="newRegisteredInvites"></param>
-        /// <param name="newNonRegisteredInvites"></param>
+        /// <param name="theEvent">The specified event</param>
+        /// <param name="newRegisteredInvites">A list of newly invited people who are registered users</param>
+        /// <param name="newNonRegisteredInvites">A list of newly invited people who are non-registered users</param>
         private void SendUpdateNotifications(Event theEvent, List<Person> newRegisteredInvites, List<PendingInvitation> newNonRegisteredInvites)
         {
             //This is here so that unit tests on this controller will pass. So much easier than faking it!
@@ -407,6 +411,34 @@ namespace Web.Controllers
 
                 notifications.Add(notification);
             });
+
+            _notificationService.SendNotifications(notifications);
+        }
+
+        /// <summary>
+        /// Send out notifications indicating that an event has been cancelled.
+        /// </summary>
+        /// <param name="theEvent">The specified event</param>
+        private void SendCancellationNotifications(Event theEvent)
+        {
+            //This is here so that unit tests on this controller will pass. So much easier than faking it!
+            if (Request == null)
+                return;
+
+            var notifications = new List<EventPlannerNotification>();
+
+            //Only send update notification to people who have already been invited
+            theEvent.RegisteredInvites.ForEach(x =>
+                {
+                    var updateNotification = _notificationService.GetNotificationForEventCancelled(theEvent.EventId, x.PersonId, 0);
+                    notifications.Add(updateNotification);
+                });
+
+            theEvent.NonRegisteredInvites.ForEach(x =>
+                {
+                    var updateNotification = _notificationService.GetNotificationForEventCancelled(theEvent.EventId, 0, x.PendingInvitationId);
+                    notifications.Add(updateNotification);
+                });
 
             _notificationService.SendNotifications(notifications);
         }
