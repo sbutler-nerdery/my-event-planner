@@ -60,7 +60,7 @@ namespace Web.Controllers
                 var userId = _userService.GetCurrentUserId(userName);
                 var people = new List<SelectListItem>();
                 var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
-                coordinator.MyFriends
+                coordinator.MyRegisteredFriends
                                  .ToList()
                                  .ForEach(
                                      x => people.Add(new SelectListItem
@@ -69,7 +69,7 @@ namespace Web.Controllers
                                          Text = x.FirstName + " " + x.LastName
                                      }));
 
-                coordinator.MyPendingFriends
+                coordinator.MyNonRegisteredFriends
                                  .ToList()
                                  .ForEach(
                                      x => people.Add(new SelectListItem
@@ -124,7 +124,7 @@ namespace Web.Controllers
                     _eventRepository.SubmitChanges();
 
                     //Send notifications
-                    SendNotifications(createMe);
+                    SendUpdateNotifications(createMe, createMe.RegisteredInvites, createMe.NonRegisteredInvites);
 
                     return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
                 }
@@ -175,8 +175,9 @@ namespace Web.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var initialModelState = _eventService.GetSerializedModelState(updateMe);
-                    var previousModelData = JsonConvert.SerializeObject(updateMe);
+                    var initialRequiredFieldsState = _eventService.GetSerializedModelState(updateMe);
+                    var previousRegisteredInvites = new List<Person>(updateMe.RegisteredInvites);
+                    var previousNonRegisteredInvites = new List<PendingInvitation>(updateMe.NonRegisteredInvites);
 
                     updateMe.Title = model.Title;
                     updateMe.Description = model.Description;
@@ -199,18 +200,17 @@ namespace Web.Controllers
 
                     _eventRepository.SubmitChanges();
 
-                    var updatedModelState = _eventService.GetSerializedModelState(updateMe);
+                    var updatedRequiredFieldsState = _eventService.GetSerializedModelState(updateMe);
+                    var newRegisteredInvites = _eventService.GetRegisteredInvites(previousRegisteredInvites, updateMe.RegisteredInvites);
+                    var newNonRegisteredInvites = _eventService.GetNonRegisteredInvites(previousNonRegisteredInvites, updateMe.NonRegisteredInvites);
 
                     //Send notifications if the model has changed
-                    if (!initialModelState.Equals(updatedModelState))
-                        SendNotifications(updateMe);
+                    if (!initialRequiredFieldsState.Equals(updatedRequiredFieldsState))
+                        SendUpdateNotifications(updateMe, newRegisteredInvites, newNonRegisteredInvites);
+                    //Even if the model state has not changed, send notifications to newly invited people
                     else
                     {
-                        var previousState = JsonConvert.DeserializeObject<Event>(previousModelData);
-                        var newRegisteredInvites = _eventService.GetRegisteredInvites(previousState, updateMe);
-                        var newNonRegisteredInvites = _eventService.GetNonRegisteredInvites(previousState, updateMe);
-
-                        SendNotifications(updateMe, newRegisteredInvites, newNonRegisteredInvites);
+                        SendInvitations(updateMe, newRegisteredInvites, newNonRegisteredInvites);
                     }
 
                     return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
@@ -269,7 +269,7 @@ namespace Web.Controllers
             var userId = _userService.GetCurrentUserId(userName);
             var people = new List<SelectListItem>();
             var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
-            coordinator.MyFriends
+            coordinator.MyRegisteredFriends
                              .ToList()
                              .ForEach(
                                  x => people.Add(new SelectListItem
@@ -278,7 +278,7 @@ namespace Web.Controllers
                                      Text = x.FirstName + " " + x.LastName
                                  }));
 
-            coordinator.MyPendingFriends
+            coordinator.MyNonRegisteredFriends
                              .ToList()
                              .ForEach(
                                  x => people.Add(new SelectListItem
@@ -294,51 +294,38 @@ namespace Web.Controllers
             return model;
         }
 
-        private void SendNotifications(Event theEvent)
+        private void SendUpdateNotifications(Event theEvent, List<Person> newRegisteredInvites, List<PendingInvitation> newNonRegisteredInvites)
         {
-            //This is here so that unit tests on this controller will pass.
+            //This is here so that unit tests on this controller will pass. So much easier than faking it!
             if (Request == null)
                 return;
 
             var notifications = new List<EventPlannerNotification>();
 
-            theEvent.PeopleInvited.ForEach(x =>
+            //Only send update notification to people who have already been invited
+            theEvent.RegisteredInvites
+                .Where(x => !newRegisteredInvites.Select(y => y.PersonId).Contains(x.PersonId))
+                .ToList().ForEach(x =>
             {
-                var notificationUrl = string.Format("{0}://{1}{2}",
-                    Request.Url.Scheme,
-                    Request.Url.Authority,
-                    Url.Action("AcceptInvitation", "Home", new { eventId = theEvent.EventId, accepteeId = x.PersonId }));
-                var notification = _notificationService
-                    .GetNewInvitationNotification(theEvent.EventId, x.PersonId, notificationUrl);
-
-                notification.Email = x.Email ?? string.Empty;
-                notification.FacebookId = x.FacebookId ?? string.Empty;
-                notification.SendToEmail = x.NotifyWithEmail;
-                notification.SendToFacebook = x.NotifyWithFacebook;
-                notifications.Add(notification);
+                var updateNotification = _notificationService.GetNotificationForEventUpdate(theEvent.EventId, x.PersonId, 0);
+                notifications.Add(updateNotification);
             });
 
-            theEvent.PendingInvitations.ForEach(x =>
+            theEvent.NonRegisteredInvites
+                .Where(x => !newNonRegisteredInvites.Select(y => y.PendingInvitationId).Contains(x.PendingInvitationId))
+                .ToList().ForEach(x =>
             {
-                var notificationUrl = string.Format("{0}://{1}{2}",
-                    Request.Url.Scheme,
-                    Request.Url.Authority,
-                    Url.Action("Register", "Account", new { eventId = theEvent.EventId, pendingInvitationId = x.PendingInvitationId }));
-
-                var notification = _notificationService
-                    .GetNewInvitationNotification(theEvent.EventId, x.PersonId, notificationUrl);
-
-                notification.Email = x.Email ?? string.Empty;
-                notification.FacebookId = x.FacebookId ?? string.Empty;
-                notification.SendToEmail = (x.Email != null);
-                notification.SendToFacebook = (x.FacebookId != null);
-                notifications.Add(notification);
+                var updateNotification = _notificationService.GetNotificationForEventUpdate(theEvent.EventId, 0, x.PendingInvitationId);
+                notifications.Add(updateNotification);
             });
 
             _notificationService.SendNotifications(notifications);
+
+            //Invite new people to the event...
+            SendInvitations(theEvent, newRegisteredInvites, newNonRegisteredInvites);
         }
 
-        private void SendNotifications(Event theEvent, List<Person> registeredInvites, List<PendingInvitation> nonRegisteredInvites )
+        private void SendInvitations(Event theEvent, List<Person> registeredInvites, List<PendingInvitation> nonRegisteredInvites)
         {
             //This is here so that unit tests on this controller will pass.
             if (Request == null)
@@ -353,12 +340,8 @@ namespace Web.Controllers
                     Request.Url.Authority,
                     Url.Action("AcceptInvitation", "Home", new { eventId = theEvent.EventId, accepteeId = x.PersonId }));
                 var notification = _notificationService
-                    .GetNewInvitationNotification(theEvent.EventId, x.PersonId, notificationUrl);
+                    .GetNewInvitationNotification(theEvent.EventId, x.PersonId, 0, notificationUrl);
 
-                notification.Email = x.Email ?? string.Empty;
-                notification.FacebookId = x.FacebookId ?? string.Empty;
-                notification.SendToEmail = x.NotifyWithEmail;
-                notification.SendToFacebook = x.NotifyWithFacebook;
                 notifications.Add(notification);
             });
 
@@ -370,12 +353,8 @@ namespace Web.Controllers
                     Url.Action("Register", "Account", new { eventId = theEvent.EventId, pendingInvitationId = x.PendingInvitationId }));
 
                 var notification = _notificationService
-                    .GetNewInvitationNotification(theEvent.EventId, x.PersonId, notificationUrl);
+                    .GetNewInvitationNotification(theEvent.EventId, 0, x.PendingInvitationId, notificationUrl);
 
-                notification.Email = x.Email ?? string.Empty;
-                notification.FacebookId = x.FacebookId ?? string.Empty;
-                notification.SendToEmail = (x.Email != null);
-                notification.SendToFacebook = (x.FacebookId != null);
                 notifications.Add(notification);
             });
 

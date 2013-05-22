@@ -187,7 +187,7 @@ namespace Web.Services
             _invitationRepository.SubmitChanges();
 
             //Find the existing user ids
-            var dataPeopleIds = dataModel.PeopleInvited.Select(x => x.PersonId).ToArray(); //Items in the database
+            var dataPeopleIds = dataModel.RegisteredInvites.Select(x => x.PersonId).ToArray(); //Items in the database
             var newPeople = viewModel.PeopleInvited
                 .Where(x => int.TryParse(x, out tParse)) //only get the values that parse as ints
                 .Where(x => !dataPeopleIds.Contains(int.Parse(x))).ToList();
@@ -199,11 +199,11 @@ namespace Web.Services
                     var inviteMe = _personPersonRepo.GetAll().FirstOrDefault(person => person.PersonId == id);
 
                     if (inviteMe != null)
-                        dataModel.PeopleInvited.Add(inviteMe);
+                        dataModel.RegisteredInvites.Add(inviteMe);
                 });
 
             //Find the existing temp emails
-            var emailPeople = dataModel.PendingInvitations.Where(x => emailList.Contains(x.Email))
+            var emailPeople = dataModel.NonRegisteredInvites.Where(x => emailList.Contains(x.Email))
                 .Select(x => x.Email).ToArray(); //Items in the database
             var newEmailPeople = emailList
                 .Where(x => !emailPeople.Contains(x)).ToList();
@@ -215,22 +215,22 @@ namespace Web.Services
 
                 if (inviteMe != null)
                 {
-                    dataModel.PendingInvitations.Add(inviteMe);
+                    dataModel.NonRegisteredInvites.Add(inviteMe);
 
                     //Add the new email invite to the user's list of friends if necissary...
                     var exists =
-                        dataModel.Coordinator.MyPendingFriends.FirstOrDefault(
+                        dataModel.Coordinator.MyNonRegisteredFriends.FirstOrDefault(
                             x => x.PendingInvitationId == inviteMe.PendingInvitationId);
 
                     if (exists == null)
                     {
-                        dataModel.Coordinator.MyPendingFriends.Add(inviteMe);
+                        dataModel.Coordinator.MyNonRegisteredFriends.Add(inviteMe);
                     }
                 }
             });
 
             //Find the existing temp facebook ids
-            var facebookPeople = dataModel.PendingInvitations.Where(x => facebookIdList.Contains(x.FacebookId))
+            var facebookPeople = dataModel.NonRegisteredInvites.Where(x => facebookIdList.Contains(x.FacebookId))
                 .Select(x => x.FacebookId).ToArray(); //Items in the database
             var newFacebookPeople = facebookIdList
                 .Where(x => !facebookPeople.Contains(x)).ToList();
@@ -242,16 +242,16 @@ namespace Web.Services
 
                 if (inviteMe != null)
                 {
-                    dataModel.PendingInvitations.Add(inviteMe);
+                    dataModel.NonRegisteredInvites.Add(inviteMe);
 
                     //Add the new facebook invite to the user's list of friends if necissary...
                     var exists =
-                        dataModel.Coordinator.MyPendingFriends.FirstOrDefault(
+                        dataModel.Coordinator.MyNonRegisteredFriends.FirstOrDefault(
                             x => x.PendingInvitationId == inviteMe.PendingInvitationId);
 
                     if (exists == null)
                     {
-                        dataModel.Coordinator.MyPendingFriends.Add(inviteMe);
+                        dataModel.Coordinator.MyNonRegisteredFriends.Add(inviteMe);
                     }
                 }
             });
@@ -264,17 +264,17 @@ namespace Web.Services
             var modelPeopleIds = viewModel.PeopleInvited
                 .Where(x => int.TryParse(x, out parse))
                 .Select(int.Parse).ToArray(); //Items in local view model
-            var deletedPeopleIds = dataModel.PeopleInvited.Where(x => !modelPeopleIds.Contains(x.PersonId)).Select(x => x.PersonId).ToList();
+            var deletedPeopleIds = dataModel.RegisteredInvites.Where(x => !modelPeopleIds.Contains(x.PersonId)).Select(x => x.PersonId).ToList();
 
             //Delete items
             deletedPeopleIds.ForEach(id =>
             {
-                var removeInvitation = dataModel.PeopleInvited.FirstOrDefault(y => y.PersonId == id);
+                var removeInvitation = dataModel.RegisteredInvites.FirstOrDefault(y => y.PersonId == id);
                 var removeAccepted = dataModel.PeopleWhoAccepted.FirstOrDefault(y => y.PersonId == id);
                 var removeDeclined = dataModel.PeopleWhoDeclined.FirstOrDefault(y => y.PersonId == id);
 
                 //Remove from the invitation list
-                dataModel.PeopleInvited.Remove(removeInvitation);
+                dataModel.RegisteredInvites.Remove(removeInvitation);
 
                 //Remove from the accepted list
                 if (removeAccepted != null)
@@ -299,75 +299,56 @@ namespace Web.Services
                 facebookIdList.Add(tempArray[0]);
             });
 
-            var deletedEmailInvites = dataModel.PendingInvitations
+            var deletedEmailInvites = dataModel.NonRegisteredInvites
                 .Where(x => !emailList.Contains(x.Email) && x.FacebookId == null)
                 .Select(x => x.Email).ToList();
-            var deletedFacebookInvites = dataModel.PendingInvitations
+            var deletedFacebookInvites = dataModel.NonRegisteredInvites
                 .Where(x => !facebookIdList.Contains(x.FacebookId) && x.Email == null)
                 .Select(x => x.FacebookId).ToList();
 
             deletedEmailInvites.ForEach(email =>
             {
-                var removeInvitation = dataModel.PendingInvitations.FirstOrDefault(y => y.Email == email);
+                var removeInvitation = dataModel.NonRegisteredInvites.FirstOrDefault(y => y.Email == email);
 
                 //Remove from the invitation list
-                dataModel.PendingInvitations.Remove(removeInvitation);
+                dataModel.NonRegisteredInvites.Remove(removeInvitation);
             });
 
             deletedFacebookInvites.ForEach(facebookId =>
             {
-                var removeInvitation = dataModel.PendingInvitations.FirstOrDefault(y => y.FacebookId == facebookId);
+                var removeInvitation = dataModel.NonRegisteredInvites.FirstOrDefault(y => y.FacebookId == facebookId);
 
                 //Remove from the invitation list
-                dataModel.PendingInvitations.Remove(removeInvitation);
+                dataModel.NonRegisteredInvites.Remove(removeInvitation);
             });
         }
 
-        public string GetSerializedModelState(Event dataModel, bool includeInvites)
+        public string GetSerializedModelState(Event dataModel)
         {
-            if (includeInvites)
-            {
-                var modelState =
-                    new
-                    {
-                        dataModel.Title,
-                        dataModel.Description,
-                        dataModel.Location,
-                        dataModel.StartDate,
-                        dataModel.EndDate,
-                        dataModel.PeopleInvited,
-                        dataModel.PendingInvitations
-                    };
-                return JsonConvert.SerializeObject(modelState);
-            }
-            else
-            {
-                var modelState =
-                    new
-                    {
-                        dataModel.Title,
-                        dataModel.Description,
-                        dataModel.Location,
-                        dataModel.StartDate,
-                        dataModel.EndDate
-                    };
+            var modelState =
+                new
+                {
+                    dataModel.Title,
+                    dataModel.Description,
+                    dataModel.Location,
+                    dataModel.StartDate
+                };
 
-                return JsonConvert.SerializeObject(modelState);
-            }
+            return JsonConvert.SerializeObject(modelState);
         }
 
-        public List<Person> GetRegisteredInvites(Event previousData, Event currentData)
+        public List<Person> GetRegisteredInvites(List<Person> previousInvites, List<Person> currentInvites)
         {
-            var oldPeopleIds = previousData.PeopleInvited.Select(x => x.PersonId).ToArray(); //Items in the database
-            var newPeople = currentData.PeopleInvited
+            var oldPeopleIds = previousInvites.Select(x => x.PersonId).ToArray(); //Items in the database
+            var newPeople = currentInvites
                 .Where(x => !oldPeopleIds.Contains(x.PersonId)).ToList();
             return newPeople;
         }
 
-        public List<PendingInvitation> GetNonRegisteredInvites(Event previousData, Event currentData)
+        public List<PendingInvitation> GetNonRegisteredInvites(List<PendingInvitation> previousInvites, List<PendingInvitation> currentInvites)
         {
-            var oldPeopleIds = previousData.PendingInvitations.Select(x => x.PendingInvitationId).ToArray(); //Items in the database
-            var newPeople = currentData.PendingInvitations
+            var oldPeopleIds = previousInvites.Select(x => x.PendingInvitationId).ToArray(); //Items in the database
+            var newPeople = currentInvites
                 .Where(x => !oldPeopleIds.Contains(x.PendingInvitationId)).ToList();
             return newPeople;
         }

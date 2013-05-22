@@ -23,7 +23,7 @@ namespace Web.Data
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             //Friends
-            modelBuilder.Entity<Person>().HasMany(p => p.MyFriends)
+            modelBuilder.Entity<Person>().HasMany(p => p.MyRegisteredFriends)
                 .WithMany()
                 .Map(mc =>
                     {
@@ -32,7 +32,7 @@ namespace Web.Data
                         mc.MapRightKey("FriendId");
                     });
 
-            modelBuilder.Entity<Person>().HasMany(p => p.MyPendingFriends)
+            modelBuilder.Entity<Person>().HasMany(p => p.MyNonRegisteredFriends)
                 .WithMany(pn => pn.MyFriends)
                 .Map(mc =>
                 {
@@ -80,7 +80,7 @@ namespace Web.Data
                 });
 
             //People Invited
-            modelBuilder.Entity<Event>().HasMany(e => e.PeopleInvited)
+            modelBuilder.Entity<Event>().HasMany(e => e.RegisteredInvites)
                 .WithMany(p => p.MyInvitations)
                 .Map(mc =>
                 {
@@ -90,7 +90,7 @@ namespace Web.Data
                 });
 
             //People Invited Who Don't Have an Account Yet
-            modelBuilder.Entity<Event>().HasMany(e => e.PendingInvitations)
+            modelBuilder.Entity<Event>().HasMany(e => e.NonRegisteredInvites)
                 .WithMany(p => p.MyInvitations)
                 .Map(mc =>
                 {

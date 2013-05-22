@@ -20,16 +20,18 @@ namespace Web.Controllers
         private readonly IRepository<Person> _personRepository;
         private readonly IRepository<Event> _eventRepository;
         private readonly IUserService _userService;
+        private readonly INotificationService _notificationService;
 
         #endregion 
 
         #region Constructors
 
-        public HomeController(IRepository<Person> personRepo, IRepository<Event> eventRepo, IUserService userService)
+        public HomeController(IRepository<Person> personRepo, IRepository<Event> eventRepo, IUserService userService, INotificationService notificationService)
         {
             _personRepository = personRepo;
             _eventRepository = eventRepo;
             _userService = userService;
+            _notificationService = notificationService;
         }
 
         #endregion
@@ -107,16 +109,20 @@ namespace Web.Controllers
                     thePerson.HaveDeclined.Remove(theEvent);
                     
                     //Add the coordinator to this peron's friend list.
-                    var exists = thePerson.MyFriends.FirstOrDefault(x => x.PersonId == theEvent.Coordinator.PersonId);
+                    var exists = thePerson.MyRegisteredFriends.FirstOrDefault(x => x.PersonId == theEvent.Coordinator.PersonId);
 
                     if (exists == null)
-                        thePerson.MyFriends.Add(theEvent.Coordinator);
+                        thePerson.MyRegisteredFriends.Add(theEvent.Coordinator);
 
                     model.WillBringTheseFoodItems.ForEach(x => theEvent.FoodItems.Add(x.GetDataModel()));
                     model.WillBringTheseGames.ForEach(x => theEvent.Games.Add(x.GetDataModel()));
 
                     _personRepository.SubmitChanges();
                     _eventRepository.SubmitChanges();
+
+                    //Send notification to event coordinator
+                    var notification = _notificationService.GetInvitationAcceptedNotification(theEvent.EventId, thePerson.PersonId);
+                    _notificationService.SendNotifications(new List<EventPlannerNotification> { notification });
 
                     return RedirectToAction("Index", new { message = BaseControllerMessageId.AcceptInvitationSuccess });
                 }                
@@ -149,6 +155,10 @@ namespace Web.Controllers
                 thePerson.AmAttending.Remove(theEvent);
                 thePerson.HaveDeclined.Add(theEvent);
                 _personRepository.SubmitChanges();
+
+                //Send notification to event coordinator
+                var notification = _notificationService.GetInvitationDeclinedNotification(eventId, accepteeId);
+                _notificationService.SendNotifications(new List<EventPlannerNotification> { notification });
             }
             catch (Exception)
             {

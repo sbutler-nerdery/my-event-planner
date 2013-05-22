@@ -32,8 +32,8 @@ namespace Web.ViewModels
             EndTime = model.EndDate.ToString("h:mm tt");
             model.FoodItems.ForEach(x => FoodItemsSelected.Add(x.FoodItemId));
             model.Games.ForEach(x => GamesSelected.Add(x.GameId));
-            model.PeopleInvited.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
-            model.PendingInvitations.ForEach(x =>
+            model.RegisteredInvites.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
+            model.NonRegisteredInvites.ForEach(x =>
                 {
                     if (x.Email != null)
                     {
@@ -113,13 +113,13 @@ namespace Web.ViewModels
             dataModel.Title = Title;
             dataModel.Description = Description;
             dataModel.Location = Location;
-            dataModel.PeopleInvited = new List<Person>();
+            dataModel.RegisteredInvites = new List<Person>();
             dataModel.FoodItems = new List<FoodItem>();
             dataModel.Games = new List<Game>();
-            dataModel.PeopleInvited = new List<Person>();
+            dataModel.RegisteredInvites = new List<Person>();
             dataModel.PeopleWhoAccepted = new List<Person>();
             dataModel.PeopleWhoDeclined = new List<Person>();
-            dataModel.PendingInvitations = new List<PendingInvitation>();
+            dataModel.NonRegisteredInvites = new List<PendingInvitation>();
             return dataModel;
         }
 

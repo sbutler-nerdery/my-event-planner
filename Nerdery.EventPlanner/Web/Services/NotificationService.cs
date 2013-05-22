@@ -13,12 +13,14 @@ namespace Web.Services
     {
         private readonly IRepository<Person> _personRepository;
         private readonly IRepository<Event> _eventRepository;
+        private readonly IRepository<PendingInvitation> _invitationRepository;
         private readonly SmtpClient _emailClient;
 
-        public NotificationService(IRepository<Person> personRepo, IRepository<Event> eventRepo)
+        public NotificationService(IRepository<Person> personRepo, IRepository<Event> eventRepo, IRepository<PendingInvitation> invitationRepo)
         {
             _personRepository = personRepo;
             _eventRepository = eventRepo;
+            _invitationRepository = invitationRepo;
             _emailClient = new SmtpClient();
         }
 
@@ -39,58 +41,64 @@ namespace Web.Services
             }
         }
 
-        public List<EventPlannerNotification> GetNotificationsForEventUpdate(int eventId)
+        public EventPlannerNotification GetNotificationForEventUpdate(int eventId, int registeredId, int nonRegisteredId)
         {
-            var notifications = new List<EventPlannerNotification>();
-            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
-            _personRepository.GetAll().Where(x => x.AmAttending.Select(y => y.EventId == eventId).Any() ||
-                x.MyInvitations.Select(y => y.EventId == eventId).Any())
-                .ToList().ForEach(x => notifications.Add(new EventPlannerNotification
-                    {
-                        PersonId = x.PersonId,
-                        SendToFacebook = x.NotifyWithFacebook,
-                        SendToEmail = x.NotifyWithEmail,
-                        Message = string.Format(Constants.MESSAGE_UPDATE_TEMPLATE, 
-                            theEvent.Title, theEvent.Coordinator.FirstName, 
-                            theEvent.Coordinator.LastName, 
-                            theEvent.StartDate.ToShortDateString(),
-                            theEvent.StartDate.ToShortTimeString()),
-                        Title = Constants.MESSAGE_UPDATE_TITLE
-                    }));
+            var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == eventId);
+            var registeredPerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == registeredId);
+            var nonRegisteredPerson =
+                _invitationRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == nonRegisteredId);
 
-            return notifications;
+            var notification = new EventPlannerNotification
+                {
+                    SendToFacebook = (registeredPerson != null) ? registeredPerson.NotifyWithFacebook : (nonRegisteredPerson.FacebookId != null),
+                    SendToEmail = (registeredPerson != null) ? registeredPerson.NotifyWithEmail : (nonRegisteredPerson.Email != null),
+                    Email = (registeredPerson != null) ? registeredPerson.Email : nonRegisteredPerson.Email,
+                    FacebookId = (registeredPerson != null) ? registeredPerson.FacebookId : nonRegisteredPerson.FacebookId,
+                    Message = string.Format(Constants.MESSAGE_UPDATE_TEMPLATE,
+                                            theEvent.Title, theEvent.Coordinator.FirstName,
+                                            theEvent.Coordinator.LastName,
+                                            theEvent.StartDate.ToShortDateString(),
+                                            theEvent.StartDate.ToShortTimeString()),
+                    Title = Constants.MESSAGE_UPDATE_TITLE
+                };
+
+            return notification;
         }
 
-        public List<EventPlannerNotification> GetNotificationsForEventCancelled(int eventId)
+        public EventPlannerNotification GetNotificationForEventCancelled(int eventId, int registeredId, int nonRegisteredId)
         {
-            var notifications = new List<EventPlannerNotification>();
-            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
-            _personRepository.GetAll().Where(x => x.AmAttending.Select(y => y.EventId == eventId).Any() ||
-                x.MyInvitations.Select(y => y.EventId == eventId).Any())
-                .ToList().ForEach(x => notifications.Add(new EventPlannerNotification
-                {
-                    PersonId = x.PersonId,
-                    SendToFacebook = x.NotifyWithFacebook,
-                    SendToEmail = x.NotifyWithEmail,
-                    Message = string.Format(Constants.MESSAGE_CANCELLED_TEMPLATE,
+            var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == eventId);
+            var registeredPerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == registeredId);
+            var nonRegisteredPerson =
+                _invitationRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == nonRegisteredId);
+
+            var notification = new EventPlannerNotification
+            {
+                SendToFacebook = (registeredPerson != null) ? registeredPerson.NotifyWithFacebook : (nonRegisteredPerson.FacebookId != null),
+                SendToEmail = (registeredPerson != null) ? registeredPerson.NotifyWithEmail : (nonRegisteredPerson.Email != null),
+                Email = (registeredPerson != null) ? registeredPerson.Email : nonRegisteredPerson.Email,
+                FacebookId = (registeredPerson != null) ? registeredPerson.FacebookId : nonRegisteredPerson.FacebookId,
+                Message = string.Format(Constants.MESSAGE_CANCELLED_TEMPLATE,
                         theEvent.Title, theEvent.Coordinator.FirstName,
                         theEvent.Coordinator.LastName),
-                    Title = Constants.MESSAGE_CANCELLED_TITLE
-                }));
+                Title = Constants.MESSAGE_CANCELLED_TITLE
+            };
 
-            return notifications;
+            return notification;
         }
 
-        public EventPlannerNotification GetNewInvitationNotification(int eventId, int inviteeId, string invitationUrl)
+        public EventPlannerNotification GetNewInvitationNotification(int eventId, int registeredId, int nonRegisteredId, string invitationUrl)
         {
             var notification = new EventPlannerNotification();
 
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
-            var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == inviteeId);
+            var registeredPerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == registeredId);
+            var nonRegisteredPerson = _invitationRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == nonRegisteredId);
 
-            notification.SendToFacebook = thePerson.NotifyWithFacebook;
-            notification.SendToEmail = thePerson.NotifyWithEmail;
-            notification.PersonId = inviteeId;
+            notification.SendToFacebook = (registeredPerson != null) ? registeredPerson.NotifyWithFacebook : (nonRegisteredPerson.FacebookId != null);
+            notification.SendToEmail = (registeredPerson != null) ? registeredPerson.NotifyWithEmail : (nonRegisteredPerson.Email != null);
+            notification.Email = (registeredPerson != null) ? registeredPerson.Email : nonRegisteredPerson.Email;
+            notification.FacebookId = (registeredPerson != null) ? registeredPerson.FacebookId : nonRegisteredPerson.FacebookId;
             notification.Title = Constants.MESSAGE_NEW_TITLE;
             notification.Message = string.Format(Constants.MESSAGE_NEW_TEMPLATE, theEvent.Coordinator.FirstName,
                                                  theEvent.Coordinator.LastName,
@@ -105,15 +113,19 @@ namespace Web.Services
         {
             var notification = new EventPlannerNotification();
 
-            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+            var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == eventId);
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == acceptingId);
 
             var foodItemsText = "";
             var gamesText = "";
 
-            notification.SendToFacebook = thePerson.NotifyWithFacebook;
-            notification.SendToEmail = thePerson.NotifyWithEmail;
-            notification.PersonId = acceptingId;
+            notification.SendToFacebook = theEvent.Coordinator.NotifyWithFacebook;
+            notification.SendToEmail = theEvent.Coordinator.NotifyWithEmail;
+            notification.PersonId = theEvent.Coordinator.PersonId;
+            notification.Email = theEvent.Coordinator.Email;
+            notification.FacebookId = theEvent.Coordinator.FacebookId;
+
+            //Set up the text stuff
             notification.Title = Constants.MESSAGE_ACCEPT_TITLE;
             notification.Message = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
                                                  thePerson.LastName,
@@ -128,12 +140,17 @@ namespace Web.Services
         {
             var notification = new EventPlannerNotification();
 
-            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+            var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == eventId);
             var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == decliningId);
 
-            notification.SendToFacebook = thePerson.NotifyWithFacebook;
-            notification.SendToEmail = thePerson.NotifyWithEmail;
-            notification.PersonId = decliningId;
+            //How does the coordinator want to be notified?
+            notification.SendToFacebook = theEvent.Coordinator.NotifyWithFacebook;
+            notification.SendToEmail = theEvent.Coordinator.NotifyWithEmail;
+            notification.PersonId = theEvent.Coordinator.PersonId;
+            notification.Email = theEvent.Coordinator.Email;
+            notification.FacebookId = theEvent.Coordinator.FacebookId;
+
+            //Set up the text stuff...
             notification.Title = Constants.MESSAGE_DECLINE_TITLE;
             notification.Message = string.Format(Constants.MESSAGE_DECLINE_TEMPLATE, thePerson.FirstName,
                                                  thePerson.LastName,
@@ -152,6 +169,8 @@ namespace Web.Services
 
             notification.SendToFacebook = thePerson.NotifyWithFacebook;
             notification.SendToEmail = thePerson.NotifyWithEmail;
+            notification.Email = thePerson.Email;
+            notification.FacebookId = thePerson.FacebookId;
             notification.PersonId = removeThisPersonId;
             notification.Title = Constants.MESSAGE_REMOVE_TITLE;
             notification.Message = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, thePerson.FirstName,

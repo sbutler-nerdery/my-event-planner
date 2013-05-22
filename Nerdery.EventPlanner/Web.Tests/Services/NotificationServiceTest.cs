@@ -8,23 +8,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Web.Data;
 using Web.Data.Models;
 using Web.Services;
+using Web.Tests.Controllers;
 
 namespace Web.Tests.Services
 {
     [TestClass]
-    public class NotificationServiceTest
+    public class NotificationServiceTest : BaseTestFixture
     {
-        private NotificationService _service;
-        private IRepository<Person> _personRepo;
-        private IRepository<Event> _eventRepo;
-
-        [TestInitialize]
-        public void Spinup()
-        {
-            _personRepo = A.Fake<IRepository<Person>>();
-            _eventRepo = A.Fake<IRepository<Event>>();
-        }
-
         /// <summary>
         /// This ensures that the correct notification is created when an event coordinator 
         /// invites a new person to join an event.
@@ -40,12 +30,12 @@ namespace Web.Tests.Services
             var personList = new List<Person> { thePerson, theHost };
             var eventList = new List<Event> { theEvent };
 
-            var service = new NotificationService(_personRepo, _eventRepo);
-            A.CallTo(() => _personRepo.GetAll()).Returns(personList.AsQueryable());
-            A.CallTo(() => _eventRepo.GetAll()).Returns(eventList.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(personList.AsQueryable());
+            A.CallTo(() => EventRepo.GetAll()).Returns(eventList.AsQueryable());
+            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation>().AsQueryable());
 
             //Act
-            var notification = service.GetNewInvitationNotification(theEvent.EventId, thePerson.PersonId, inivitationUrl);
+            var notification = NotifyService.GetNewInvitationNotification(theEvent.EventId, thePerson.PersonId, 0, inivitationUrl);
 
             //Assert            
             string expectedMessage = string.Format(Constants.MESSAGE_NEW_TEMPLATE, theHost.FirstName,
@@ -54,7 +44,6 @@ namespace Web.Tests.Services
                                                     theEvent.StartDate.ToShortTimeString(),
                                                     inivitationUrl);
 
-            Assert.AreEqual(notification.PersonId, thePerson.PersonId);
             Assert.AreEqual(notification.SendToEmail, personList[0].NotifyWithEmail);
             Assert.AreEqual(notification.SendToFacebook, personList[0].NotifyWithFacebook);
             Assert.AreEqual(notification.Title, Constants.MESSAGE_NEW_TITLE);
@@ -72,12 +61,11 @@ namespace Web.Tests.Services
             var personList = new List<Person>{thePerson};
             var eventList = new List<Event>{theEvent};
 
-            var service = new NotificationService(_personRepo, _eventRepo);
-            A.CallTo(() => _personRepo.GetAll()).Returns(personList.AsQueryable());
-            A.CallTo(() => _eventRepo.GetAll()).Returns(eventList.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(personList.AsQueryable());
+            A.CallTo(() => EventRepo.GetAll()).Returns(eventList.AsQueryable());
 
             //Act
-            var notification = service.GetPersonRemovedFromEventNotification(theEvent.EventId, thePerson.PersonId);
+            var notification = NotifyService.GetPersonRemovedFromEventNotification(theEvent.EventId, thePerson.PersonId);
 
             //Assert            
             string expectedMessage = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, thePerson.FirstName,
@@ -99,23 +87,28 @@ namespace Web.Tests.Services
         public void Notification_On_Event_Dates_Updated()
         {
             //Arrange
-            var theHost = new Person {PersonId = 3, FirstName = "Matt", LastName = "Harmin"};
-            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now,
-                Coordinator = theHost };
+            var theHost = new Person { PersonId = 3, FirstName = "Matt", LastName = "Harmin" };
             var peopleList = new List<Person>
                 {
-                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith", AmAttending = new List<Event>{theEvent}, MyInvitations = new List<Event>()},
-                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy", AmAttending = new List<Event>(), MyInvitations = new List<Event>{theEvent}},
+                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith" },
+                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy" },
                 };
 
-            A.CallTo(() => _eventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
-            A.CallTo(() => _personRepo.GetAll()).Returns(peopleList.AsQueryable());
+            var theEvent = new Event
+            {
+                EventId = 1,
+                Title = "My Test Event",
+                StartDate = DateTime.Now,
+                Coordinator = theHost,
+                RegisteredInvites = peopleList
+            };
 
-            var service = new NotificationService(_personRepo, _eventRepo);
+            A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(peopleList.AsQueryable());
+            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation>().AsQueryable());
 
             //Act
-            var notifications = service.GetNotificationsForEventUpdate(theEvent.EventId);
-            var firstNotification = notifications[0];
+            var notification = NotifyService.GetNotificationForEventUpdate(theEvent.EventId, 1, 0);
 
             //Assert
             string expectedMessage = string.Format(Constants.MESSAGE_UPDATE_TEMPLATE, theEvent.Title,
@@ -124,9 +117,8 @@ namespace Web.Tests.Services
                                                     theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString());
 
-            Assert.AreEqual(notifications.Count, 2);
-            Assert.AreEqual(firstNotification.Title, Constants.MESSAGE_UPDATE_TITLE);
-            Assert.AreEqual(firstNotification.Message, expectedMessage);
+            Assert.AreEqual(notification.Title, Constants.MESSAGE_UPDATE_TITLE);
+            Assert.AreEqual(notification.Message, expectedMessage);
         }
         /// <summary>
         /// This ensures that the correct notification is created for the event coordinator
@@ -136,17 +128,17 @@ namespace Web.Tests.Services
         public void Notification_On_Invitation_Accepted()
         {
             //Arrange
+            var theHost = new Person { PersonId = 3, FirstName = "Matt", LastName = "Harmin" };
             var thePerson = new Person { PersonId = 1, FirstName = "Joe", LastName = "Smith", NotifyWithFacebook = true, NotifyWithEmail = false};
-            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now };
+            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now, Coordinator = theHost };
             var personList = new List<Person> { thePerson };
             var eventList = new List<Event> { theEvent };
 
-            var service = new NotificationService(_personRepo, _eventRepo);
-            A.CallTo(() => _personRepo.GetAll()).Returns(personList.AsQueryable());
-            A.CallTo(() => _eventRepo.GetAll()).Returns(eventList.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(personList.AsQueryable());
+            A.CallTo(() => EventRepo.GetAll()).Returns(eventList.AsQueryable());
 
             //Act
-            var notification = service.GetInvitationAcceptedNotification(theEvent.EventId, thePerson.PersonId);
+            var notification = NotifyService.GetInvitationAcceptedNotification(theEvent.EventId, thePerson.PersonId);
 
             //Assert            
             string expectedMessage = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
@@ -154,9 +146,8 @@ namespace Web.Tests.Services
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString(), string.Empty, string.Empty);
 
-            Assert.AreEqual(notification.PersonId, thePerson.PersonId);
-            Assert.AreEqual(notification.SendToEmail, personList[0].NotifyWithEmail);
-            Assert.AreEqual(notification.SendToFacebook, personList[0].NotifyWithFacebook);
+            Assert.AreEqual(notification.SendToEmail, theHost.NotifyWithEmail);
+            Assert.AreEqual(notification.SendToFacebook, theHost.NotifyWithFacebook);
             Assert.AreEqual(notification.Title, Constants.MESSAGE_ACCEPT_TITLE);
             Assert.AreEqual(notification.Message, expectedMessage);
         }
@@ -168,17 +159,17 @@ namespace Web.Tests.Services
         public void Notification_On_Invitation_Declined()
         {
             //Arrange
+            var theHost = new Person { PersonId = 3, FirstName = "Matt", LastName = "Harmin" };
             var thePerson = new Person { PersonId = 1, FirstName = "Joe", LastName = "Smith", NotifyWithFacebook = true, NotifyWithEmail = true};
-            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now };
+            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now, Coordinator = theHost };
             var personList = new List<Person> { thePerson };
             var eventList = new List<Event> { theEvent };
 
-            var service = new NotificationService(_personRepo, _eventRepo);
-            A.CallTo(() => _personRepo.GetAll()).Returns(personList.AsQueryable());
-            A.CallTo(() => _eventRepo.GetAll()).Returns(eventList.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(personList.AsQueryable());
+            A.CallTo(() => EventRepo.GetAll()).Returns(eventList.AsQueryable());
 
             //Act
-            var notification = service.GetInvitationDeclinedNotification(theEvent.EventId, thePerson.PersonId);
+            var notification = NotifyService.GetInvitationDeclinedNotification(theEvent.EventId, thePerson.PersonId);
 
             //Assert            
             string expectedMessage = string.Format(Constants.MESSAGE_DECLINE_TEMPLATE, thePerson.FirstName,
@@ -186,9 +177,8 @@ namespace Web.Tests.Services
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString());
 
-            Assert.AreEqual(notification.PersonId, thePerson.PersonId);
-            Assert.AreEqual(notification.SendToEmail, personList[0].NotifyWithEmail);
-            Assert.AreEqual(notification.SendToFacebook, personList[0].NotifyWithFacebook);
+            Assert.AreEqual(notification.SendToEmail, theHost.NotifyWithEmail);
+            Assert.AreEqual(notification.SendToFacebook, theHost.NotifyWithFacebook);
             Assert.AreEqual(notification.Title, Constants.MESSAGE_DECLINE_TITLE);
             Assert.AreEqual(notification.Message, expectedMessage);
         }
@@ -201,36 +191,35 @@ namespace Web.Tests.Services
         {
             //Arrange
             var theHost = new Person { PersonId = 3, FirstName = "Matt", LastName = "Harmin" };
+            var peopleList = new List<Person>
+                {
+                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith" },
+                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy" },
+                };
+
             var theEvent = new Event
             {
                 EventId = 1,
                 Title = "My Test Event",
                 StartDate = DateTime.Now,
-                Coordinator = theHost
+                Coordinator = theHost,
+                RegisteredInvites = peopleList
             };
-            var peopleList = new List<Person>
-                {
-                    new Person {PersonId = 1, FirstName = "Joe", LastName = "Smith", AmAttending = new List<Event>{theEvent}, MyInvitations = new List<Event>()},
-                    new Person {PersonId = 2, FirstName = "Sally", LastName = "Hardy", AmAttending = new List<Event>(), MyInvitations = new List<Event>{theEvent}},
-                };
 
-            A.CallTo(() => _eventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
-            A.CallTo(() => _personRepo.GetAll()).Returns(peopleList.AsQueryable());
-
-            var service = new NotificationService(_personRepo, _eventRepo);
+            A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(peopleList.AsQueryable());
+            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation>().AsQueryable());
 
             //Act
-            var notifications = service.GetNotificationsForEventCancelled(theEvent.EventId);
-            var firstNotification = notifications[0];
+            var notification = NotifyService.GetNotificationForEventCancelled(theEvent.EventId, 1, 0);
 
             //Assert
             string expectedMessage = string.Format(Constants.MESSAGE_CANCELLED_TEMPLATE, theEvent.Title,
                                                     theHost.FirstName,
                                                     theHost.LastName);
 
-            Assert.AreEqual(notifications.Count, 2);
-            Assert.AreEqual(firstNotification.Title, Constants.MESSAGE_CANCELLED_TITLE);
-            Assert.AreEqual(firstNotification.Message, expectedMessage);
+            Assert.AreEqual(notification.Title, Constants.MESSAGE_CANCELLED_TITLE);
+            Assert.AreEqual(notification.Message, expectedMessage);
         }
     }
 }

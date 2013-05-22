@@ -70,20 +70,20 @@ namespace Web.Services
         /// </summary>
         /// <param name="dataModel">An event model</param>
         /// <returns></returns>
-        string GetSerializedModelState(Event dataModel, bool includeInvites = false);
+        string GetSerializedModelState(Event dataModel);
         /// <summary>
         /// Get the list of invited people that appear in the current event but not in the previous event
         /// </summary>
-        /// <param name="previousData">The previous state of the event</param>
-        /// <param name="currentData">A current event</param>
+        /// <param name="previousInvites">The list of previously invited people</param>
+        /// <param name="currentInvites">The list of currently invited people</param>
         /// <returns></returns>
-        List<Person> GetRegisteredInvites(Event previousData, Event currentData);
+        List<Person> GetRegisteredInvites(List<Person> previousInvites, List<Person> currentInvites);
         /// <summary>
         /// Get the list of non-registered invited people that appear in the current event but not in the previous event
         /// </summary>
-        /// <param name="previousData">The previous state of the event</param>
-        /// <param name="currentData">A current event</param>
+        /// <param name="previousInvites">The list of previously invited people</param>
+        /// <param name="currentInvites">The list of currently invited people</param>
         /// <returns></returns>
-        List<PendingInvitation> GetNonRegisteredInvites(Event previousData, Event currentData);
+        List<PendingInvitation> GetNonRegisteredInvites(List<PendingInvitation> previousInvites, List<PendingInvitation> currentInvites);
     }
 }

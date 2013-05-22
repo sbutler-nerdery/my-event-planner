@@ -17,11 +17,14 @@ namespace Web.Data.Models
         public DateTime EndDate { get; set; }
         public virtual List<FoodItem> FoodItems { get; set; }
         public virtual List<Game> Games { get; set; }
-        public virtual List<Person> PeopleInvited { get; set; }
+        /// <summary>
+        /// Get or set a list of people that have been invited to the event and are registered in the system
+        /// </summary>
+        public virtual List<Person> RegisteredInvites { get; set; }
         /// <summary>
         /// Get or set a list of people that have been invited to the event, but have not created user accounts yet.
         /// </summary>
-        public virtual List<PendingInvitation> PendingInvitations { get; set; }
+        public virtual List<PendingInvitation> NonRegisteredInvites { get; set; }
         public virtual List<Person> PeopleWhoAccepted { get; set; }
         public virtual List<Person> PeopleWhoDeclined { get; set; }
     }

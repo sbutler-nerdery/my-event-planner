@@ -38,11 +38,14 @@ namespace Web.Data.Models
         public virtual List<Event> HaveDeclined { get; set; }
         public virtual List<FoodItem> MyFoodItems { get; set; }
         public virtual List<Game> MyGames { get; set; }
-        public virtual List<Person> MyFriends { get; set; }
         /// <summary>
-        /// Get or set a list of friends that have been invited to an event, but have not created user accounts yet.
+        /// Get or set a list of friends who have registered user accounts in the system.
         /// </summary>
-        public virtual List<PendingInvitation> MyPendingFriends { get; set; }
+        public virtual List<Person> MyRegisteredFriends { get; set; }
+        /// <summary>
+        /// Get or set a list of friends that do not have registered user accounts in the system.
+        /// </summary>
+        public virtual List<PendingInvitation> MyNonRegisteredFriends { get; set; }
         /// <summary>
         /// Get or set if the user will receive notifications via facebook.
         /// </summary>

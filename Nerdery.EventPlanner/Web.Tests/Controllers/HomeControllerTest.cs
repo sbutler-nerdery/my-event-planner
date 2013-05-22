@@ -27,7 +27,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             A.CallTo(() => PersonRepo.GetAll()).Throws(new Exception("I can't find the database!"));
-            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
 
             //Act
             var result = controller.Index(null) as ViewResult;
@@ -58,7 +58,7 @@ namespace Web.Tests.Controllers
                 };
             A.CallTo(() => PersonRepo.GetAll()).Returns(personResults.AsQueryable());
             A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
-            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
 
             //Act
             var result = controller.Index(null) as ViewResult;
@@ -82,7 +82,7 @@ namespace Web.Tests.Controllers
         public void AcceptInvitation_Build_View_Model_Fail()
         {
             //Arrange
-            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
 
             //Act
             var result = controller.AcceptInvitation(1, 1) as ViewResult;
@@ -101,7 +101,7 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
-            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
@@ -128,7 +128,7 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
-            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
 
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theInvitee }.AsQueryable());
@@ -153,8 +153,8 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
-            theInvitee.MyFriends = new List<Person>();
-            var controller = new HomeController(PersonRepo, EventRepo, UserService);
+            theInvitee.MyRegisteredFriends = new List<Person>();
+            var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);
 
             var newFoodItems = new List<FoodItemViewModel>
                 {

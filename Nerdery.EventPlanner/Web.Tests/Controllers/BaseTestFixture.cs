@@ -25,7 +25,7 @@ namespace Web.Tests.Controllers
         protected IRepository<Game> GameRepo;
         protected IUserService UserService;
         protected IEventService EventService;
-        protected INotificationService NotificationService;
+        protected INotificationService NotifyService;
 
         [TestInitialize]
         public void SpinUp()
@@ -37,7 +37,7 @@ namespace Web.Tests.Controllers
             GameRepo = A.Fake<IRepository<Game>>();
             UserService = A.Fake<IUserService>();
             EventService = new EventService(PersonRepo, GameRepo, FoodRepo, InvitationRepo);
-            NotificationService = new NotificationService(PersonRepo, EventRepo);
+            NotifyService = new NotificationService(PersonRepo, EventRepo, InvitationRepo);
         }
 
         #endregion

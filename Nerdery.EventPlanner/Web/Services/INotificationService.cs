@@ -17,26 +17,33 @@ namespace Web.Services
         /// </summary>
         /// <param name="notifications">The list of people ids to recieve the message</param>
         void SendNotifications(List<EventPlannerNotification> notifications);
+
         /// <summary>
-        /// Get a list of notifications when an event is updated.
+        /// Get a notification for an updated event.
         /// </summary>
         /// <param name="eventId">The specified event id</param>
+        /// <param name="registeredId">An id for a person who is registered in the system</param>
+        /// <param name="nonRegisteredId">an id for a person who is not registered in the system</param>
         /// <returns></returns>
-        List<EventPlannerNotification> GetNotificationsForEventUpdate(int eventId);
+        EventPlannerNotification GetNotificationForEventUpdate(int eventId, int registeredId, int nonRegisteredId);
         /// <summary>
-        /// Get a list of notifications when an event is cancelled.
+        /// Get a notification for an event cancellation.
         /// </summary>
         /// <param name="eventId">The specified event id</param>
+        /// <param name="registeredId">An id for a person who is registered in the system</param>
+        /// <param name="nonRegisteredId">an id for a person who is not registered in the system</param>
         /// <returns></returns>
-        List<EventPlannerNotification> GetNotificationsForEventCancelled(int eventId);
+        EventPlannerNotification GetNotificationForEventCancelled(int eventId, int registeredId, int nonRegisteredId);
+
         /// <summary>
         /// Get a notification used to invite a new person to an event.
         /// </summary>
-        /// <param name="eventId">The id of the specified event</param>
-        /// <param name="inviteeId">The id of the person to be invited</param>
+        /// <param name="eventId">The specified event id</param>
+        /// <param name="registeredId">An id for a person who is registered in the system</param>
+        /// <param name="nonRegisteredId">an id for a person who is not registered in the system</param>
         /// <param name="invitationUrl">The URL the invited person will clik on to accept the inviation</param>
         /// <returns></returns>
-        EventPlannerNotification GetNewInvitationNotification(int eventId, int inviteeId, string invitationUrl);
+        EventPlannerNotification GetNewInvitationNotification(int eventId, int registeredId, int nonRegisteredId, string invitationUrl);
         /// <summary>
         /// Get a notification when a person accepts an event invitation.
         /// </summary>

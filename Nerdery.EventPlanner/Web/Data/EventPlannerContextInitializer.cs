@@ -83,8 +83,8 @@ namespace Web.Data
             //Make sure to add friends to the coordinator
             var ben = context.People.FirstOrDefault(x => x.UserName == benUserName);
             var joe = context.People.FirstOrDefault(x => x.UserName == joeUserName);
-            coordinator.MyFriends.Add(ben);
-            coordinator.MyFriends.Add(joe);
+            coordinator.MyRegisteredFriends.Add(ben);
+            coordinator.MyRegisteredFriends.Add(joe);
 
             //Make sure to add the relationship of the food and games to the coordinator...
             coordinator.MyFoodItems.Add(chipsAndDip);
@@ -100,7 +100,7 @@ namespace Web.Data
                     Description = "A seed event",
                     Coordinator = coordinator,
                     Location = "562 Main Street KCMO 64123",
-                    PeopleInvited = new List<Person> { joe },
+                    RegisteredInvites = new List<Person> { joe },
                     FoodItems = new List<FoodItem> { chipsAndDip },
                     Games = new List<Game> { settlers },
                     StartDate = DateTime.Now.Date.AddHours(17),
