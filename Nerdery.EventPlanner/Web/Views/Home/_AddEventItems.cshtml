@@ -1,7 +1,7 @@
 ﻿@model Web.ViewModels.InvitationDetailsViewModel
 
 <div data-dialog="true" title="Add to my list of Munchies" data-action="add-food-item">
-    @using (Ajax.BeginForm("AddFoodItem", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addFoodItem('MyFoodItems'); EventPlanner.Modals.dismiss('add-food-item');" }))}
+    @using (Ajax.BeginForm("AddFoodItem", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addFoodItem('MyFoodItems'); EventPlanner.Modals.dismiss('add-food-item');" }))
     {
         <fieldset>
             <legend>AddFoodItem</legend>
@@ -25,7 +25,7 @@
     }    
 </div>
 
-<div data-dialog="true" title="Add to my list of Munchies" data-action="add-game-item">
+<div data-dialog="true" title="Add to my Games List" data-action="add-game-item">
     @using (Ajax.BeginForm("AddFoodItem", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addGame('MyGames'); EventPlanner.Modals.dismiss('add-food-item');" }))
     {
         <fieldset>
@@ -45,7 +45,7 @@
                 @Html.ValidationMessageFor(model => model.AddFoodItem.Description)
             </div>    
             @Html.HiddenFor(m => m.AccepteeId)
-            <input type="submit" value="Add this munchy" />
+            <input type="submit" value="Add Game" />
         </fieldset>                  
     }    
 </div>

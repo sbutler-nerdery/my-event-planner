@@ -147,8 +147,15 @@
             var friendLists = $.grep($selectControls, function (select) {
                 return $(select).data("placeholder-type") == "friend-list";
             });
-            
+            var foodLists = $.grep($selectControls, function (select) {
+                return $(select).data("placeholder-type") == "food-list";
+            });
+            var gameLists = $.grep($selectControls, function (select) {
+                return $(select).data("placeholder-type") == "game-list";
+            });
             $(friendLists).select2({ placeholder: "Click here to see a list of your friends... " });
+            $(foodLists).select2({ placeholder: "Click here to see a list of your munchies... " });
+            $(gameLists).select2({ placeholder: "Click here to see a list of your games... " });
 
             //jQuery autocomplete
             $.ajax({

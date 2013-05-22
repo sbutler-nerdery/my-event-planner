@@ -22,8 +22,6 @@
     @Html.ValidationSummary(true)
 
     <fieldset>
-        <legend>AcceptInvitationViewModel</legend>
-
         <div class="editor-field">
             @Html.HiddenFor(model => model.EventId)
             @Html.HiddenFor(model => model.AccepteeId)
@@ -61,20 +59,14 @@
         }
 
         <h3>Food items I can bring</h3>
-        <div class="editor-label">
-            @Html.LabelFor(model => model.WillBringTheseFoodItems)
-        </div>
         <div class="editor-field">
-            <a href="javascript:;" data-open-modal="invite-person-to-event">Add to my food list</a><br/>
+            <a href="javascript:;" data-open-modal="add-food-item">Add to my food list</a><br/>
             @Html.ListBoxFor(model => model.WillBringTheseFoodItems, Model.MyFoodItems, new { name="MyFoodItems", @class="fancy-list-box", data_placeholder_type="food-list"})
         </div>  
           
         <h3>Games I can bring</h3>
-        <div class="editor-label">
-            @Html.LabelFor(model => model.WillBringTheseGames)
-        </div>
         <div class="editor-field">
-            <a href="javascript:;" data-open-modal="invite-person-to-event">Add to my food list</a><br/>
+            <a href="javascript:;" data-open-modal="add-game-item">Add to my food list</a><br/>
             @Html.ListBoxFor(model => model.WillBringTheseGames, Model.MyGames, new { name="MyGames", @class="fancy-list-box", data_placeholder_type="game-list"})
         </div> 
 
@@ -83,6 +75,9 @@
         </p>
     </fieldset>
 }
+
+@Html.Partial("_AddEventItems", Model)
+
 
 <div>
     @Html.ActionLink("Nevermind", "Index")
