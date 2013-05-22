@@ -18,8 +18,10 @@ namespace Web.ViewModels
         [Required]
         [Display(Name = "Last name")]
         public string LastName { get; set; }
-        [Required]
         [Display(Name = "Phone number")]
         public string PhoneNumber { get; set; }
+        [Required]
+        [Display(Name = "Email address")]
+        public string Email { get; set; }
     }
 }

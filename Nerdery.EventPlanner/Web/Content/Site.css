@@ -754,3 +754,8 @@ tr.pager td {
             margin: 0;
         }
 }
+
+
+.fancy-list-box {
+    width: 310px;
+}

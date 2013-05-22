@@ -11,6 +11,12 @@
 
 <p>You're logged in as <strong>@User.Identity.Name</strong>.</p>
 
+@if (Model.UserInfo != null)
+{
+    Html.Partial("_UpdateUserInformation", Model.UserInfo);
+}
+
+
 @if (ViewBag.HasLocalPassword)
 {
     @Html.Partial("_ChangePasswordPartial")

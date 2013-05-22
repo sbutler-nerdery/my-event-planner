@@ -12,10 +12,16 @@ namespace Web.Services
 {
     public class EventService : IEventService
     {
+        #region Fields
+
         private readonly IRepository<Person> _personPersonRepo;
         private readonly IRepository<Game> _gameRepository;
         private readonly IRepository<FoodItem> _foodRepository;
         private readonly IRepository<PendingInvitation> _invitationRepository;
+
+        #endregion
+
+        #region Constructors
 
         public EventService(IRepository<Person> personRepo, IRepository<Game> gameRepo, IRepository<FoodItem> foodRepo, IRepository<PendingInvitation> pendingInvitationRepo)
         {
@@ -24,6 +30,10 @@ namespace Web.Services
             _foodRepository = foodRepo;
             _invitationRepository = pendingInvitationRepo;
         }
+
+        #endregion
+
+        #region Methods
 
         public List<string> GetTimeList()
         {
@@ -385,5 +395,7 @@ namespace Web.Services
 
             return hour.ToString();
         }
+
+        #endregion
     }
 }

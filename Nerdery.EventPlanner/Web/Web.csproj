@@ -335,6 +335,7 @@
     <Content Include="Views\Event\Edit.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
     <Content Include="Views\Event\_InvitePeopleDialog.cshtml" />
+    <Content Include="Views\Account\_UpdateUserInformation.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -359,7 +360,7 @@
         <WebProjectProperties>
           <UseIIS>False</UseIIS>
           <AutoAssignPort>False</AutoAssignPort>
-          <DevelopmentServerPort>51407</DevelopmentServerPort>
+          <DevelopmentServerPort>8080</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
           <IISUrl>http://localhost:62982/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>

@@ -203,8 +203,8 @@ namespace Web.Controllers
                     var updatedRequiredFieldsState = _eventService.GetSerializedModelState(updateMe);
                     var newRegisteredInvites = _eventService.GetRegisteredInvites(previousRegisteredInvites, updateMe.RegisteredInvites);
                     var newNonRegisteredInvites = _eventService.GetNonRegisteredInvites(previousNonRegisteredInvites, updateMe.NonRegisteredInvites);
-                    var uninvitedRegisteredUsers = _eventService.GetRegisteredUninvites(previousRegisteredInvites, newRegisteredInvites);
-                    var uninvitedNonRegisteredUsers = _eventService.GetNonRegisteredUninvites(previousNonRegisteredInvites, newNonRegisteredInvites);
+                    var uninvitedRegisteredUsers = _eventService.GetRegisteredUninvites(previousRegisteredInvites, updateMe.RegisteredInvites);
+                    var uninvitedNonRegisteredUsers = _eventService.GetNonRegisteredUninvites(previousNonRegisteredInvites, updateMe.NonRegisteredInvites);
 
                     //Send notifications if the model has changed
                     if (!initialRequiredFieldsState.Equals(updatedRequiredFieldsState))

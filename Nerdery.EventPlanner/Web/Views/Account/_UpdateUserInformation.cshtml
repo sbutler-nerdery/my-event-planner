@@ -1,0 +1,35 @@
+﻿@model Web.ViewModels.ManageNonPasswordViewModel
+
+<p>
+    Make sure the below information is current.
+</p>
+
+@using (Html.BeginForm("UpdateUserInfo", "Account")) {
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary()
+
+    <fieldset>
+        <legend>Set Password Form</legend>
+        <ol>
+            <li>
+                @Html.LabelFor(m => m.FirstName)
+                @Html.TextBoxFor(m => m.FirstName)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.LastName)
+                @Html.TextBoxFor(m => m.LastName)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.Email)
+                @Html.TextBoxFor(m => m.Email)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.PhoneNumber)
+                @Html.TextBoxFor(m => m.PhoneNumber)
+            </li>
+        </ol>
+        
+        @Html.HiddenFor(m => m.UserId)
+        <input type="submit" value="Update Info" />
+    </fieldset>
+}

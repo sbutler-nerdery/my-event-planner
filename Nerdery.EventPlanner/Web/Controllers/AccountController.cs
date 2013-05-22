@@ -64,9 +64,17 @@ namespace Web.Controllers
         // GET: /Account/Register
 
         [AllowAnonymous]
-        public ActionResult Register()
+        public ActionResult Register(int? eventId, int? pendingInvitationId)
         {
-            return View();
+            var model = new RegisterViewModel();
+
+            if (eventId.HasValue)
+                model.EventId = eventId.Value;
+
+            if (pendingInvitationId.HasValue)
+                model.PendingInvitationId = pendingInvitationId.Value;
+
+            return View(model);
         }
 
         //
@@ -88,11 +96,20 @@ namespace Web.Controllers
                             model.LastName, 
                             model.Email, 
                             model.PhoneNumber,
-                            model.NotifyWithEmail,
-                            model.NotifyWithFacebook
+                            NotifyWithEmail = true,
+                            NotifyWithFacebook = false
                         });
                     WebSecurity.Login(model.UserName, model.Password);
-                    return RedirectToAction("Index", "Home");
+
+                    if (model.EventId == 0 || model.PendingInvitationId == 0)
+                       return RedirectToAction("Index", "Home");
+
+                    return RedirectToAction("ConfigureInvitation",
+                                            new
+                                                {
+                                                    eventId = model.EventId,
+                                                    pendingInvitationId = model.PendingInvitationId
+                                                });
                 }
                 catch (MembershipCreateUserException e)
                 {
@@ -140,8 +157,30 @@ namespace Web.Controllers
         {
             ViewBag.StatusMessage = GetMessageFromMessageId(message);
             ViewBag.HasLocalPassword = OAuthWebSecurity.HasLocalAccount(WebSecurity.GetUserId(User.Identity.Name));
+
+            var userId = WebSecurity.GetUserId(User.Identity.Name);
+            bool hasLocalAccount = OAuthWebSecurity.HasLocalAccount(userId);
+            var model = new LocalPasswordViewModel();
+
+            //Populate the user info stuff
+            if (hasLocalAccount)
+            {
+                using (var context = new EventPlannerContext())
+                {
+                    var user = context.People.FirstOrDefault(x => x.PersonId == userId);
+                    model.UserInfo = new ManageNonPasswordViewModel
+                    {
+                        UserId = user.PersonId,
+                        FirstName = user.FirstName,
+                        LastName = user.LastName,
+                        PhoneNumber = user.PhoneNumber,
+                        Email = user.Email
+                    };
+                }
+            }
+
             ViewBag.ReturnUrl = Url.Action("Manage");
-            return View();
+            return View(model);
         }
 
         //
@@ -205,6 +244,33 @@ namespace Web.Controllers
 
             // If we got this far, something failed, redisplay form
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateUserInfo(ManageNonPasswordViewModel model)
+        {
+            bool userExists = false;
+            if (ModelState.IsValid)
+            {
+                using (var context = new EventPlannerContext())
+                {
+                    var updateMe = context.People.FirstOrDefault(x => x.PersonId == model.UserId);
+                    if (updateMe != null)
+                    {
+                        updateMe.FirstName = model.FirstName;
+                        updateMe.LastName = model.LastName;
+                        updateMe.Email = model.Email;
+                        updateMe.PhoneNumber = model.PhoneNumber;
+                        context.SaveChanges();
+                        userExists = true;
+                    }
+                }
+                if (userExists)
+                    return RedirectToAction("Manage", new { Message = ManageMessageId.UpdateUserInfoSuccess });
+            }
+
+            return RedirectToAction("Manage", new { Message = ManageMessageId.UpdateUserInfoFail });
         }
 
         //
@@ -337,6 +403,47 @@ namespace Web.Controllers
 
         #endregion
 
+        #region Invitation
+
+        public ActionResult ConfigureInvitation(int eventId, int pendingInvitationId)
+        {
+            var userId = WebSecurity.GetUserId(User.Identity.Name);
+
+            using (var context = new EventPlannerContext())
+            {
+                //Add an invitation for new user id
+                var theEvent = context.Events.Include("Coordinator").FirstOrDefault(x => x.EventId == eventId);
+                var theInvitedPerson = context.People.FirstOrDefault(x => x.PersonId == userId);
+                theEvent.RegisteredInvites.Add(theInvitedPerson);
+
+                //Make the responding person a friend of the event host
+                theEvent.Coordinator.MyRegisteredFriends.Add(theInvitedPerson);
+
+                //Make the host a friend of the responding person
+                theInvitedPerson.MyRegisteredFriends.Add(theEvent.Coordinator);
+
+                //Get rid of the pending registration id event association
+                var theUnregisteredInvite =
+                    context.PendingInvitations.FirstOrDefault(
+                        x => x.PendingInvitationId == pendingInvitationId);
+
+                theEvent.NonRegisteredInvites.Remove(theUnregisteredInvite);
+
+                //Get rid of the pending registration friend association
+                theEvent.Coordinator.MyNonRegisteredFriends.Remove(theUnregisteredInvite);
+
+                //Get rid of the pending registration id
+                context.PendingInvitations.Remove(theUnregisteredInvite);
+
+                context.SaveChanges();
+            }
+
+            //Send then to the accept the invitation page.
+            return RedirectToAction("AcceptInvitation", "Home", new { eventId = eventId, accepteeId = userId });
+        }
+
+        #endregion
+
         #region Food items
 
         public ActionResult CreateFoodItem()
@@ -421,6 +528,8 @@ namespace Web.Controllers
             ChangePasswordSuccess,
             SetPasswordSuccess,
             RemoveLoginSuccess,
+            UpdateUserInfoSuccess,
+            UpdateUserInfoFail
         }
         /// <summary>
         /// Get the appropriate message for the specified message id
@@ -432,6 +541,8 @@ namespace Web.Controllers
             string message = id == ManageMessageId.ChangePasswordSuccess ? Constants.ACCOUNT_PASSWORD_CHANGE_SUCCESS
                             : id == ManageMessageId.SetPasswordSuccess ? Constants.ACCOUNT_PASSWORD_SET
                             : id == ManageMessageId.RemoveLoginSuccess ? Constants.ACCOUNT_EXTERNAL_LOGIN_REMOVED
+                            : id == ManageMessageId.UpdateUserInfoSuccess ? Constants.ACCOUNT_UPDATE_USER_INFO_SUCCESS
+                            : id == ManageMessageId.UpdateUserInfoFail ? Constants.ACCOUNT_UPDATE_USER_INFO_FAIL
                             : "";
 
             return message;

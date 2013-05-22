@@ -38,8 +38,8 @@ namespace Web.Tests.Services
             var notification = NotifyService.GetNewInvitationNotification(theEvent.EventId, thePerson.PersonId, 0, inivitationUrl);
 
             //Assert            
-            string expectedMessage = string.Format(Constants.MESSAGE_NEW_TEMPLATE, theHost.FirstName,
-                                                    theHost.LastName,
+            string hostName = string.Format("{0} {1}", theHost.FirstName, theHost.LastName);
+            string expectedMessage = string.Format(Constants.MESSAGE_NEW_TEMPLATE, hostName,
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString(),
                                                     inivitationUrl);
@@ -70,8 +70,8 @@ namespace Web.Tests.Services
             var notification = NotifyService.GetPersonRemovedFromEventNotification(theEvent.EventId, thePerson.PersonId, 0);
 
             //Assert            
-            string expectedMessage = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, theHost.FirstName,
-                                                    theHost.LastName,
+            string hostName = string.Format("{0} {1}", theHost.FirstName, theHost.LastName);
+            string expectedMessage = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, hostName,
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString());
 
@@ -112,9 +112,9 @@ namespace Web.Tests.Services
             var notification = NotifyService.GetNotificationForEventUpdate(theEvent.EventId, 1, 0);
 
             //Assert
+            string hostName = string.Format("{0} {1}", theHost.FirstName, theHost.LastName);
             string expectedMessage = string.Format(Constants.MESSAGE_UPDATE_TEMPLATE, theEvent.Title,
-                                                    theHost.FirstName,
-                                                    theHost.LastName,
+                                                    hostName,
                                                     theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString());
 
@@ -142,8 +142,8 @@ namespace Web.Tests.Services
             var notification = NotifyService.GetInvitationAcceptedNotification(theEvent.EventId, thePerson.PersonId);
 
             //Assert            
-            string expectedMessage = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, thePerson.FirstName,
-                                                    thePerson.LastName,
+            string personName = string.Format("{0} {1}", thePerson.FirstName, thePerson.LastName);
+            string expectedMessage = string.Format(Constants.MESSAGE_ACCEPT_TEMPLATE, personName,
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString(), string.Empty, string.Empty);
 
@@ -172,9 +172,9 @@ namespace Web.Tests.Services
             //Act
             var notification = NotifyService.GetInvitationDeclinedNotification(theEvent.EventId, thePerson.PersonId);
 
-            //Assert            
-            string expectedMessage = string.Format(Constants.MESSAGE_DECLINE_TEMPLATE, thePerson.FirstName,
-                                                    thePerson.LastName,
+            //Assert    
+            string personName = string.Format("{0} {1}", thePerson.FirstName, thePerson.LastName);
+            string expectedMessage = string.Format(Constants.MESSAGE_DECLINE_TEMPLATE, personName,
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString());
 
@@ -215,9 +215,9 @@ namespace Web.Tests.Services
             var notification = NotifyService.GetNotificationForEventCancelled(theEvent.EventId, 1, 0);
 
             //Assert
+            string hostName = string.Format("{0} {1}", theHost.FirstName, theHost.LastName);
             string expectedMessage = string.Format(Constants.MESSAGE_CANCELLED_TEMPLATE, theEvent.Title,
-                                                    theHost.FirstName,
-                                                    theHost.LastName);
+                                                    hostName);
 
             Assert.AreEqual(notification.Title, Constants.MESSAGE_CANCELLED_TITLE);
             Assert.AreEqual(notification.Message, expectedMessage);

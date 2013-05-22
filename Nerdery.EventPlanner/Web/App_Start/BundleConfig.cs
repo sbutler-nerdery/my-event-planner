@@ -28,7 +28,8 @@ namespace Web
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                "~/Content/site.css"));
+                "~/Content/site.css",
+                "~/Content/select2.css"));
 
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
                         "~/Content/themes/base/jquery.ui.core.css",
@@ -42,8 +43,8 @@ namespace Web
                         "~/Content/themes/base/jquery.ui.tabs.css",
                         "~/Content/themes/base/jquery.ui.datepicker.css",
                         "~/Content/themes/base/jquery.ui.progressbar.css",
-                        "~/Content/themes/base/jquery.ui.theme.css",
-                        "~/Content/select2.css"));
+                        "~/Content/themes/base/jquery.ui.theme.css"
+                        ));
         }
     }
 }

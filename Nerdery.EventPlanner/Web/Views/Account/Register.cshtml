@@ -20,6 +20,22 @@
                 @Html.TextBoxFor(m => m.UserName)
             </li>
             <li>
+                @Html.LabelFor(m => m.FirstName)
+                @Html.TextBoxFor(m => m.FirstName)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.LastName)
+                @Html.TextBoxFor(m => m.LastName)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.Email)
+                @Html.EditorFor(m => m.Email)
+            </li>
+            <li>
+                @Html.LabelFor(m => m.PhoneNumber)
+                @Html.TextBoxFor(m => m.PhoneNumber)
+            </li>
+            <li>
                 @Html.LabelFor(m => m.Password)
                 @Html.PasswordFor(m => m.Password)
             </li>
@@ -28,6 +44,8 @@
                 @Html.PasswordFor(m => m.ConfirmPassword)
             </li>
         </ol>
+        @Html.HiddenFor(m => m.EventId)
+        @Html.HiddenFor(m => m.PendingInvitationId)
         <input type="submit" value="Register" />
     </fieldset>
 }

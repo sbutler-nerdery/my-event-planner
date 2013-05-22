@@ -42,7 +42,8 @@ namespace Web
         public const string ACCOUNT_PASSWORD_CHANGE_SUCCESS = "Your password has been changed.";
         public const string ACCOUNT_PASSWORD_SET = "Your password has been set.";
         public const string ACCOUNT_EXTERNAL_LOGIN_REMOVED = "The external login was removed.";
-
+        public const string ACCOUNT_UPDATE_USER_INFO_SUCCESS = "User info updated successfully.";
+        public const string ACCOUNT_UPDATE_USER_INFO_FAIL = "There was an error while trying to update user info.";
         #endregion
 
         #region Base controller messages
@@ -74,13 +75,12 @@ namespace Web
         /// <summary>
         /// The message template used to notify users if an event has been updated.
         /// {0} = event name
-        /// {1} = coordinator first name
-        /// {2} = coordinator last name
-        /// {3} = new event date
-        /// {4} = new event time
+        /// {1} = coordinator name
+        /// {2} = new event date
+        /// {3} = new event time
         /// </summary>
         public const string MESSAGE_UPDATE_TEMPLATE =
-            "The event title '{0}' hosted by {1} {2} has will now start on {3} at {4}.";
+            "The event title '{0}' hosted by {1} has will now start on {2} at {3}.";
         /// <summary>
         /// The title used for notifications that are sent to updates people when an event is cancelled.
         /// </summary>
@@ -88,42 +88,39 @@ namespace Web
         /// <summary>
         /// The message template used to notify users if an event has been cancelled.
         /// {0} = event name
-        /// {1} = coordinator first name
-        /// {2} = coordinator last name
+        /// {1} = coordinator name
         /// </summary>
         public const string MESSAGE_CANCELLED_TEMPLATE =
-            "The event title '{0}' hosted by {1} {2} has been cancelled.";
+            "The event title '{0}' hosted by {1} has been cancelled.";
         /// <summary>
         /// The title used to invite a user to an event
         /// </summary>
         public const string MESSAGE_NEW_TITLE = "You have been invited to an event!";
         /// <summary>
         /// The message template used to invite a user to an event.
-        /// {0} = Event host first name
-        /// {1} = Event host last name
-        /// {2} = Event name
-        /// {3} = Event date
-        /// {4} = Event time
-        /// {5} = The event invitation URL
+        /// {0} = Event host name
+        /// {1} = Event name
+        /// {2} = Event date
+        /// {3} = Event time
+        /// {4} = The event invitation URL
         /// </summary>
         public const string MESSAGE_NEW_TEMPLATE =
-            "{0} {1} has invited you to the event '{2}' starting on {3} at {4}! <a href='{5}'>Click here</a> to accept.";
+            "{0} has invited you to the event '{1}' starting on {2} at {3}! <a href='{4}'>Click here</a> to accept.";
         /// <summary>
         /// The title used when a user accepts an invitation
         /// </summary>
         public const string MESSAGE_ACCEPT_TITLE = "Good news!";
         /// <summary>
         /// The message template used to notify users if an event has been cancelled.
-        /// {0} = Attendee first name
-        /// {1} = Attendee last name
-        /// {2} = Event name
-        /// {3} = Event date
-        /// {4} = event time
-        /// {5} = food items
-        /// {6} = games
+        /// {0} = Attendee name
+        /// {1} = Event name
+        /// {2} = Event date
+        /// {3} = event time
+        /// {4} = food items
+        /// {5} = games
         /// </summary>
         public const string MESSAGE_ACCEPT_TEMPLATE =
-            "{0} {1} has accepted your generous invitation for the event '{2}' starting on {3} at {4}.{5}{6}";
+            "{0} has accepted your generous invitation for the event '{1}' starting on {2} at {3}.{4}{5}";
         /// <summary>
         /// The title used when a user accepts an invitation
         /// </summary>
@@ -131,27 +128,25 @@ namespace Web
         /// <summary>
         /// The message template used to notify users if an event has been cancelled.
         /// {0} = Declinee first name
-        /// {1} = Declinee last name
-        /// {2} = Event name
-        /// {3} = Event date
-        /// {4} = event time
+        /// {1} = Event name
+        /// {2} = Event date
+        /// {3} = event time
         /// </summary>
         public const string MESSAGE_DECLINE_TEMPLATE =
-            "{0} {1} won't be coming to the event '{2}' starting on {3} at {4}.";
+            "{0} won't be coming to the event '{1}' starting on {2} at {3}.";
         /// <summary>
         /// The title used when a user accepts an invitation
         /// </summary>
         public const string MESSAGE_REMOVE_TITLE = "You have been un-invited";
         /// <summary>
         /// The message template used to notify users if an event has been cancelled.
-        /// {0} = Removee first name
-        /// {1} = Removee last name
-        /// {2} = Event name
-        /// {3} = Event date
-        /// {4} = event time
+        /// {0} = Removee name
+        /// {1} = Event name
+        /// {2} = Event date
+        /// {3} = event time
         /// </summary>
         public const string MESSAGE_REMOVE_TEMPLATE =
-            "{0} {1} has removed you from the guest list for the event '{2}' starting on {3} at {4}.";
+            "{0} has removed you from the guest list for the event '{1}' starting on {2} at {3}.";
 
         #endregion
 
