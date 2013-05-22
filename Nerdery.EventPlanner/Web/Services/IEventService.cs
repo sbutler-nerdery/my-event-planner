@@ -85,5 +85,19 @@ namespace Web.Services
         /// <param name="currentInvites">The list of currently invited people</param>
         /// <returns></returns>
         List<PendingInvitation> GetNonRegisteredInvites(List<PendingInvitation> previousInvites, List<PendingInvitation> currentInvites);
+        /// <summary>
+        /// Get the list of uninvited people that appear in the current event but not in the previous event
+        /// </summary>
+        /// <param name="previousInvites">The list of previously invited people</param>
+        /// <param name="currentInvites">The list of currently invited people</param>
+        /// <returns></returns>
+        List<Person> GetRegisteredUninvites(List<Person> previousInvites, List<Person> currentInvites);
+        /// <summary>
+        /// Get the list of non-registered uninvited people that appear in the current event but not in the previous event
+        /// </summary>
+        /// <param name="previousInvites">The list of previously invited people</param>
+        /// <param name="currentInvites">The list of currently invited people</param>
+        /// <returns></returns>
+        List<PendingInvitation> GetNonRegisteredUninvites(List<PendingInvitation> previousInvites, List<PendingInvitation> currentInvites);
     }
 }

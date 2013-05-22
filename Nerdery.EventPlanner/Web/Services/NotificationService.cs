@@ -160,25 +160,26 @@ namespace Web.Services
             return notification;
         }
 
-        public EventPlannerNotification GetPersonRemovedFromEventNotification(int eventId, int removeThisPersonId)
+        public EventPlannerNotification GetPersonRemovedFromEventNotification(int eventId, int registeredId, int nonRegisteredId)
         {
             var notification = new EventPlannerNotification();
 
             var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
-            var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == removeThisPersonId);
+            var registeredPerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == registeredId);
+            var nonRegisteredPerson = _invitationRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == nonRegisteredId);
 
-            notification.SendToFacebook = thePerson.NotifyWithFacebook;
-            notification.SendToEmail = thePerson.NotifyWithEmail;
-            notification.Email = thePerson.Email;
-            notification.FacebookId = thePerson.FacebookId;
-            notification.PersonId = removeThisPersonId;
+            notification.SendToFacebook = (registeredPerson != null) ? registeredPerson.NotifyWithFacebook : (nonRegisteredPerson.FacebookId != null);
+            notification.SendToEmail = (registeredPerson != null) ? registeredPerson.NotifyWithEmail : (nonRegisteredPerson.Email != null);
+            notification.Email = (registeredPerson != null) ? registeredPerson.Email : nonRegisteredPerson.Email;
+            notification.FacebookId = (registeredPerson != null) ? registeredPerson.FacebookId : nonRegisteredPerson.FacebookId;
             notification.Title = Constants.MESSAGE_REMOVE_TITLE;
-            notification.Message = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, thePerson.FirstName,
-                                                 thePerson.LastName,
-                                                 theEvent.Title, theEvent.StartDate.ToShortDateString(),
+            notification.Message = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, theEvent.Coordinator.FirstName,
+                                                 theEvent.Coordinator.LastName,
+                                                 theEvent.Title, 
+                                                 theEvent.StartDate.ToShortDateString(),
                                                  theEvent.StartDate.ToShortTimeString());
 
-            return notification;
+            return notification;    
         }
     }
 }

@@ -157,6 +157,9 @@ namespace Web.Tests.Services
 
             Assert.AreEqual(timeList.Count, 96);
         }
+        /// <summary>
+        /// Make sure we get a model state that is not blank.
+        /// </summary>
         [TestMethod]
         public void Get_Event_Model_State()
         {
@@ -175,6 +178,9 @@ namespace Web.Tests.Services
 
             Assert.AreNotEqual(modelState, string.Empty);
         }
+        /// <summary>
+        /// Make sure that the service will correctly determine which users are newly invited.
+        /// </summary>
         [TestMethod]
         public void Get_Newly_Invited_Registered_users()
         {
@@ -196,6 +202,31 @@ namespace Web.Tests.Services
 
             //Assert
             Assert.AreEqual(list.Count, 2);
+        }
+        /// <summary>
+        /// Get a list of people who were uninvited from an event.
+        /// </summary>
+        [TestMethod]
+        public void Get_Uninvited_Registered_Users()
+        {
+            //Arrange
+            var peopleInvited = new List<Person>
+                {
+                    new Person {PersonId = 1},
+                    new Person {PersonId = 2},
+                    new Person {PersonId = 3},
+                };
+
+            var currentPeopleInvited = new List<Person>
+                {
+                    new Person {PersonId = 1}
+                };
+
+            //Act
+            var list = EventService.GetRegisteredUninvites(peopleInvited, currentPeopleInvited);
+
+            //Assert
+            Assert.AreEqual(list.Count, 2);            
         }
     }
 }

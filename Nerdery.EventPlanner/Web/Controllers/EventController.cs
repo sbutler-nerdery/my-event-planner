@@ -203,6 +203,8 @@ namespace Web.Controllers
                     var updatedRequiredFieldsState = _eventService.GetSerializedModelState(updateMe);
                     var newRegisteredInvites = _eventService.GetRegisteredInvites(previousRegisteredInvites, updateMe.RegisteredInvites);
                     var newNonRegisteredInvites = _eventService.GetNonRegisteredInvites(previousNonRegisteredInvites, updateMe.NonRegisteredInvites);
+                    var uninvitedRegisteredUsers = _eventService.GetRegisteredUninvites(previousRegisteredInvites, newRegisteredInvites);
+                    var uninvitedNonRegisteredUsers = _eventService.GetNonRegisteredUninvites(previousNonRegisteredInvites, newNonRegisteredInvites);
 
                     //Send notifications if the model has changed
                     if (!initialRequiredFieldsState.Equals(updatedRequiredFieldsState))
@@ -212,6 +214,9 @@ namespace Web.Controllers
                     {
                         SendInvitations(updateMe, newRegisteredInvites, newNonRegisteredInvites);
                     }
+
+                    //No matter what let people know when they are uninvited
+                    SendUnInvitations(updateMe, uninvitedRegisteredUsers, uninvitedNonRegisteredUsers);
 
                     return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
                 }
@@ -294,6 +299,12 @@ namespace Web.Controllers
             return model;
         }
 
+        /// <summary>
+        /// Send update notifications to everyone who was invited.
+        /// </summary>
+        /// <param name="theEvent"></param>
+        /// <param name="newRegisteredInvites"></param>
+        /// <param name="newNonRegisteredInvites"></param>
         private void SendUpdateNotifications(Event theEvent, List<Person> newRegisteredInvites, List<PendingInvitation> newNonRegisteredInvites)
         {
             //This is here so that unit tests on this controller will pass. So much easier than faking it!
@@ -325,6 +336,12 @@ namespace Web.Controllers
             SendInvitations(theEvent, newRegisteredInvites, newNonRegisteredInvites);
         }
 
+        /// <summary>
+        /// Send invitations to newly invited people
+        /// </summary>
+        /// <param name="theEvent">The specified event</param>
+        /// <param name="registeredInvites">A list of newly invited people who are registered users</param>
+        /// <param name="nonRegisteredInvites">A list of newly invited people who are non-registered users</param>
         private void SendInvitations(Event theEvent, List<Person> registeredInvites, List<PendingInvitation> nonRegisteredInvites)
         {
             //This is here so that unit tests on this controller will pass.
@@ -354,6 +371,39 @@ namespace Web.Controllers
 
                 var notification = _notificationService
                     .GetNewInvitationNotification(theEvent.EventId, 0, x.PendingInvitationId, notificationUrl);
+
+                notifications.Add(notification);
+            });
+
+            _notificationService.SendNotifications(notifications);
+        }
+
+        /// <summary>
+        /// Send un-invitations 
+        /// </summary>
+        /// <param name="theEvent">The specified event</param>
+        /// <param name="registeredInvites">A list of newly un-invited people who are registered users</param>
+        /// <param name="nonRegisteredInvites">A list of newly un-invited people who are non-registered users</param>
+        private void SendUnInvitations(Event theEvent, List<Person> registeredInvites, List<PendingInvitation> nonRegisteredInvites)
+        {
+            //This is here so that unit tests on this controller will pass.
+            if (Request == null)
+                return;
+
+            var notifications = new List<EventPlannerNotification>();
+
+            registeredInvites.ForEach(x =>
+            {
+                var notification = _notificationService
+                    .GetPersonRemovedFromEventNotification(theEvent.EventId, x.PersonId, 0);
+
+                notifications.Add(notification);
+            });
+
+            nonRegisteredInvites.ForEach(x =>
+            {
+                var notification = _notificationService
+                    .GetPersonRemovedFromEventNotification(theEvent.EventId, 0, x.PendingInvitationId);
 
                 notifications.Add(notification);
             });

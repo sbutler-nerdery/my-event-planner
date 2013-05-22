@@ -353,6 +353,22 @@ namespace Web.Services
             return newPeople;
         }
 
+        public List<Person> GetRegisteredUninvites(List<Person> previousInvites, List<Person> currentInvites)
+        {
+            var currentPeopleIds = currentInvites.Select(x => x.PersonId).ToArray(); //Items in the database
+            var uninviteThesePeople = previousInvites
+                .Where(x => !currentPeopleIds.Contains(x.PersonId)).ToList();
+            return uninviteThesePeople;               
+        }
+
+        public List<PendingInvitation> GetNonRegisteredUninvites(List<PendingInvitation> previousInvites, List<PendingInvitation> currentInvites)
+        {
+            var currentPendingIds = currentInvites.Select(x => x.PendingInvitationId).ToArray(); //Items in the database
+            var uninviteThesePeople = previousInvites
+                .Where(x => !currentPendingIds.Contains(x.PendingInvitationId)).ToList();
+            return uninviteThesePeople;            
+        }
+
         /// <summary>
         /// Format a numeric hour (in military time) to a string
         /// </summary>

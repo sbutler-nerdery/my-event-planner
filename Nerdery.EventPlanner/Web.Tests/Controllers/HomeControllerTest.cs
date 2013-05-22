@@ -152,6 +152,7 @@ namespace Web.Tests.Controllers
             var eventId = 1;
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
+            theEvent.Coordinator = new Person { PersonId = 1, Email = "sbutler@nerdery.com", FacebookId = "00000"};
             var theInvitee = GetTestInviteeDataModel(accepteeId);
             theInvitee.MyRegisteredFriends = new List<Person>();
             var controller = new HomeController(PersonRepo, EventRepo, UserService, NotifyService);

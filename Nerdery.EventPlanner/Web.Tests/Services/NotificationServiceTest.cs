@@ -26,7 +26,7 @@ namespace Web.Tests.Services
             var inivitationUrl = "http://mysite.com/accept=1";
             var theHost = new Person { PersonId = 1, FirstName = "Joe", LastName = "Smith" };
             var thePerson = new Person { PersonId = 2, FirstName = "Sally", LastName = "Hart", NotifyWithFacebook = true, NotifyWithEmail = false };
-            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now, Coordinator = theHost};
+            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now, Coordinator = theHost };
             var personList = new List<Person> { thePerson, theHost };
             var eventList = new List<Event> { theEvent };
 
@@ -56,24 +56,25 @@ namespace Web.Tests.Services
         public void Notification_On_Attendee_Removed()
         {
             //Arrange
+            var theHost = new Person { PersonId = 3, FirstName = "Matt", LastName = "Harmin" };
             var thePerson = new Person{PersonId = 1, FirstName = "Joe", LastName = "Smith", NotifyWithFacebook = true, NotifyWithEmail = false};
-            var theEvent = new Event{EventId = 1, Title = "My Test Event", StartDate = DateTime.Now };
+            var theEvent = new Event { EventId = 1, Title = "My Test Event", StartDate = DateTime.Now, Coordinator = theHost };
             var personList = new List<Person>{thePerson};
             var eventList = new List<Event>{theEvent};
 
             A.CallTo(() => PersonRepo.GetAll()).Returns(personList.AsQueryable());
             A.CallTo(() => EventRepo.GetAll()).Returns(eventList.AsQueryable());
+            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation>().AsQueryable());
 
             //Act
-            var notification = NotifyService.GetPersonRemovedFromEventNotification(theEvent.EventId, thePerson.PersonId);
+            var notification = NotifyService.GetPersonRemovedFromEventNotification(theEvent.EventId, thePerson.PersonId, 0);
 
             //Assert            
-            string expectedMessage = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, thePerson.FirstName,
-                                                    thePerson.LastName,
+            string expectedMessage = string.Format(Constants.MESSAGE_REMOVE_TEMPLATE, theHost.FirstName,
+                                                    theHost.LastName,
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString());
 
-            Assert.AreEqual(notification.PersonId, thePerson.PersonId);
             Assert.AreEqual(notification.SendToEmail, personList[0].NotifyWithEmail);
             Assert.AreEqual(notification.SendToFacebook, personList[0].NotifyWithFacebook);
             Assert.AreEqual(notification.Title, Constants.MESSAGE_REMOVE_TITLE);

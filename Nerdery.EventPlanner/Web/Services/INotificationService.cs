@@ -62,8 +62,9 @@ namespace Web.Services
         /// Get a notification when a person is removed from an event.
         /// </summary>
         /// <param name="eventId">The specified event id</param>
-        /// <param name="removeThisPersonId">The id of the person being removed.</param>
+        /// <param name="registeredId">An id for a person who is registered in the system</param>
+        /// <param name="nonRegisteredId">an id for a person who is not registered in the system</param>
         /// <returns></returns>
-        EventPlannerNotification GetPersonRemovedFromEventNotification(int eventId, int removeThisPersonId);
+        EventPlannerNotification GetPersonRemovedFromEventNotification(int eventId, int registeredId, int nonRegisteredId);
     }
 }
