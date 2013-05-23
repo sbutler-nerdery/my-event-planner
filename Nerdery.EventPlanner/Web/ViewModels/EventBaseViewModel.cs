@@ -23,10 +23,12 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set the list of food item ids that the user will add to the event
         /// </summary>
+        [Display(Name = "Food provided by me")]
         public List<string> WillBringTheseFoodItems { get; set; }
         /// <summary>
         /// Get or set the list of games ids that the user will bring ot the event
         /// </summary>
+        [Display(Name = "Games provided by me")]
         public List<string> WillBringTheseGames { get; set; }
         public FoodItemViewModel AddFoodItem { get; set; }
         public GameViewModel AddGameItem { get; set; }
