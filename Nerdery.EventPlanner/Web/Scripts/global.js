@@ -110,8 +110,8 @@
         $defaultHeight: null,
         $modals: null,
         init: function () {
-            $defaultWidth = $(window).width() - 200;
-            $defaultHeight = $(window).height() - 400;
+            $defaultWidth = 800;
+            $defaultHeight = 400;
             //Set up modals
             $modals = $("[data-dialog=true]"); //invite-person-to-event
             $modals.dialog({

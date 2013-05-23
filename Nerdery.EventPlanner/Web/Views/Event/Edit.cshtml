@@ -130,15 +130,13 @@
                 </p>
             </fieldset>
         }
-        <div>
-            @Html.ActionLink("Cancel Event", "Delete", new { id = Model.EventId })            
-        </div>
         
-        @Html.Partial("_InvitePeopleDialog", Model)        
+        @Html.Partial("_InvitePeopleDialog", Model)
+        @Html.Partial("_AddEventItems", Model)
     }
-
-@Html.Partial("_AddEventItems", Model)
-
+<div>
+    @Html.ActionLink("Cancel Event", "Delete", new { id = Model.EventId })            
+</div>
 <div>
     @Html.ActionLink("Back to Dashboard", "Index","Home")
 </div>
