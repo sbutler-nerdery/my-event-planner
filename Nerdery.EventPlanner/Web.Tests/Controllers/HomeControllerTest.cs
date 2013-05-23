@@ -27,7 +27,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             A.CallTo(() => PersonRepo.GetAll()).Throws(new Exception("I can't find the database!"));
-            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService, EventService);
 
             //Act
             var result = controller.Index(null) as ViewResult;
@@ -58,7 +58,7 @@ namespace Web.Tests.Controllers
                 };
             A.CallTo(() => PersonRepo.GetAll()).Returns(personResults.AsQueryable());
             A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
-            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService, EventService);;
 
             //Act
             var result = controller.Index(null) as ViewResult;
@@ -82,7 +82,7 @@ namespace Web.Tests.Controllers
         public void AcceptInvitation_Build_View_Model_Fail()
         {
             //Arrange
-            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService, EventService);;
 
             //Act
             var result = controller.AcceptInvitation(1, 1) as ViewResult;
@@ -101,7 +101,7 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
-            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService, EventService);;
 
             //Act
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
@@ -112,8 +112,8 @@ namespace Web.Tests.Controllers
             Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
             Assert.AreEqual(((InvitationDetailsViewModel)result.Model).MyFoodItems.ToList().Count, 2);
             Assert.AreEqual(((InvitationDetailsViewModel)result.Model).MyGames.ToList().Count, 2);
-            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).CurrentEventFoodItems.Count, 0);
-            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).CurrentEventGames.Count, 0);
+            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).AllEventFoodItems.Count, 0);
+            Assert.AreEqual(((InvitationDetailsViewModel)result.Model).AllEventGames.Count, 0);
             Assert.AreNotEqual(((InvitationDetailsViewModel)result.Model).WillBringTheseFoodItems, null);
             Assert.AreNotEqual(((InvitationDetailsViewModel)result.Model).WillBringTheseGames, null);   
         }
@@ -128,7 +128,7 @@ namespace Web.Tests.Controllers
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
             var theInvitee = GetTestInviteeDataModel(accepteeId);
-            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService, EventService);;
 
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theInvitee }.AsQueryable());
@@ -155,7 +155,7 @@ namespace Web.Tests.Controllers
             theEvent.Coordinator = new Person { PersonId = 1, Email = "sbutler@nerdery.com", FacebookId = "00000"};
             var theInvitee = GetTestInviteeDataModel(accepteeId);
             theInvitee.MyRegisteredFriends = new List<Person>();
-            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService);
+            var controller = new HomeController(PersonRepo, EventRepo, FoodRepo, GameRepo, UserService, NotifyService, EventService);;
 
             var newFoodItems = new List<FoodItemViewModel>
                 {

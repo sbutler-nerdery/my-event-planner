@@ -29,28 +29,28 @@ namespace Web.Services
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
-        void AppendNewFoodItems(Event dataModel, EditEventViewModel viewModel);
+        void AppendNewFoodItems(Event dataModel, EventBaseViewModel viewModel);
         /// <summary>
         /// Remove the appropriate food items from the event data model.
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void RemoveFoodItems(Event dataModel, EditEventViewModel viewModel);
+        void RemoveFoodItems(Event dataModel, EventBaseViewModel viewModel);
         /// <summary>
         /// Add the appropriate games to the event data model
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void AppendNewGames(Event dataModel, EditEventViewModel viewModel);
+        void AppendNewGames(Event dataModel, EventBaseViewModel viewModel);
         /// <summary>
         /// Remove the appropriate games from the event data model
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void RemoveGames(Event dataModel, EditEventViewModel viewModel);
+        void RemoveGames(Event dataModel, EventBaseViewModel viewModel);
         /// <summary>
         /// Invite the appropriate people to the event
         /// </summary>

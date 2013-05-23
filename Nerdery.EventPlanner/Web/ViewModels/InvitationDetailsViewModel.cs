@@ -10,19 +10,11 @@ namespace Web.ViewModels
     {
         public InvitationDetailsViewModel()
         {
-            CurrentEventFoodItems = new List<FoodItemViewModel>();
-            CurrentEventGames = new List<GameViewModel>();
+            AllEventFoodItems = new List<FoodItemViewModel>();
+            AllEventGames = new List<GameViewModel>();
             WillBringTheseFoodItems = new List<string>();
             WillBringTheseGames = new List<string>();
         }
-        /// <summary>
-        /// Get or set the list of food items that people are already bringing to the event
-        /// </summary>
-        public List<FoodItemViewModel> CurrentEventFoodItems { get; set; }
-        /// <summary>
-        /// Get or set the list of games that people are already bringing to the event
-        /// </summary>
-        public List<GameViewModel> CurrentEventGames { get; set; }
         /// <summary>
         /// Get or set the list of food items belonging to the user accepting the invitation
         /// </summary>

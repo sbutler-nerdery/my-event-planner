@@ -228,5 +228,110 @@ namespace Web.Tests.Services
             //Assert
             Assert.AreEqual(list.Count, 2);            
         }
+
+        [TestMethod]
+        public void Add_Food_Items()
+        {
+            //Arrange
+            var chips = new FoodItem { FoodItemId = 1, Title = "Chips" };
+            var candy = new FoodItem { FoodItemId = 2, Title = "Candy" };
+            var pizza = new FoodItem { FoodItemId = 3, Title = "Pizza" };
+            var milk = new FoodItem { FoodItemId = 4, Title = "Milk" };
+
+            var model = new EventBaseViewModel
+            {
+                AllEventFoodItems = new List<FoodItemViewModel>
+                    {
+                        new FoodItemViewModel(chips),
+                        new FoodItemViewModel(candy)
+                    },
+                WillBringTheseFoodItems = new List<string>(new[] { "3","4" }), // this is what the user is bringing
+            };
+
+            //These are in the database
+            var dataModel = new Event
+            {
+                Coordinator = new Person { MyFoodItems = new List<FoodItem> { pizza, milk } },
+                FoodItems = new List<FoodItem> { chips, candy } // Pizza and milk will be added
+            };
+
+            A.CallTo(() => FoodRepo.GetAll()).Returns(new List<FoodItem>{ chips, candy, pizza, milk }.AsQueryable());
+
+            //Act
+            EventService.AppendNewFoodItems(dataModel, model);
+
+            //Assert
+            Assert.AreEqual(dataModel.FoodItems.Count, 4); //only the candy is removed.            
+        }
+
+        [TestMethod]
+        public void Remove_Food_Items()
+        {
+            //Arrange
+            var chips = new FoodItem { FoodItemId = 1, Title = "Chips" };
+            var candy = new FoodItem { FoodItemId = 2, Title = "Candy" };
+            var pizza = new FoodItem { FoodItemId = 3, Title = "Pizza" };
+            var milk = new FoodItem { FoodItemId = 4, Title = "Milk" };
+
+            var model = new EventBaseViewModel
+            {
+                AllEventFoodItems = new List<FoodItemViewModel>
+                    {
+                        new FoodItemViewModel(chips),
+                        new FoodItemViewModel(candy),
+                        new FoodItemViewModel(pizza),
+                        new FoodItemViewModel(milk)
+                    },
+                WillBringTheseFoodItems = new List<string>(new[]{ "4" }), // this is what the user is bringing
+            };
+
+            //These are in the database
+            var dataModel = new Event
+            {
+                Coordinator = new Person { MyFoodItems = new List<FoodItem> { candy, milk }},
+                FoodItems = new List<FoodItem> { chips, candy, pizza, milk }
+            }; 
+           
+            //Act
+            EventService.RemoveFoodItems(dataModel, model);
+
+            //Assert
+            Assert.AreEqual(dataModel.FoodItems.Count, 3); //only the candy is removed.
+        }
+
+        [TestMethod]
+        public void Remove_Games()
+        {
+            //Arrange
+            var settlers = new Game { GameId = 1, Title = "Settlers" };
+            var shadows = new Game { GameId = 2, Title = "Shadows" };
+            var heros = new Game { GameId = 3, Title = "Heros" };
+            var monopoly = new Game { GameId = 4, Title = "Monopoly" };
+
+            var model = new EventBaseViewModel
+            {
+                AllEventGames = new List<GameViewModel>
+                    {
+                        new GameViewModel(settlers),
+                        new GameViewModel(shadows),
+                        new GameViewModel(heros),
+                        new GameViewModel(monopoly)
+                    },
+                WillBringTheseGames = new List<string>(new[] { "4" }), // this is what the user is bringing
+            };
+
+            //These are in the database
+            var dataModel = new Event
+            {
+                Coordinator = new Person { MyGames = new List<Game> { shadows, monopoly } },
+                Games = new List<Game> { settlers, shadows, heros, monopoly}
+            };
+
+            //Act
+            EventService.RemoveGames(dataModel, model);
+
+            //Assert
+            Assert.AreEqual(dataModel.Games.Count, 3); //only the candy is removed.
+        }
     }
 }

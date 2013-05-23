@@ -156,6 +156,7 @@ namespace Web.Controllers
                     updateMe.Title = model.Title;
                     updateMe.Description = model.Description;
                     updateMe.Location = model.Location;
+                    model.PersonId = updateMe.Coordinator.PersonId;
 
                     //Update the date / time for the event
                     _eventService.SetEventDates(updateMe, model);
@@ -275,8 +276,8 @@ namespace Web.Controllers
             model.FacebookFriends = _userService.GetFacebookFriends(userName);
 
             //Populate food and games
-            dataModel.FoodItems.ForEach(x => model.AllEventFoodItems.Add(new FoodItemViewModel(x)));
-            dataModel.Games.ForEach(x => model.AllEventGames.Add(new GameViewModel(x)));
+            if (dataModel.FoodItems != null) dataModel.FoodItems.ForEach(x => model.AllEventFoodItems.Add(new FoodItemViewModel(x)));
+            if (dataModel.Games != null) dataModel.Games.ForEach(x => model.AllEventGames.Add(new GameViewModel(x)));
 
             var foodItems = new List<SelectListItem>();
             var games = new List<SelectListItem>();
@@ -303,13 +304,20 @@ namespace Web.Controllers
             model.MyGames = new MultiSelectList(games, "Value", "Text");
 
             //Stuff the user is already bringing
-            var eventFoodItemIds = dataModel.FoodItems.Select(x => x.FoodItemId).ToList();
-            var personFoodItemIds = coordinator.MyFoodItems.Select(x => x.FoodItemId).ToList();
-            model.WillBringTheseFoodItems = personFoodItemIds.Intersect(eventFoodItemIds).Select(x => x.ToString()).ToList();
+            if (dataModel.FoodItems != null)
+            {
+                var eventFoodItemIds = dataModel.FoodItems.Select(x => x.FoodItemId).ToList();
+                var personFoodItemIds = coordinator.MyFoodItems.Select(x => x.FoodItemId).ToList();
+                model.WillBringTheseFoodItems =
+                    personFoodItemIds.Intersect(eventFoodItemIds).Select(x => x.ToString()).ToList();
+            }
 
-            var eventGameIds = dataModel.Games.Select(x => x.GameId).ToList();
-            var personGameIds = coordinator.MyGames.Select(x => x.GameId).ToList();
-            model.WillBringTheseGames = personGameIds.Intersect(eventGameIds).Select(x => x.ToString()).ToList();
+            if (dataModel.Games != null)
+            {
+                var eventGameIds = dataModel.Games.Select(x => x.GameId).ToList();
+                var personGameIds = coordinator.MyGames.Select(x => x.GameId).ToList();
+                model.WillBringTheseGames = personGameIds.Intersect(eventGameIds).Select(x => x.ToString()).ToList();
+            }
 
             model.PersonId = coordinator.PersonId;
 

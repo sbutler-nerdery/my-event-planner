@@ -31,10 +31,10 @@
 
         <h3>Food items already coming to the event</h3>
         
-        @if (Model.CurrentEventFoodItems.Count > 0)
+        @if (Model.AllEventFoodItems.Count > 0)
         {
             <ul>
-                @foreach (var food in Model.CurrentEventFoodItems)
+                @foreach (var food in Model.AllEventFoodItems)
                 {
                     var whoIsBringingIt = Model.MyFoodItems.Select(x => x.Value).Contains(food.FoodItemId.ToString()) ? " - Brought by you" : "";
                     <li>@food.Title @whoIsBringingIt</li>
@@ -47,10 +47,10 @@
         }
 
         <h3>Games already coming to the event</h3>        
-        @if (Model.CurrentEventGames.Count > 0)
+        @if (Model.AllEventGames.Count > 0)
         {
             <ul>
-                @foreach (var game in Model.CurrentEventGames)
+                @foreach (var game in Model.AllEventGames)
                 {
                     var whoIsBringingIt = Model.MyGames.Select(x => x.Value).Contains(game.GameId.ToString()) ? " - Brought by you" : "";
                     <li>@game.Title @whoIsBringingIt</li>

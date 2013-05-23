@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 
@@ -41,5 +42,15 @@ namespace Web.ViewModels
         /// Get or set the control id for the listbox that will be updated when adding game items
         /// </summary>
         public string GameControlId { get; set; }
+        /// <summary>
+        /// Get or set a list of all the food items being brought to the event
+        /// </summary>
+        [Display(Name = "Food items coming to the event")]
+        public List<FoodItemViewModel> AllEventFoodItems { get; set; }
+        /// <summary>
+        /// Get or set a list of all the games being brought to the event
+        /// </summary>
+        [Display(Name = "Games coming to the event")]
+        public List<GameViewModel> AllEventGames { get; set; }
     }
 }

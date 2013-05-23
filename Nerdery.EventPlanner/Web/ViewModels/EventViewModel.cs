@@ -32,10 +32,10 @@ namespace Web.ViewModels
             StartDate = model.StartDate;
             StartTime = model.StartDate.ToString("h:mm tt");
             EndTime = model.EndDate.ToString("h:mm tt");
-            model.FoodItems.ForEach(x => WillBringTheseFoodItems.Add(x.FoodItemId.ToString()));
-            model.Games.ForEach(x => WillBringTheseGames.Add(x.GameId.ToString()));
-            model.RegisteredInvites.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
-            model.NonRegisteredInvites.ForEach(x =>
+            if (model.FoodItems != null) model.FoodItems.ForEach(x => WillBringTheseFoodItems.Add(x.FoodItemId.ToString()));
+            if (model.Games != null) model.Games.ForEach(x => WillBringTheseGames.Add(x.GameId.ToString()));
+            if (model.RegisteredInvites != null) model.RegisteredInvites.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
+            if (model.NonRegisteredInvites != null) model.NonRegisteredInvites.ForEach(x =>
                 {
                     if (x.Email != null)
                     {
@@ -49,8 +49,8 @@ namespace Web.ViewModels
                         PeopleInvited.Add(value);                        
                     }
                 });
-            model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(x.PersonId));
-            model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(x.PersonId));
+            if (model.PeopleWhoAccepted != null) model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(x.PersonId));
+            if (model.PeopleWhoDeclined != null) model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(x.PersonId));
         }
 
         #endregion
@@ -74,16 +74,6 @@ namespace Web.ViewModels
         [Display(Name = "End time")]
         public string EndTime { get; set; }
         /// <summary>
-        /// Get or set a list of all the food items being brought to the event
-        /// </summary>
-        [Display(Name = "Food items coming to the event")]
-        public List<FoodItemViewModel> AllEventFoodItems { get; set; }
-        /// <summary>
-        /// Get or set a list of all the games being brought to the event
-        /// </summary>
-        [Display(Name = "Games coming to the event")]
-        public List<GameViewModel> AllEventGames { get; set; }
-        /// <summary>
         /// Get or set a list of all the food items being provided by the host
         /// </summary>
         public MultiSelectList MyFoodItems { get; set; }
@@ -91,10 +81,6 @@ namespace Web.ViewModels
         /// Get or set a list of all the games that are being provided by the host
         /// </summary>
         public MultiSelectList MyGames { get; set; }
-        [Display(Name = "Food I am providing")]
-        public List<string> WillBringTheseFoodItems { get; set; }
-        [Display(Name = "Games I am providing")]
-        public List<string> WillBringTheseGames { get; set; }
         /// <summary>
         /// Get or set the complete list of people who could be invited to an event
         /// </summary>
@@ -112,16 +98,9 @@ namespace Web.ViewModels
         /// Get or set the list of Facebook friends for the current user
         /// </summary>
         public List<PersonViewModel> FacebookFriends { get; set; }
-        public FoodItemViewModel AddFoodItem { get; set; }
-        public GameViewModel AddGameItem { get; set; }
         /// <summary>
         /// Get or set the control id for the listbox that will be updated when adding food items
         /// </summary>
-        public string FoodControlId { get; set; }
-        /// <summary>
-        /// Get or set the control id for the listbox that will be updated when adding game items
-        /// </summary>
-        public string GameControlId { get; set; }
         #endregion
 
         #region Methods
