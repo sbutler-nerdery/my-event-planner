@@ -40,7 +40,7 @@ namespace Web.Data
             }
 
             var coordinator = context.People
-                .Include("MyFriends")
+                .Include("MyRegisteredFriends")
                 .Include("MyFoodItems")
                 .Include("MyGames")
                 .FirstOrDefault(x => x.UserName == userName);

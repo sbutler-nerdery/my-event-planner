@@ -286,22 +286,42 @@ namespace Web.Services
 
             //Delete items
             deletedPeopleIds.ForEach(id =>
-            {
-                var removeInvitation = dataModel.RegisteredInvites.FirstOrDefault(y => y.PersonId == id);
-                var removeAccepted = dataModel.PeopleWhoAccepted.FirstOrDefault(y => y.PersonId == id);
-                var removeDeclined = dataModel.PeopleWhoDeclined.FirstOrDefault(y => y.PersonId == id);
+                {
+                    var thePerson = _personPersonRepo.GetAll().FirstOrDefault(x => x.PersonId == id);
+                    var removeInvitation = dataModel.RegisteredInvites.FirstOrDefault(y => y.PersonId == id);
+                    var removeAccepted = dataModel.PeopleWhoAccepted.FirstOrDefault(y => y.PersonId == id);
+                    var removeDeclined = dataModel.PeopleWhoDeclined.FirstOrDefault(y => y.PersonId == id);
 
-                //Remove from the invitation list
-                dataModel.RegisteredInvites.Remove(removeInvitation);
+                    //Remove from the invitation list
+                    dataModel.RegisteredInvites.Remove(removeInvitation);
 
-                //Remove from the accepted list
-                if (removeAccepted != null)
-                    dataModel.PeopleWhoAccepted.Remove(removeAccepted);
+                    //Remove from the accepted list
+                    if (removeAccepted != null)
+                        dataModel.PeopleWhoAccepted.Remove(removeAccepted);
 
-                //Remove from the declined list
-                if (removeDeclined != null)
-                    dataModel.PeopleWhoDeclined.Remove(removeDeclined);
-            });
+                    //Remove from the declined list
+                    if (removeDeclined != null)
+                        dataModel.PeopleWhoDeclined.Remove(removeDeclined);
+
+                    //Remove the person's food items from the event
+                    thePerson.MyFoodItems.ForEach(x =>
+                        {
+                            var removeMe = dataModel.FoodItems.FirstOrDefault(y => y.FoodItemId == x.FoodItemId);
+
+                            if (removeMe != null)
+                                dataModel.FoodItems.Remove(removeMe);
+                        });
+
+                    //Remove the person's games from the event
+                    thePerson.MyGames.ForEach(x =>
+                    {
+                        var removeMe = dataModel.Games.FirstOrDefault(y => y.GameId == x.GameId);
+
+                        if (removeMe != null)
+                            dataModel.Games.Remove(removeMe);
+                    });
+
+                });
 
             //Process people without user accounts
             var emailList = new List<string>();
@@ -376,7 +396,7 @@ namespace Web.Services
             var currentPeopleIds = currentInvites.Select(x => x.PersonId).ToArray(); //Items in the database
             var uninviteThesePeople = previousInvites
                 .Where(x => !currentPeopleIds.Contains(x.PersonId)).ToList();
-            return uninviteThesePeople;               
+            return uninviteThesePeople;
         }
 
         public List<PendingInvitation> GetNonRegisteredUninvites(List<PendingInvitation> previousInvites, List<PendingInvitation> currentInvites)
@@ -384,7 +404,7 @@ namespace Web.Services
             var currentPendingIds = currentInvites.Select(x => x.PendingInvitationId).ToArray(); //Items in the database
             var uninviteThesePeople = previousInvites
                 .Where(x => !currentPendingIds.Contains(x.PendingInvitationId)).ToList();
-            return uninviteThesePeople;            
+            return uninviteThesePeople;
         }
 
         /// <summary>
