@@ -104,7 +104,7 @@ namespace Web.Controllers
                     var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
                     var thePerson =
                         _personRepository.GetAll()
-                                         .FirstOrDefault(x => x.PersonId == model.AccepteeId);
+                                         .FirstOrDefault(x => x.PersonId == model.PersonId);
 
                     ProcessFoodAndGameUpdates(model, theEvent);
 
@@ -113,13 +113,13 @@ namespace Web.Controllers
                     _foodRepository.SubmitChanges();
                     _eventRepository.SubmitChanges();
 
-                    return RedirectToAction("Index", new { message = BaseControllerMessageId.AcceptInvitationSuccess });
+                    return RedirectToAction("Index", new { message = BaseControllerMessageId.UpdateInvitationSuccess });
                 }                
             }
             catch (Exception)
             {
                 //TODO:log to database
-                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.AcceptInvitationFail);
+                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.UpdateInvitationFail);
             }
 
             //If we get to here there is a problem
@@ -160,7 +160,7 @@ namespace Web.Controllers
                     var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
                     var thePerson =
                         _personRepository.GetAll()
-                                         .FirstOrDefault(x => x.PersonId == model.AccepteeId);
+                                         .FirstOrDefault(x => x.PersonId == model.PersonId);
 
                     thePerson.AmAttending.Add(theEvent);
                     thePerson.HaveDeclined.Remove(theEvent);
@@ -230,7 +230,8 @@ namespace Web.Controllers
 
         #region Helpers
 
-        private void ProcessFoodAndGameUpdates(InvitationDetailsViewModel model, Event theEvent)
+
+        protected void ProcessFoodAndGameUpdates(EventBaseViewModel model, Event theEvent)
         {
             //Get a list of the new food items
             var dataFoodIds = theEvent.FoodItems.Select(x => x.FoodItemId).ToArray(); //Items in the database
@@ -290,7 +291,7 @@ namespace Web.Controllers
             var model = new InvitationDetailsViewModel { EventId = theEvent.EventId, 
                 Title = theEvent.Title, 
                 Description = theEvent.Description, 
-                AccepteeId = thePerson.PersonId 
+                PersonId = thePerson.PersonId 
             };
 
             //Populate the games and food that are already coming

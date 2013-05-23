@@ -202,6 +202,7 @@
     <Compile Include="Services\INotificationService.cs" />
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Services\UserService.cs" />
+    <Compile Include="ViewModels\EventBaseViewModel.cs" />
     <Compile Include="ViewModels\InvitationDetailsViewModel.cs" />
     <Compile Include="ViewModels\EventViewModel.cs" />
     <Compile Include="ViewModels\ExternalLoginViewModel.cs" />
@@ -337,7 +338,7 @@
     <Content Include="Views\Event\_InvitePeopleDialog.cshtml" />
     <Content Include="Views\Account\_UpdateUserInformation.cshtml" />
     <Content Include="Views\Home\ViewInvitation.cshtml" />
-    <Content Include="Views\Home\_AddEventItems.cshtml" />
+    <Content Include="Views\Shared\_AddEventItems.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

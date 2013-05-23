@@ -23,48 +23,48 @@ namespace Web.Services
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
-        void SetEventDates(Event dataModel, EventViewModel viewModel);
+        void SetEventDates(Event dataModel, EditEventViewModel viewModel);
         /// <summary>
         /// Add the appropriate food items to the data model
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
-        void AppendNewFoodItems(Event dataModel, EventViewModel viewModel);
+        void AppendNewFoodItems(Event dataModel, EditEventViewModel viewModel);
         /// <summary>
         /// Remove the appropriate food items from the event data model.
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void RemoveFoodItems(Event dataModel, EventViewModel viewModel);
+        void RemoveFoodItems(Event dataModel, EditEventViewModel viewModel);
         /// <summary>
         /// Add the appropriate games to the event data model
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void AppendNewGames(Event dataModel, EventViewModel viewModel);
+        void AppendNewGames(Event dataModel, EditEventViewModel viewModel);
         /// <summary>
         /// Remove the appropriate games from the event data model
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void RemoveGames(Event dataModel, EventViewModel viewModel);
+        void RemoveGames(Event dataModel, EditEventViewModel viewModel);
         /// <summary>
         /// Invite the appropriate people to the event
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void InviteNewPeople(Event dataModel, EventViewModel viewModel);
+        void InviteNewPeople(Event dataModel, EditEventViewModel viewModel);
         /// <summary>
         /// Uninvite the appropriate people from the event
         /// </summary>
         /// <param name="dataModel">The specified event data model</param>
         /// <param name="viewModel">The specified event view model</param>
         /// <returns></returns>
-        void UninvitePeople(Event dataModel, EventViewModel viewModel);
+        void UninvitePeople(Event dataModel, EditEventViewModel viewModel);
         /// <summary>
         /// Get a serialized JSON string of the required fields of the event model.
         /// </summary>

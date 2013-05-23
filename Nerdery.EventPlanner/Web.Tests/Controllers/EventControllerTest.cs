@@ -68,7 +68,7 @@ namespace Web.Tests.Controllers
             var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotifyService);
 
             //Act
-            var result = contoller.Create(new EventViewModel()) as RedirectToRouteResult;
+            var result = contoller.Create(new EditEventViewModel()) as RedirectToRouteResult;
 
             //Assert
             Assert.AreEqual(result.RouteValues["action"], "Index");
@@ -83,7 +83,7 @@ namespace Web.Tests.Controllers
         public void Create_Event_ModelState_Not_Valid()
         {
             //Arrange
-            var viewModel = new EventViewModel();
+            var viewModel = new EditEventViewModel();
             var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotifyService);
 
             var modelBinder = new ModelBindingContext
@@ -157,7 +157,7 @@ namespace Web.Tests.Controllers
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event>().AsQueryable());
 
             //Act
-            var result = contoller.Edit(new EventViewModel()) as ViewResult;
+            var result = contoller.Edit(new EditEventViewModel()) as ViewResult;
 
             //Assert
             Assert.AreEqual(result.ViewBag.StatusMessage, Constants.BASE_SAVE_FAIL);
@@ -186,8 +186,8 @@ namespace Web.Tests.Controllers
             var result = controller.Edit(1) as ViewResult;
 
             //Assert
-            Assert.AreEqual(((EventViewModel)result.Model).Title, dataModel.Title);
-            Assert.IsTrue(((EventViewModel)result.Model).PeopleList.ToList().Count == 2);
+            Assert.AreEqual(((EditEventViewModel)result.Model).Title, dataModel.Title);
+            Assert.IsTrue(((EditEventViewModel)result.Model).PeopleList.ToList().Count == 2);
             Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
         }
 
@@ -198,7 +198,7 @@ namespace Web.Tests.Controllers
         public void Edit_Event_ModelState_Not_Valid()
         {
             //Arrange
-            var viewModel = new EventViewModel();
+            var viewModel = new EditEventViewModel();
             var contoller = new EventController(EventRepo, PersonRepo, EventService, UserService, NotifyService);
 
             var modelBinder = new ModelBindingContext

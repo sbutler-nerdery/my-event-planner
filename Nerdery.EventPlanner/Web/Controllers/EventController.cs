@@ -48,39 +48,13 @@ namespace Web.Controllers
         {
             try
             {
-                var model = new EventViewModel
+                var dataModel = new Event
                     {
-                        StartDate = DateTime.Now.Date,
-                        StartTime = "7:00 PM",
-                        EndTime = "9:00 PM"
+                        StartDate = DateTime.Now.Date.AddHours(19), //7:00 PM
+                        EndDate = DateTime.Now.Date.AddHours(21) //9:00 pm                  
                     };
 
-                //Populate the total list of people who could be invited to an event.
-                var userName = (User != null) ? User.Identity.Name : string.Empty;
-                var userId = _userService.GetCurrentUserId(userName);
-                var people = new List<SelectListItem>();
-                var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
-                coordinator.MyRegisteredFriends
-                                 .ToList()
-                                 .ForEach(
-                                     x => people.Add(new SelectListItem
-                                     {
-                                         Value = x.PersonId.ToString(),
-                                         Text = x.FirstName + " " + x.LastName
-                                     }));
-
-                coordinator.MyNonRegisteredFriends
-                                 .ToList()
-                                 .ForEach(
-                                     x => people.Add(new SelectListItem
-                                     {
-                                         Value = (x.Email != null) ? x.Email + "|" + x.FirstName + "|" + x.LastName : x.FacebookId + "|" + x.FirstName + " " + x.LastName,
-                                         Text = x.FirstName + " " + x.LastName
-                                     }));
-
-                model.PeopleList = new MultiSelectList(people, "Value", "Text");
-                model.TimeList = _eventService.GetTimeList();
-                model.FacebookFriends = _userService.GetFacebookFriends(userName);
+                var model = GetViewModel(dataModel);
 
                 return View(model);
             }
@@ -94,7 +68,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(EventViewModel model)
+        public ActionResult Create(EditEventViewModel model)
         {
             try
             {
@@ -167,7 +141,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(EventViewModel model)
+        public ActionResult Edit(EditEventViewModel model)
         {
             var updateMe = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
 
@@ -269,9 +243,9 @@ namespace Web.Controllers
 
         #region Helpers
 
-        private EventViewModel GetViewModel(Event dataModel)
+        private EditEventViewModel GetViewModel(Event dataModel)
         {
-            var model = new EventViewModel(dataModel);
+            var model = new EditEventViewModel(dataModel);
 
             //Populate the total list of people who could be invited to an event.
             var userName = (User != null) ? User.Identity.Name : string.Empty;
@@ -299,6 +273,45 @@ namespace Web.Controllers
             model.PeopleList = new MultiSelectList(people, "Value", "Text");
             model.TimeList = _eventService.GetTimeList();
             model.FacebookFriends = _userService.GetFacebookFriends(userName);
+
+            //Populate food and games
+            dataModel.FoodItems.ForEach(x => model.AllEventFoodItems.Add(new FoodItemViewModel(x)));
+            dataModel.Games.ForEach(x => model.AllEventGames.Add(new GameViewModel(x)));
+
+            var foodItems = new List<SelectListItem>();
+            var games = new List<SelectListItem>();
+
+            coordinator.MyFoodItems
+                             .ToList()
+                             .ForEach(
+                                 x => foodItems.Add(new SelectListItem
+                                 {
+                                     Value = x.FoodItemId.ToString(),
+                                     Text = x.Title
+                                 }));
+
+            coordinator.MyGames
+                             .ToList()
+                             .ForEach(
+                                 x => games.Add(new SelectListItem
+                                 {
+                                     Value = x.GameId.ToString(),
+                                     Text = x.Title
+                                 }));
+
+            model.MyFoodItems = new MultiSelectList(foodItems, "Value", "Text");
+            model.MyGames = new MultiSelectList(games, "Value", "Text");
+
+            //Stuff the user is already bringing
+            var eventFoodItemIds = dataModel.FoodItems.Select(x => x.FoodItemId).ToList();
+            var personFoodItemIds = coordinator.MyFoodItems.Select(x => x.FoodItemId).ToList();
+            model.WillBringTheseFoodItems = personFoodItemIds.Intersect(eventFoodItemIds).Select(x => x.ToString()).ToList();
+
+            var eventGameIds = dataModel.Games.Select(x => x.GameId).ToList();
+            var personGameIds = coordinator.MyGames.Select(x => x.GameId).ToList();
+            model.WillBringTheseGames = personGameIds.Intersect(eventGameIds).Select(x => x.ToString()).ToList();
+
+            model.PersonId = coordinator.PersonId;
 
             return model;
         }

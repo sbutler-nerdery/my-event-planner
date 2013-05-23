@@ -54,7 +54,7 @@ namespace Web.Services
             return timeList;
         }
 
-        public void SetEventDates(Event dataModel, EventViewModel viewModel)
+        public void SetEventDates(Event dataModel, EditEventViewModel viewModel)
         {
             DateTime startTime =
                 DateTime.Parse(viewModel.StartDate.Value.ToShortDateString() + " " + viewModel.StartTime);
@@ -76,25 +76,26 @@ namespace Web.Services
                 dataModel.EndDate = dataModel.StartDate.Date.AddDays(1).Date.AddHours(endHour).AddMinutes(endMinute);
         }
 
-        public void AppendNewFoodItems(Event dataModel, EventViewModel viewModel)
+        public void AppendNewFoodItems(Event dataModel, EditEventViewModel viewModel)
         {
-            var dataFoodIds = dataModel.FoodItems.Select(x => x.FoodItemId).ToArray(); //Items in the database
-            var newFoodItems = viewModel.FoodItemsSelected.Where(x => !dataFoodIds.Contains(x)).ToList();
+            var dataFoodIds = dataModel.FoodItems.Select(x => x.FoodItemId.ToString()).ToArray(); //Items in the database
+            var newFoodItems = viewModel.WillBringTheseFoodItems.Where(x => !dataFoodIds.Contains(x)).ToList();
 
             //Add new items
             newFoodItems.ForEach(foodId =>
                 {
-                    var addMe = _foodRepository.GetAll().FirstOrDefault(y => y.FoodItemId == foodId);
+                    var id = int.Parse(foodId);
+                    var addMe = _foodRepository.GetAll().FirstOrDefault(y => y.FoodItemId == id);
 
                     if (addMe != null)
                         dataModel.FoodItems.Add(addMe);
                 });
         }
 
-        public void RemoveFoodItems(Event dataModel, EventViewModel viewModel)
+        public void RemoveFoodItems(Event dataModel, EditEventViewModel viewModel)
         {
-            var modelFoodIds = viewModel.FoodItemsSelected.Select(x => x).ToArray(); //Items in local view model
-            var deletedFoodItemIds = dataModel.FoodItems.Where(x => !modelFoodIds.Contains(x.FoodItemId)).Select(x => x.FoodItemId).ToList();
+            var modelFoodIds = viewModel.WillBringTheseFoodItems.Select(x => x).ToArray(); //Items in local view model
+            var deletedFoodItemIds = dataModel.FoodItems.Where(x => !modelFoodIds.Contains(x.FoodItemId.ToString())).Select(x => x.FoodItemId).ToList();
 
             //Delete items
             deletedFoodItemIds.ForEach(id =>
@@ -104,25 +105,26 @@ namespace Web.Services
             });
         }
 
-        public void AppendNewGames(Event dataModel, EventViewModel viewModel)
+        public void AppendNewGames(Event dataModel, EditEventViewModel viewModel)
         {
             var dataGameIds = dataModel.Games.Select(x => x.GameId).ToArray(); //Items in the database
-            var newGameItems = viewModel.GamesSelected.Where(x => !dataGameIds.Contains(x)).ToList();
+            var newGameItems = viewModel.WillBringTheseGames.Where(x => !dataGameIds.Contains(int.Parse(x))).ToList();
 
             //Add new items
             newGameItems.ForEach(gameId =>
                 {
-                    var addMe = _gameRepository.GetAll().FirstOrDefault(y => y.GameId == gameId);
+                    var id = int.Parse(gameId);
+                    var addMe = _gameRepository.GetAll().FirstOrDefault(y => y.GameId == id);
 
                     if (addMe != null)
                         dataModel.Games.Add(addMe);
                 });
         }
 
-        public void RemoveGames(Event dataModel, EventViewModel viewModel)
+        public void RemoveGames(Event dataModel, EditEventViewModel viewModel)
         {
-            var modelGameIds = viewModel.GamesSelected.Select(x => x).ToArray(); //Items in local view model
-            var deletedGameIds = dataModel.Games.Where(x => !modelGameIds.Contains(x.GameId)).Select(x => x.GameId).ToList();
+            var modelGameIds = viewModel.WillBringTheseGames.Select(x => x).ToArray(); //Items in local view model
+            var deletedGameIds = dataModel.Games.Where(x => !modelGameIds.Contains(x.GameId.ToString())).Select(x => x.GameId).ToList();
 
             //Delete items
             deletedGameIds.ForEach(id =>
@@ -132,7 +134,7 @@ namespace Web.Services
             });
         }
 
-        public void InviteNewPeople(Event dataModel, EventViewModel viewModel)
+        public void InviteNewPeople(Event dataModel, EditEventViewModel viewModel)
         {
             int tParse;
 
@@ -267,7 +269,7 @@ namespace Web.Services
             });
         }
 
-        public void UninvitePeople(Event dataModel, EventViewModel viewModel)
+        public void UninvitePeople(Event dataModel, EditEventViewModel viewModel)
         {
             int parse;
             //Process peoeple with user accounts

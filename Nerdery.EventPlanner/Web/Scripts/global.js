@@ -40,8 +40,8 @@
             }
 
             var actionKey = "add-game-item";
-            var controlId = response.Data.FoodControlId;
-            var id = response.Data.FoodItemId;
+            var controlId = response.Data.GameControlId;
+            var id = response.Data.GameId;
             var title = response.Data.Title;
             var description = response.Data.Description;
             var text = title;

@@ -8,20 +8,22 @@ using Web.Data.Models;
 
 namespace Web.ViewModels
 {
-    public class EventViewModel
+    public class EditEventViewModel : EventBaseViewModel
     {
         #region Constructors
 
-        public EventViewModel()
+        public EditEventViewModel()
         {
             PeopleInvited = new List<string>();
-            FoodItemsSelected = new List<int>();
-            GamesSelected = new List<int>();
+            WillBringTheseFoodItems = new List<string>();
+            WillBringTheseGames = new List<string>();
+            AllEventFoodItems = new List<FoodItemViewModel>();
+            AllEventGames = new List<GameViewModel>();
             PeopleWhoAccepted = new List<int>();
             PeopleWhoDeclined = new List<int>();
         }
 
-        public EventViewModel(Event model) :this()
+        public EditEventViewModel(Event model) :this()
         {
             EventId = model.EventId;
             Title = model.Title;
@@ -30,8 +32,8 @@ namespace Web.ViewModels
             StartDate = model.StartDate;
             StartTime = model.StartDate.ToString("h:mm tt");
             EndTime = model.EndDate.ToString("h:mm tt");
-            model.FoodItems.ForEach(x => FoodItemsSelected.Add(x.FoodItemId));
-            model.Games.ForEach(x => GamesSelected.Add(x.GameId));
+            model.FoodItems.ForEach(x => WillBringTheseFoodItems.Add(x.FoodItemId.ToString()));
+            model.Games.ForEach(x => WillBringTheseGames.Add(x.GameId.ToString()));
             model.RegisteredInvites.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
             model.NonRegisteredInvites.ForEach(x =>
                 {
@@ -54,12 +56,6 @@ namespace Web.ViewModels
         #endregion
 
         #region Properties
-
-        public int EventId { get; set; }
-        [Required]
-        public string Title { get; set; }
-        [Required]
-        public string Description { get; set; }
         [Required]
         [Display(Name = "Event location")]
         public string Location { get; set; }
@@ -77,10 +73,28 @@ namespace Web.ViewModels
         [Required]
         [Display(Name = "End time")]
         public string EndTime { get; set; }
-        public MultiSelectList FoodItems { get; set; }
-        public MultiSelectList Games { get; set; }
-        public List<int> FoodItemsSelected { get; set; }
-        public List<int> GamesSelected { get; set; }
+        /// <summary>
+        /// Get or set a list of all the food items being brought to the event
+        /// </summary>
+        [Display(Name = "Food items coming to the event")]
+        public List<FoodItemViewModel> AllEventFoodItems { get; set; }
+        /// <summary>
+        /// Get or set a list of all the games being brought to the event
+        /// </summary>
+        [Display(Name = "Games coming to the event")]
+        public List<GameViewModel> AllEventGames { get; set; }
+        /// <summary>
+        /// Get or set a list of all the food items being provided by the host
+        /// </summary>
+        public MultiSelectList MyFoodItems { get; set; }
+        /// <summary>
+        /// Get or set a list of all the games that are being provided by the host
+        /// </summary>
+        public MultiSelectList MyGames { get; set; }
+        [Display(Name = "Food I am providing")]
+        public List<string> WillBringTheseFoodItems { get; set; }
+        [Display(Name = "Games I am providing")]
+        public List<string> WillBringTheseGames { get; set; }
         /// <summary>
         /// Get or set the complete list of people who could be invited to an event
         /// </summary>
@@ -98,6 +112,16 @@ namespace Web.ViewModels
         /// Get or set the list of Facebook friends for the current user
         /// </summary>
         public List<PersonViewModel> FacebookFriends { get; set; }
+        public FoodItemViewModel AddFoodItem { get; set; }
+        public GameViewModel AddGameItem { get; set; }
+        /// <summary>
+        /// Get or set the control id for the listbox that will be updated when adding food items
+        /// </summary>
+        public string FoodControlId { get; set; }
+        /// <summary>
+        /// Get or set the control id for the listbox that will be updated when adding game items
+        /// </summary>
+        public string GameControlId { get; set; }
         #endregion
 
         #region Methods

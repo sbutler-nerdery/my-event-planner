@@ -57,6 +57,8 @@ namespace Web
         public const string BASE_ACCEPT_INVITATION_SUCCESS = "You have accepted the invitation!";
         public const string BASE_DECLINE_INVITATION_FAIL = "An error occurred. Unable to decline invitation.";
         public const string BASE_DECLINE_INVITATION_SUCCESS = "You have declined the invitation!";
+        public const string BASE_UPDATE_INVITATION_FAIL = "An error occurred. Unable to update invitation.";
+        public const string BASE_UPDATE_INVITATION_SUCCESS = "Event updated successfully!";
 
         #endregion 
 

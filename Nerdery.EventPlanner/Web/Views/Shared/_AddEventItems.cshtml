@@ -1,4 +1,4 @@
-﻿@model Web.ViewModels.InvitationDetailsViewModel
+﻿@model Web.ViewModels.EventBaseViewModel
 
 <div data-dialog="true" title="Add a Munchy" data-action="add-food-item">
     @using (Ajax.BeginForm("AddFoodItem", "Service", new AjaxOptions { HttpMethod = "Post", OnSuccess = "EventPlanner.Events.addFoodItem" }))
@@ -20,7 +20,7 @@
                 @Html.ValidationMessageFor(model => model.AddFoodItem.Description)
             </div>    
             @Html.Hidden("FoodControlId", "WillBringTheseFoodItems")
-            @Html.HiddenFor(m => m.AccepteeId)
+            @Html.HiddenFor(m => m.PersonId)
             <input type="submit" value="Add this munchy" />
         </fieldset>                  
     }    
@@ -46,7 +46,7 @@
                 @Html.ValidationMessageFor(model => model.AddGameItem.Description)
             </div>    
             @Html.Hidden("FoodControlId", "WillBringTheseGames")
-            @Html.HiddenFor(m => m.AccepteeId)
+            @Html.HiddenFor(m => m.PersonId)
             <input type="submit" value="Add Game" />
         </fieldset>                  
     }    

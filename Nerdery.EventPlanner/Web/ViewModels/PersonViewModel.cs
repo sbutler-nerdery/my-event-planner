@@ -10,10 +10,10 @@ namespace Web.ViewModels
 
         public PersonViewModel()
         {
-            MyEvents = new List<EventViewModel>();
-            AmInvitedToThese = new List<EventViewModel>();
-            AmAttending = new List<EventViewModel>();
-            HaveDeclined = new List<EventViewModel>();
+            MyEvents = new List<EditEventViewModel>();
+            AmInvitedToThese = new List<EditEventViewModel>();
+            AmAttending = new List<EditEventViewModel>();
+            HaveDeclined = new List<EditEventViewModel>();
             MyFoodItems = new List<FoodItemViewModel>();
             MyGames = new List<GameViewModel>();
             MyFriends = new List<PersonViewModel>();
@@ -53,19 +53,19 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set events that this user is coordinating
         /// </summary>
-        public virtual List<EventViewModel> MyEvents { get; set; }
+        public virtual List<EditEventViewModel> MyEvents { get; set; }
         /// <summary>
         /// Get or set events that this user is invited to
         /// </summary>
-        public virtual List<EventViewModel> AmInvitedToThese { get; set; }
+        public virtual List<EditEventViewModel> AmInvitedToThese { get; set; }
         /// <summary>
         /// Get or set events that this user is attending
         /// </summary>
-        public virtual List<EventViewModel> AmAttending { get; set; }
+        public virtual List<EditEventViewModel> AmAttending { get; set; }
         /// <summary>
         /// Get or set events that this user has declined
         /// </summary>
-        public List<EventViewModel> HaveDeclined { get; set; }
+        public List<EditEventViewModel> HaveDeclined { get; set; }
         public List<FoodItemViewModel> MyFoodItems { get; set; }
         public List<GameViewModel> MyGames { get; set; }
         public List<PersonViewModel> MyFriends { get; set; }

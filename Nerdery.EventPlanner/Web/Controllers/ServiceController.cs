@@ -39,12 +39,9 @@ namespace Web.Controllers
         /// <summary>
         /// Add a food item to a user's personal list of food items.
         /// </summary>
-        /// <param name="personId">The specified perosn id</param>
-        /// <param name="title">The title for the food item</param>
-        /// <param name="description">The description for the food item</param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult AddFoodItem(InvitationDetailsViewModel model)
+        public ActionResult AddFoodItem(EventBaseViewModel model)
         {
             var response = new Response { Error = false };
 
@@ -56,7 +53,7 @@ namespace Web.Controllers
                 _foodRepository.SubmitChanges();
 
                 //Add to the user's collection of food items
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.AccepteeId);
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
                 thePerson.MyFoodItems.Add(newFoodItem);
                 _personRepository.SubmitChanges();
 
@@ -103,11 +100,9 @@ namespace Web.Controllers
         /// <summary>
         /// Add a game to a user's personal list of games.
         /// </summary>
-        /// <param name="title">The title for the game</param>
-        /// <param name="description">The description for the game</param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult AddGame(InvitationDetailsViewModel model)
+        public ActionResult AddGame(EventBaseViewModel model)
         {
             var response = new Response { Error = false };
 
@@ -119,7 +114,7 @@ namespace Web.Controllers
                 _gameRepository.SubmitChanges();
 
                 //Add to the user's collection of food items
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.AccepteeId);
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
                 thePerson.MyGames.Add(newGame);
                 _personRepository.SubmitChanges();
 

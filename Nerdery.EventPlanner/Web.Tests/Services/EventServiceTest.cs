@@ -29,7 +29,7 @@ namespace Web.Tests.Services
             var startTimeValue = "4:00 AM"; //today
             var endTimeValue = "2:30 AM"; //This SHOULD be 2AM the next day...
             var dataModel = new Event();
-            var viewModel = new EventViewModel { StartDate = DateTime.Now, StartTime = startTimeValue, EndTime = endTimeValue };
+            var viewModel = new EditEventViewModel { StartDate = DateTime.Now, StartTime = startTimeValue, EndTime = endTimeValue };
 
             //Act
             EventService.SetEventDates(dataModel, viewModel);
@@ -48,7 +48,7 @@ namespace Web.Tests.Services
             var personOne = "1";
             var personTwo = "2";
             var personThree = "3";
-            var viewModel = new EventViewModel{ PeopleInvited = new List<string>{personTwo, personThree} };
+            var viewModel = new EditEventViewModel{ PeopleInvited = new List<string>{personTwo, personThree} };
             var dataModel = new Event
                 {
                     RegisteredInvites = new List<Person> {new Person{PersonId = 2}, new Person{PersonId = 3}},
@@ -71,7 +71,7 @@ namespace Web.Tests.Services
             var ben = "ben@email.com|Ben|Bufford";
             var dan = "dan@email.com|Dan|Gidman";
             var herb = "herb@email.com|Herb|Nease";
-            var viewModel = new EventViewModel { PeopleInvited = new List<string> { dan, herb } };
+            var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { dan, herb } };
             var dataModel = new Event
             {
                 Coordinator = new Person { PersonId = 1, MyNonRegisteredFriends = new List<PendingInvitation>()},
@@ -96,7 +96,7 @@ namespace Web.Tests.Services
             var ben = "00000|Ben Van Orm Bufford";
             var dan = "11111|Dan Gidman";
             var herb = "22222|Herb Nease";
-            var viewModel = new EventViewModel { PeopleInvited = new List<string> { dan, herb } };
+            var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { dan, herb } };
             var dataModel = new Event
             {
                 Coordinator = new Person { PersonId = 1, MyNonRegisteredFriends = new List<PendingInvitation>()},
@@ -125,7 +125,7 @@ namespace Web.Tests.Services
             var personThree = "3";
             var emailPerson = "bart@email.com|Bart|Simpson";
             var facebookPerson = "00000|Homer Simpson";
-            var viewModel = new EventViewModel { PeopleInvited = new List<string> { personTwo, personThree, emailPerson, facebookPerson } };
+            var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { personTwo, personThree, emailPerson, facebookPerson } };
             var dataModel = new Event
             {
                 RegisteredInvites = new List<Person> { new Person { PersonId = 2 }, new Person { PersonId = 3 } },

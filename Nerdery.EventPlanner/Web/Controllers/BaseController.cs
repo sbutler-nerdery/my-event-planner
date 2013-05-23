@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using Web.Data;
+using Web.Data.Models;
+using Web.ViewModels;
 using WebMatrix.WebData;
 
 namespace Web.Controllers
@@ -10,6 +13,8 @@ namespace Web.Controllers
     [Authorize]
     public class BaseController : Controller
     {
+        #region Methods
+
         protected override void Initialize(System.Web.Routing.RequestContext requestContext)
         {
             base.Initialize(requestContext);
@@ -20,6 +25,8 @@ namespace Web.Controllers
                     Constants.DB_USER_ID_COLUMN,
                     Constants.DB_USER_NAME_COLUMN, autoCreateTables: true);
         }
+
+        #endregion
 
         #region Helpers
 
@@ -33,7 +40,9 @@ namespace Web.Controllers
             AcceptInvitationFail,
             AcceptInvitationSuccess,
             DeclineInvitationFail,
-            DeclineInvitationSuccess
+            DeclineInvitationSuccess,
+            UpdateInvitationFail,
+            UpdateInvitationSuccess
         }
 
         /// <summary>
@@ -48,6 +57,8 @@ namespace Web.Controllers
                             : id == BaseControllerMessageId.BuildViewModelFail ? Constants.BASE_BUILD_VIEW_FAIL
                             : id == BaseControllerMessageId.AcceptInvitationFail ? Constants.BASE_ACCEPT_INVITATION_FAIL
                             : id == BaseControllerMessageId.AcceptInvitationSuccess ? Constants.BASE_ACCEPT_INVITATION_SUCCESS
+                            : id == BaseControllerMessageId.UpdateInvitationFail ? Constants.BASE_UPDATE_INVITATION_SUCCESS
+                            : id == BaseControllerMessageId.UpdateInvitationSuccess ? Constants.BASE_UPDATE_INVITATION_SUCCESS
                             : id == BaseControllerMessageId.DeclineInvitationFail ? Constants.BASE_DECLINE_INVITATION_FAIL
                             : id == BaseControllerMessageId.DeclineInvitationSuccess ? Constants.BASE_DECLINE_INVITATION_SUCCESS
                             : "";

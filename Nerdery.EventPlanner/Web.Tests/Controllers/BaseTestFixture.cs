@@ -48,7 +48,7 @@ namespace Web.Tests.Controllers
         /// Get an event view model for testing purposes
         /// </summary>
         /// <param name="id">The id of the view model (default = 0)</param>
-        protected EventViewModel GetTestEventViewModel(int id = 0)
+        protected EditEventViewModel GetTestEventViewModel(int id = 0)
         {
             //People
             var theHost = "1";
@@ -64,7 +64,7 @@ namespace Web.Tests.Controllers
                 Description = "Apple bacon smoked burgers for 10 people."
             };
             var coke = new FoodItemViewModel { FoodItemId = 2, Title = "Coke", Description = "Two 6 packs" };
-            var foodForTheParty = new List<int> { 2, 3 };
+            var foodForTheParty = new List<string> { "2", "3" };
 
             //Games
             var settlers = new GameViewModel
@@ -79,8 +79,8 @@ namespace Web.Tests.Controllers
                 Title = "Blockus",
                 Description = "Fun game of shape fitting for up four people."
             };
-            var gamesForTheParty = new List<int> { 1,2 };
-            var viewModel = new EventViewModel
+            var gamesForTheParty = new List<string> { "1","2" };
+            var viewModel = new EditEventViewModel
             {
                 EventId = id,
                 Title = "My Test Event",
@@ -88,8 +88,8 @@ namespace Web.Tests.Controllers
                 StartDate = DateTime.Now,
                 StartTime = "5:00 PM",
                 EndTime = "2:00 AM",
-                FoodItemsSelected = foodForTheParty,
-                GamesSelected = gamesForTheParty,
+                WillBringTheseFoodItems = foodForTheParty,
+                WillBringTheseGames = gamesForTheParty,
                 PeopleInvited = theInvitees
             };
             return viewModel;

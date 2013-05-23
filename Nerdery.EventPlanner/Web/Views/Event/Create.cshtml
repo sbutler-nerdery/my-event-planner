@@ -1,4 +1,4 @@
-﻿@model Web.ViewModels.EventViewModel
+﻿@model Web.ViewModels.EditEventViewModel
 
 @{
     ViewBag.Title = "Create";
@@ -71,10 +71,26 @@
                     @Html.LabelFor(model => model.PeopleInvited)
                 </div>
                 <div class="editor-field">
-                    <a href="javascript:;" data-open-modal="invite-person-to-event">Invite people to my friends list</a><br/>
+                    <p><a href="javascript:;" data-open-modal="invite-person-to-event">Invite people to my friends list</a></p>
                     @Html.ListBoxFor(model => model.PeopleInvited, Model.PeopleList, new {name="PeopleInvited", @class="fancy-list-box", data_placeholder_type="friend-list"})
                     @Html.ValidationMessageFor(model => model.EndTime)
-                </div>         
+                </div> 
+                
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.WillBringTheseFoodItems)
+                </div>
+                <div class="editor-field">
+                    <p><a href="javascript:;" data-open-modal="add-food-item">Add to my food list</a></p>
+                    @Html.ListBoxFor(model => model.WillBringTheseFoodItems, Model.MyFoodItems, new { name="FoodItemsSelected", @class="fancy-list-box", data_placeholder_type="food-list"})
+                </div>  
+          
+                <div class="editor-label">
+                    @Html.LabelFor(model => model.WillBringTheseGames)
+                </div>
+                <div class="editor-field">
+                    <p><a href="javascript:;" data-open-modal="add-game-item">Add to my games list</a></p>
+                    @Html.ListBoxFor(model => model.WillBringTheseGames, Model.MyGames, new { name="MyGames", @class="fancy-list-box", data_placeholder_type="game-list"})
+                </div>                         
 
                 <p>
                     @Html.HiddenFor(model => model.EventId)
