@@ -10,43 +10,51 @@
     });
 
     APP.Events = {
-        addFoodItem: function (controlId, response) {
+        addFoodItem: function (response) {
             if (response.Error) {
                 alert(response.Message);
                 return;
             }
 
+            var actionKey = "add-food-item";
+            var controlId = response.Data.FoodControlId;
             var id = response.Data.FoodItemId;
             var title = response.Data.Title;
             var description = response.Data.Description;
-            var text = title + " " + description;
+            var text = title;
             var value = id;
             $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
             APP.Autocomplete.addSelectedItem(controlId, value);
 
             //Clear the fields...
-            $("[data-action=add-food-item] :input").each(function() {
+            $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
                 $(this).val("");
-            });  
+            });
+            
+            EventPlanner.Modals.dismiss(actionKey);
         },
-        addGame: function (controlId, data) {
-            if (data.Error) {
-                alert(data.Message);
+        addGame: function (response) {
+            if (response.Error) {
+                alert(response.Message);
                 return;
             }
-            
+
+            var actionKey = "add-game-item";
+            var controlId = response.Data.FoodControlId;
             var id = response.Data.FoodItemId;
             var title = response.Data.Title;
             var description = response.Data.Description;
-            var text = title + " " + description;
+            var text = title;
             var value = id;
             $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
             APP.Autocomplete.addSelectedItem(controlId, value);
             
             //Clear the fields...
-            $("[data-action=add-game-item] :input").each(function () {
+            $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
                 $(this).val("");
             });
+            
+            EventPlanner.Modals.dismiss(actionKey);
         },
         addEmailInvite: function (controlId) {
             var emailField = $("#EmailInvite_Email");
@@ -119,6 +127,7 @@
                 var actionKey = $(modal).data("action");
                 var trigger = $("[data-open-modal=" + actionKey + "]").first();
                 var longList = $("[data-list=long]");
+                
                 longList.height($defaultHeight - 200);
                 longList.css({ "overflow-y":"scroll" });
                 trigger.click(function () {

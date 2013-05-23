@@ -8,6 +8,7 @@ using Web.Data;
 using Web.Data.Models;
 using Web.Extensions;
 using Web.Services;
+using Web.ViewModels;
 using WebMatrix.WebData;
 
 namespace Web.Controllers
@@ -43,23 +44,27 @@ namespace Web.Controllers
         /// <param name="description">The description for the food item</param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult AddFoodItem(int personId, string title, string description)
+        public ActionResult AddFoodItem(InvitationDetailsViewModel model)
         {
             var response = new Response { Error = false };
 
             try
             {
                 //Add to the food items table if it doesn't exist
-                var newFoodItem = new FoodItem {Title = title, Description = description};
+                var newFoodItem = new FoodItem { Title = model.AddFoodItem.Title, Description = model.AddFoodItem.Description };
                 _foodRepository.Insert(newFoodItem);
                 _foodRepository.SubmitChanges();
 
                 //Add to the user's collection of food items
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.AccepteeId);
                 thePerson.MyFoodItems.Add(newFoodItem);
                 _personRepository.SubmitChanges();
 
-                response.Data = newFoodItem;
+                //Set the owner to null so that we don't get a circular reference error when serializing
+                var viewModel = new FoodItemViewModel(newFoodItem);
+                viewModel.FoodControlId = model.FoodControlId;
+
+                response.Data = viewModel;
             }
             catch (Exception)
             {
@@ -102,23 +107,27 @@ namespace Web.Controllers
         /// <param name="description">The description for the game</param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult AddGame(int personId, string title, string description)
+        public ActionResult AddGame(InvitationDetailsViewModel model)
         {
             var response = new Response { Error = false };
 
             try
             {
                 //Add to the food items table if it doesn't exist
-                var newGame = new Game { Title = title, Description = description };
+                var newGame = new Game { Title = model.AddGameItem.Title, Description = model.AddGameItem.Description};
                 _gameRepository.Insert(newGame);
                 _gameRepository.SubmitChanges();
 
                 //Add to the user's collection of food items
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.AccepteeId);
                 thePerson.MyGames.Add(newGame);
                 _personRepository.SubmitChanges();
 
-                response.Data = newGame;
+                //Set the owner to null so that we don't get a circular reference error when serializing
+                var viewModel = new GameViewModel(newGame);
+                viewModel.GameControlId = model.FoodControlId;
+
+                response.Data = viewModel;
             }
             catch (Exception)
             {

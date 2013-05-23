@@ -307,7 +307,7 @@ namespace Web.Controllers
                                  x => foodItems.Add(new SelectListItem
                                  {
                                      Value = x.FoodItemId.ToString(),
-                                     Text = x.Title + " " + x.Description
+                                     Text = x.Title
                                  }));
 
             thePerson.MyGames
@@ -316,7 +316,7 @@ namespace Web.Controllers
                                  x => games.Add(new SelectListItem
                                  {
                                      Value = x.GameId.ToString(),
-                                     Text = x.Title + " " + x.Description
+                                     Text = x.Title
                                  }));
 
             model.MyFoodItems = new MultiSelectList(foodItems, "Value", "Text");
@@ -329,7 +329,7 @@ namespace Web.Controllers
 
             var eventGameIds = theEvent.Games.Select(x => x.GameId).ToList();
             var personGameIds = thePerson.MyGames.Select(x => x.GameId).ToList();
-            model.WillBringTheseFoodItems = personGameIds.Intersect(eventGameIds).Select(x => x.ToString()).ToList();
+            model.WillBringTheseGames = personGameIds.Intersect(eventGameIds).Select(x => x.ToString()).ToList();
 
             return model;
         }

@@ -57,5 +57,13 @@ namespace Web.ViewModels
         public List<string> WillBringTheseGames { get; set; }
         public FoodItemViewModel AddFoodItem { get; set; }
         public GameViewModel AddGameItem { get; set; }
+        /// <summary>
+        /// Get or set the control id for the listbox that will be updated when adding food items
+        /// </summary>
+        public string FoodControlId { get; set; }
+        /// <summary>
+        /// Get or set the control id for the listbox that will be updated when adding game items
+        /// </summary>
+        public string GameControlId { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
 using Web.Data.Models;
@@ -29,9 +30,14 @@ namespace Web.ViewModels
         #region Properties
 
         public int GameId { get; set; }
+        [Required]
         public string Title { get; set; }
+        [Required]
         public string Description { get; set; }
-
+        /// <summary>
+        /// Get or set the control id for the listbox that will be updated when adding game items
+        /// </summary>
+        public string GameControlId { get; set; }
         #endregion
 
         #region Methods
