@@ -13,6 +13,15 @@ namespace Web.Controllers
     [Authorize]
     public class BaseController : Controller
     {
+        #region Properties
+
+        /// <summary>
+        /// Get or set the Facebook access token available to the entire site.
+        /// </summary>
+        public string AccessToken { get; set; }
+
+        #endregion
+
         #region Methods
 
         protected override void Initialize(System.Web.Routing.RequestContext requestContext)

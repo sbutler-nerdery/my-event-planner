@@ -26,13 +26,12 @@ namespace Web.Controllers
         private readonly IUserService _userService;
         private readonly IEventService _eventService;
 
-        public ServiceController(IRepository<Event> eventRepo, IRepository<Person> personRepo, IRepository<FoodItem> foodRepo, 
-            IRepository<Game> gameRepo, IUserService userService, IEventService eventService)
+        public ServiceController(IRepositoryFactory factory, IUserService userService, IEventService eventService)
         {
-            _eventRepository = eventRepo;
-            _personRepository = personRepo;
-            _foodRepository = foodRepo;
-            _gameRepository = gameRepo;
+            _eventRepository = factory.GetRepository<Event>();
+            _personRepository = factory.GetRepository<Person>();
+            _foodRepository = factory.GetRepository<FoodItem>();
+            _gameRepository = factory.GetRepository<Game>();
             _userService = userService;
             _eventService = eventService;
         }

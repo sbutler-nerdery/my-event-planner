@@ -19,6 +19,7 @@ namespace Web.Data
         public DbSet<FoodItem> FoodItems { get; set; }
         public DbSet<Game> Games { get; set; }
         public DbSet<PendingInvitation> PendingInvitations { get; set; }
+        public DbSet<FacebookAPIValue> FacebookAPIValues { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

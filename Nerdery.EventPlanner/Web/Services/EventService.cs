@@ -14,6 +14,7 @@ namespace Web.Services
     {
         #region Fields
 
+        private readonly IRepositoryFactory _repositoryFactory;
         private readonly IRepository<Person> _personPersonRepo;
         private readonly IRepository<Game> _gameRepository;
         private readonly IRepository<FoodItem> _foodRepository;
@@ -23,12 +24,12 @@ namespace Web.Services
 
         #region Constructors
 
-        public EventService(IRepository<Person> personRepo, IRepository<Game> gameRepo, IRepository<FoodItem> foodRepo, IRepository<PendingInvitation> pendingInvitationRepo)
+        public EventService(IRepositoryFactory factory)
         {
-            _personPersonRepo = personRepo;
-            _gameRepository = gameRepo;
-            _foodRepository = foodRepo;
-            _invitationRepository = pendingInvitationRepo;
+            _personPersonRepo = factory.GetRepository<Person>();
+            _gameRepository = factory.GetRepository<Game>();
+            _foodRepository = factory.GetRepository<FoodItem>();
+            _invitationRepository = factory.GetRepository<PendingInvitation>();
         }
 
         #endregion

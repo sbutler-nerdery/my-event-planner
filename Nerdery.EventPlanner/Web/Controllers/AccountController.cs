@@ -296,6 +296,21 @@ namespace Web.Controllers
                 return RedirectToAction("ExternalLoginFailure");
             }
 
+            var token = result.ExtraData["accesstoken"];
+
+            //Set the Access token returned 
+            using (var context = new EventPlannerContext())
+            {
+                var firstRow = context.FacebookAPIValues.FirstOrDefault(x => x.PersonId == WebSecurity.CurrentUserId);
+
+                if (firstRow == null)
+                    context.FacebookAPIValues.Add(new FacebookAPIValue { AccessToken = token, PersonId = WebSecurity.CurrentUserId });
+                else
+                    firstRow.AccessToken = token;
+
+                context.SaveChanges();
+            }
+
             if (OAuthWebSecurity.Login(result.Provider, result.ProviderUserId, createPersistentCookie: false))
             {
                 return RedirectToLocal(returnUrl);

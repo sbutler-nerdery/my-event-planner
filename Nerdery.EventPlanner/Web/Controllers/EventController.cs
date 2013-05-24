@@ -26,11 +26,11 @@ namespace Web.Controllers
 
         #region Constructors
 
-        public EventController(IRepository<Event> eventRepo, IRepository<Person> personRepo,
+        public EventController(IRepositoryFactory factory,
             IEventService service, IUserService userService, INotificationService notificationService)
         {
-            _eventRepository = eventRepo;
-            _personRepository = personRepo;
+            _eventRepository = factory.GetRepository<Event>();
+            _personRepository = factory.GetRepository<Person>();
             _eventService = service;
             _userService = userService;
             _notificationService = notificationService;

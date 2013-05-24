@@ -174,9 +174,12 @@
     <Compile Include="Controllers\Response.cs" />
     <Compile Include="Controllers\ServiceController.cs" />
     <Compile Include="Data\EntityFrameworkRepository.cs" />
+    <Compile Include="Data\EntityFrameworkRepositoryFactory.cs" />
     <Compile Include="Data\EventPlannerContext.cs" />
     <Compile Include="Data\EventPlannerContextInitializer.cs" />
     <Compile Include="Data\IRepository.cs" />
+    <Compile Include="Data\IRepositoryFactory.cs" />
+    <Compile Include="Data\Models\FacebookAPIValue.cs" />
     <Compile Include="Data\Models\PendingInvitation.cs" />
     <Compile Include="Extensions\QueryableExtensions.cs" />
     <Compile Include="Global.asax.cs">

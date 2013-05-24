@@ -22,11 +22,11 @@ namespace Web.Services
 
         #region Constructors
 
-        public NotificationService(IRepository<Person> personRepo, IRepository<Event> eventRepo, IRepository<PendingInvitation> invitationRepo)
+        public NotificationService(IRepositoryFactory factory)
         {
-            _personRepository = personRepo;
-            _eventRepository = eventRepo;
-            _invitationRepository = invitationRepo;
+            _personRepository = factory.GetRepository<Person>();
+            _eventRepository = factory.GetRepository<Event>();
+            _invitationRepository = factory.GetRepository<PendingInvitation>();
             _emailClient = new SmtpClient();
         }
 

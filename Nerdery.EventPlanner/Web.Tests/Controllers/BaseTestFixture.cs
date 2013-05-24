@@ -26,18 +26,27 @@ namespace Web.Tests.Controllers
         protected IUserService UserService;
         protected IEventService EventService;
         protected INotificationService NotifyService;
+        protected IRepositoryFactory RepositoryFactory;
 
         [TestInitialize]
         public void SpinUp()
         {
+            RepositoryFactory = A.Fake<IRepositoryFactory>();
             PersonRepo = A.Fake<IRepository<Person>>();
             EventRepo = A.Fake<IRepository<Event>>();
             InvitationRepo = A.Fake<IRepository<PendingInvitation>>();
             FoodRepo = A.Fake<IRepository<FoodItem>>();
             GameRepo = A.Fake<IRepository<Game>>();
             UserService = A.Fake<IUserService>();
-            EventService = new EventService(PersonRepo, GameRepo, FoodRepo, InvitationRepo);
-            NotifyService = new NotificationService(PersonRepo, EventRepo, InvitationRepo);
+
+            A.CallTo(() => RepositoryFactory.GetRepository<Person>()).Returns(PersonRepo);
+            A.CallTo(() => RepositoryFactory.GetRepository<Event>()).Returns(EventRepo);
+            A.CallTo(() => RepositoryFactory.GetRepository<PendingInvitation>()).Returns(InvitationRepo);
+            A.CallTo(() => RepositoryFactory.GetRepository<FoodItem>()).Returns(FoodRepo);
+            A.CallTo(() => RepositoryFactory.GetRepository<Game>()).Returns(GameRepo);
+
+            EventService = new EventService(RepositoryFactory);
+            NotifyService = new NotificationService(RepositoryFactory);
         }
 
         #endregion

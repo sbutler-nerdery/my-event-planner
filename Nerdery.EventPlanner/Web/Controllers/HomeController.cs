@@ -29,14 +29,13 @@ namespace Web.Controllers
 
         #region Constructors
 
-        public HomeController(IRepository<Person> personRepo, IRepository<Event> eventRepo, IRepository<FoodItem> foodRepo,
-            IRepository<Game> gameRepo, IUserService userService, INotificationService notificationService,
+        public HomeController(IRepositoryFactory factory, IUserService userService, INotificationService notificationService,
             IEventService eventService)
         {
-            _personRepository = personRepo;
-            _eventRepository = eventRepo;
-            _foodRepository = foodRepo;
-            _gameRepository = gameRepo;
+            _personRepository = factory.GetRepository<Person>();
+            _eventRepository = factory.GetRepository<Event>();
+            _foodRepository = factory.GetRepository<FoodItem>();
+            _gameRepository = factory.GetRepository<Game>();
             _userService = userService;
             _notificationService = notificationService;
             _eventService = eventService;
