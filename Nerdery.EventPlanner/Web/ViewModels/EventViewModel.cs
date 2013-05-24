@@ -63,16 +63,6 @@ namespace Web.ViewModels
         /// Get or set the person who is coordinating this event
         /// </summary>
         public PersonViewModel Coordinator { get; set; }
-        [Required]
-        [Display(Name = "Date")]
-        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
-        public DateTime? StartDate { get; set; }
-        [Required]
-        [Display(Name = "Start time")]
-        public string StartTime { get; set; }
-        [Required]
-        [Display(Name = "End time")]
-        public string EndTime { get; set; }
         /// <summary>
         /// Get or set a list of all the food items being provided by the host
         /// </summary>

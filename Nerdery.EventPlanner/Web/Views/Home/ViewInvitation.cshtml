@@ -12,11 +12,16 @@
                 <h1>@Model.Title</h1>
             </hgroup>
             <p>
+                This event starts on @Model.StartDate.Value.ToShortDateString() and goes from @Model.StartTime to @Model.EndTime
+            </p>
+            <p>
                 @Model.Description
             </p>
         </div>
     </section>
 }
+
+<p class="message-success">@ViewBag.StatusMessage</p>
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
@@ -73,6 +78,12 @@
             <p><a href="javascript:;" data-open-modal="add-game-item">Add to my games list</a></p>
             @Html.ListBoxFor(model => model.WillBringTheseGames, Model.MyGames, new { name="MyGames", @class="fancy-list-box", data_placeholder_type="game-list"})
         </div> 
+
+        @Html.HiddenFor(model => model.Title)
+        @Html.HiddenFor(model => model.Description)
+        @Html.HiddenFor(model => model.StartDate)
+        @Html.HiddenFor(model => model.StartTime)
+        @Html.HiddenFor(model => model.EndTime)
 
         <p>
             <input type="submit" value="Update" />

@@ -71,6 +71,29 @@
             </summary>
             <value>The default value is 14 days.</value>
         </member>
+        <member name="T:DotNetOpenAuth.Configuration.HostMetaDiscoveryElement">
+            <summary>
+            The configuration element that can adjust how hostmeta discovery works.
+            </summary>
+        </member>
+        <member name="F:DotNetOpenAuth.Configuration.HostMetaDiscoveryElement.EnableCertificateValidationCacheConfigName">
+            <summary>
+            The property name for enableCertificateValidationCache.
+            </summary>
+        </member>
+        <member name="M:DotNetOpenAuth.Configuration.HostMetaDiscoveryElement.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:DotNetOpenAuth.Configuration.HostMetaDiscoveryElement"/> class.
+            </summary>
+        </member>
+        <member name="P:DotNetOpenAuth.Configuration.HostMetaDiscoveryElement.EnableCertificateValidationCache">
+            <summary>
+            Gets or sets a value indicating whether validated certificates should be cached and not validated again.
+            </summary>
+            <remarks>
+            This helps to avoid unexplained 5-10 second delays in certificate validation for Google Apps for Domains that impact some servers.
+            </remarks>
+        </member>
         <member name="T:DotNetOpenAuth.Configuration.OpenIdElement">
             <summary>
             Represents the &lt;openid&gt; element in the host's .config file.
@@ -336,6 +359,11 @@
             The name of the &lt;discoveryServices&gt; sub-element.
             </summary>
         </member>
+        <member name="F:DotNetOpenAuth.Configuration.OpenIdRelyingPartyElement.HostMetaDiscoveryElementName">
+            <summary>
+            The name of the &lt;hostMetaDiscovery&gt; sub-element.
+            </summary>
+        </member>
         <member name="F:DotNetOpenAuth.Configuration.OpenIdRelyingPartyElement.defaultDiscoveryServices">
             <summary>
             The built-in set of identifier discovery services.
@@ -367,6 +395,11 @@
         <member name="P:DotNetOpenAuth.Configuration.OpenIdRelyingPartyElement.ApplicationStore">
             <summary>
             Gets or sets the type to use for storing application state.
+            </summary>
+        </member>
+        <member name="P:DotNetOpenAuth.Configuration.OpenIdRelyingPartyElement.HostMetaDiscovery">
+            <summary>
+            Gets or sets the host meta discovery configuration element.
             </summary>
         </member>
         <member name="P:DotNetOpenAuth.Configuration.OpenIdRelyingPartyElement.DiscoveryServices">
@@ -3648,10 +3681,10 @@
             actively authenticated to the OP in a manner fitting the asserted policies.
             </summary>
             <remarks>
-            If the RP's request included the "openid.max_auth_age" parameter 
-            then the OP MUST include "openid.auth_time" in its response. 
-            If "openid.max_auth_age" was not requested, the OP MAY choose to include 
-            "openid.auth_time" in its response.
+            If the RP's request included the "openid.pape.max_auth_age" parameter 
+            then the OP MUST include "openid.pape.auth_time" in its response. 
+            If "openid.pape.max_auth_age" was not requested, the OP MAY choose to include 
+            "openid.pape.auth_time" in its response.
             </remarks>
         </member>
         <member name="P:DotNetOpenAuth.OpenId.Extensions.ProviderAuthenticationPolicy.PolicyResponse.NistAssuranceLevel">
@@ -3887,7 +3920,8 @@
         </member>
         <member name="M:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse.#ctor">
             <summary>
-            Initializes a new instance of the <see cref="T:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse"/> class.
+            Initializes a new instance of the <see cref="T:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse"/> class
+            using the most common, and spec prescribed type URI.
             </summary>
         </member>
         <member name="M:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse.#ctor(System.String)">
@@ -3897,6 +3931,8 @@
             <param name="typeUriToUse">
             The type URI that must be used to identify this extension in the response message.
             This value should be the same one the relying party used to send the extension request.
+            Commonly used type URIs supported by relying parties are defined in the
+            <see cref="T:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.Constants.TypeUris"/> class.
             </param>
         </member>
         <member name="M:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse.op_Equality(DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse,DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse)">
@@ -4027,7 +4063,7 @@
         </member>
         <member name="P:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse.Culture">
             <summary>
-            Gets or sets a combination o the language and country of the user.
+            Gets or sets a combination of the language and country of the user.
             </summary>
         </member>
         <member name="P:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.ClaimsResponse.IsSignedByProvider">
@@ -4046,6 +4082,30 @@
         <member name="F:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.Constants.AdditionalTypeUris">
             <summary>
             Additional type URIs that this extension is sometimes known by remote parties.
+            </summary>
+        </member>
+        <member name="T:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.Constants.TypeUris">
+            <summary>
+            Commonly used type URIs to represent the Simple Registration extension.
+            </summary>
+        </member>
+        <member name="F:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.Constants.TypeUris.Standard">
+            <summary>
+            The URI "http://openid.net/extensions/sreg/1.1".  
+            </summary>
+            <remarks>
+            This is the type URI prescribed by the Simple Registration 1.1 spec. 
+            http://openid.net/specs/openid-simple-registration-extension-1_1-01.html#anchor3
+            </remarks>
+        </member>
+        <member name="F:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.Constants.TypeUris.Variant10">
+            <summary>
+            The URI "http://openid.net/sreg/1.0"
+            </summary>
+        </member>
+        <member name="F:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.Constants.TypeUris.Variant11">
+            <summary>
+            The URI "http://openid.net/sreg/1.1"
             </summary>
         </member>
         <member name="T:DotNetOpenAuth.OpenId.Extensions.SimpleRegistration.DemandLevel">
@@ -8491,14 +8551,21 @@
             Provides information about some HMAC-SHA hashing algorithm that OpenID supports.
             </summary>
         </member>
+        <member name="M:DotNetOpenAuth.OpenId.HmacShaAssociation.HmacSha.CreateHasher(System.Byte[])">
+            <summary>
+            Creates the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> using a given shared secret for the mac.
+            </summary>
+            <param name="secret">The HMAC secret.</param>
+            <returns>The algorithm.</returns>
+        </member>
         <member name="P:DotNetOpenAuth.OpenId.HmacShaAssociation.HmacSha.GetAssociationType">
             <summary>
             Gets or sets the function that takes a particular OpenID version and returns the value of the openid.assoc_type parameter in that protocol.
             </summary>
         </member>
-        <member name="P:DotNetOpenAuth.OpenId.HmacShaAssociation.HmacSha.CreateHasher">
+        <member name="P:DotNetOpenAuth.OpenId.HmacShaAssociation.HmacSha.HmacAlgorithmName">
             <summary>
-            Gets or sets a function that will create the <see cref="T:System.Security.Cryptography.HashAlgorithm"/> using a given shared secret for the mac.
+            Gets or sets the name of the HMAC-SHA algorithm. (e.g. "HMAC-SHA256")
             </summary>
         </member>
         <member name="P:DotNetOpenAuth.OpenId.HmacShaAssociation.HmacSha.BaseHashAlgorithm">

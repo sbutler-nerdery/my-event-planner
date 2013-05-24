@@ -20,6 +20,16 @@ namespace Web.ViewModels
         /// Get or set the description of an event.
         /// </summary>
         public string Description { get; set; }
+        [Required]
+        [Display(Name = "Date")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
+        public DateTime? StartDate { get; set; }
+        [Required]
+        [Display(Name = "Start time")]
+        public string StartTime { get; set; }
+        [Required]
+        [Display(Name = "End time")]
+        public string EndTime { get; set; }
         /// <summary>
         /// Get or set the list of food item ids that the user will add to the event
         /// </summary>

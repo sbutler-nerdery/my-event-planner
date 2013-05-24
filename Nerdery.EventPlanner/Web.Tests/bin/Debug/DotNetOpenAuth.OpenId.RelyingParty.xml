@@ -600,6 +600,11 @@
             The pattern within a host-meta file to look for to obtain the URI to the XRDS document.
             </summary>
         </member>
+        <member name="F:DotNetOpenAuth.OpenId.HostMetaDiscoveryService.ApprovedCertificateThumbprintCache">
+            <summary>
+            A set of certificate thumbprints that have been verified.
+            </summary>
+        </member>
         <member name="M:DotNetOpenAuth.OpenId.HostMetaDiscoveryService.#ctor">
             <summary>
             Initializes a new instance of the <see cref="T:DotNetOpenAuth.OpenId.HostMetaDiscoveryService"/> class.
@@ -650,7 +655,7 @@
             <param name="signingHost">The host name on the certificate that should be used to verify the signature in the XRDS.</param>
             <exception cref="T:DotNetOpenAuth.Messaging.ProtocolException">Thrown if the XRDS document has an invalid or a missing signature.</exception>
         </member>
-        <member name="M:DotNetOpenAuth.OpenId.HostMetaDiscoveryService.VerifyCertChain(System.Collections.Generic.List{System.Security.Cryptography.X509Certificates.X509Certificate2})">
+        <member name="M:DotNetOpenAuth.OpenId.HostMetaDiscoveryService.VerifyCertChain(System.Collections.Generic.IEnumerable{System.Security.Cryptography.X509Certificates.X509Certificate2})">
             <summary>
             Verifies the cert chain.
             </summary>
@@ -674,6 +679,12 @@
             A HTTP response carrying an XRDS document.
             </returns>
             <exception cref="T:DotNetOpenAuth.Messaging.ProtocolException">Thrown if the XRDS document could not be obtained.</exception>
+        </member>
+        <member name="M:DotNetOpenAuth.OpenId.HostMetaDiscoveryService.VerifyCertificateChain(System.Collections.Generic.IList{System.Security.Cryptography.X509Certificates.X509Certificate2})">
+            <summary>
+            Verifies that a certificate chain is trusted.
+            </summary>
+            <param name="certificates">The chain of certificates to verify.</param>
         </member>
         <member name="M:DotNetOpenAuth.OpenId.HostMetaDiscoveryService.GetXrdsResponse(DotNetOpenAuth.OpenId.UriIdentifier,DotNetOpenAuth.Messaging.IDirectWebRequestHandler,System.String@)">
             <summary>
