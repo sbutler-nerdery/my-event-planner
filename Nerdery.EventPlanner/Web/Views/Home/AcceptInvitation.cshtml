@@ -9,7 +9,7 @@
         Model.AllEventFoodItems.Where(x => !myFoodItemIds.Contains(x.FoodItemId.ToString())).ToList();
     var myGameIds = Model.MyGames.Select(item => item.Value).ToList();
     var gamesOtherPeopleAreBringing =
-        Model.AllEventGames.Where(x => !myGameIds.Contains(x.FoodItemId.ToString())).ToList();        
+        Model.AllEventGames.Where(x => !myGameIds.Contains(x.GameId.ToString())).ToList();        
 }
 
 @section featured {

@@ -219,7 +219,19 @@ namespace Web.Services
                     var inviteMe = _personPersonRepo.GetAll().FirstOrDefault(person => person.PersonId == id);
 
                     if (inviteMe != null)
+                    {
                         dataModel.RegisteredInvites.Add(inviteMe);
+
+                        //Add the new invite to the user's list of friends if necissary...
+                        var exists =
+                            dataModel.Coordinator.MyRegisteredFriends.FirstOrDefault(
+                                x => x.PersonId == inviteMe.PersonId);
+
+                        if (exists == null)
+                        {
+                            dataModel.Coordinator.MyRegisteredFriends.Add(inviteMe);
+                        }
+                    }
                 });
 
             //Find the existing temp emails

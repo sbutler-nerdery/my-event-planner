@@ -259,7 +259,7 @@ namespace Web.Controllers
                                  x => people.Add(new SelectListItem
                                  {
                                      Value = x.PersonId.ToString(),
-                                     Text = x.FirstName + " " + x.LastName
+                                     Text = (x.FirstName == null || x.LastName == null) ? x.UserName : x.FirstName + " " + x.LastName
                                  }));
 
             coordinator.MyNonRegisteredFriends
