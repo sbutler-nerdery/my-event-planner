@@ -1,71 +1,33 @@
 ﻿@model Web.ViewModels.EditEventViewModel
 
 <div data-dialog="true" title="Invite More People" data-action="invite-person-to-event">
-    <div data-tabs="true">
-        <ul>
-            <li><a href="#email-invite">Email Invite</a></li>
-            <li><a href="#facebook-invite">Facebook Invite</a></li>
-        </ul>
-        <div id="email-invite">
-            @using (Ajax.BeginForm("Dummy", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addEmailInvite('PeopleInvited'); EventPlanner.Modals.dismiss('invite-person-to-event');" }))
-            {
-                <fieldset>
-                    <legend>EmailInvite</legend>
-                    <div class="editor-label">
-                        @Html.LabelFor(model => model.EmailInvite.FirstName)
-                    </div>
-                    <div class="editor-field">
-                        @Html.EditorFor(model => model.EmailInvite.FirstName)
-                        @Html.ValidationMessageFor(model => model.EmailInvite.FirstName)
-                    </div>  
-                    <div class="editor-label">
-                        @Html.LabelFor(model => model.EmailInvite.LastName)
-                    </div>
-                    <div class="editor-field">
-                        @Html.EditorFor(model => model.EmailInvite.LastName)
-                        @Html.ValidationMessageFor(model => model.EmailInvite.LastName)
-                    </div>  
-                    <div class="editor-label">
-                        @Html.LabelFor(model => model.EmailInvite.Email)
-                    </div>
-                    <div class="editor-field">
-                        @Html.EditorFor(model => model.EmailInvite.Email)
-                        @Html.ValidationMessageFor(model => model.EmailInvite.Email)
-                    </div>  
-                    <input type="submit" value="Invite this person" />
-                </fieldset>                  
-            }    
-        </div>
-        <div id="facebook-invite">
-            @using (Ajax.BeginForm("Dummy", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addFacebookInvites('PeopleInvited'); EventPlanner.Modals.dismiss('invite-person-to-event');" }))
-            {
-                <fieldset>
-                    <legend>FacebookFriends</legend>
-                    @if(Model.FacebookFriends.Count > 0) {  
-                        <div data-list="long">
-                            @for (int i = 0; i < Model.FacebookFriends.Count; i++)
-                            {
-                                var friend = Model.FacebookFriends[i];
-                                var userName = friend.UserName;
-                                <div class="editor-field">
-                                    <input type="checkbox" id="FacebookFriends_FacebookId" class="facebook-invites" value = "@string.Format("facbookid{0}", i)" title="@userName"/>
-                                    <img src="@friend.ProfilePicUrl" alt="Profile Pic" style="width: 50px"/>                                
-                                    @userName
-                                </div>                      
-                            }
-                        </div>
-                        @Html.HiddenFor(m => m.Title)
-                        @Html.HiddenFor(m => m.Description)
-                        @Html.HiddenFor(m => m.Location)
-                        @Html.HiddenFor(m => m.StartDate)
-                        @Html.HiddenFor(m => m.StartTime)
-                        @Html.HiddenFor(m => m.EndTime)
-                        <input type="submit" value="Invite these people" />
-                    }else{
-                        <p>No Facebook friends found. @Html.ActionLink("Have you registered your user account with Facebook", "Manage","Account")?</p>
-                    }
-                </fieldset>                  
-            }         
-        </div>
-    </div>
+    @using (Ajax.BeginForm("FindUserByEmail", "Service", new AjaxOptions { HttpMethod = "POST", OnSuccess = "EventPlanner.Events.addEmailInvite" }))
+    {
+        <fieldset>
+            <legend>EmailInvite</legend>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.EmailInvite.FirstName)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.EmailInvite.FirstName)
+                @Html.ValidationMessageFor(model => model.EmailInvite.FirstName)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.EmailInvite.LastName)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.EmailInvite.LastName)
+                @Html.ValidationMessageFor(model => model.EmailInvite.LastName)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.EmailInvite.Email)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.EmailInvite.Email)
+                @Html.ValidationMessageFor(model => model.EmailInvite.Email)
+            </div>  
+            @Html.Hidden("EmailInvite.InviteControlId", "PeopleInvited")
+            <input type="submit" value="Invite this person" />
+        </fieldset>                  
+    }    
 </div>

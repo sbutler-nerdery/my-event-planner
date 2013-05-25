@@ -187,5 +187,35 @@ namespace Web.Controllers
         {
             return Json("");
         }
+        /// <summary>
+        /// Find out if the user's email address already exists in the system.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult FindUserByEmail(EditEventViewModel model)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                var exists = _personRepository.GetAll().FirstOrDefault(x => x.Email == model.EmailInvite.Email);
+
+                var userName = model.EmailInvite.FirstName + " " + model.EmailInvite.LastName;
+                response.Data = new { PersonId = 0, model.EmailInvite.Email, UserName = userName, model.EmailInvite.FirstName, model.EmailInvite.LastName, model.EmailInvite.InviteControlId };
+
+                if(exists != null){
+                    response.Data = new { exists.PersonId, exists.Email, exists.UserName, exists.FirstName, exists.LastName, model.EmailInvite.InviteControlId };
+                }
+            }
+            catch (Exception ex)
+            {
+                //TODO: write to database
+                response.Error = true;
+                response.Message = "Error while trying to retrieve user account by email.";
+            }
+
+            return Json(response);
+        }
     }
 }

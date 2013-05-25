@@ -273,7 +273,7 @@ namespace Web.Controllers
 
             model.PeopleList = new MultiSelectList(people, "Value", "Text");
             model.TimeList = _eventService.GetTimeList();
-            model.FacebookFriends = _userService.GetFacebookFriends(userName);
+            //model.FacebookFriends = _userService.GetFacebookFriends(userName);
 
             //Populate food and games
             if (dataModel.FoodItems != null) dataModel.FoodItems.ForEach(x => model.AllEventFoodItems.Add(new FoodItemViewModel(x)));

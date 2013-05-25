@@ -56,19 +56,29 @@
             
             EventPlanner.Modals.dismiss(actionKey);
         },
-        addEmailInvite: function (controlId) {
-            var emailField = $("#EmailInvite_Email");
-            var firstNameField = $("#EmailInvite_FirstName");
-            var lastNameField = $("#EmailInvite_LastName");
-            var name = firstNameField.val() + " " + lastNameField.val();
-            var value = emailField.val() + "|" + firstNameField.val() + "|" + lastNameField.val();
-            $("#" + controlId).append("<option value='" + value + "'>" + name + "</option>");
+        addEmailInvite: function (response) {
+            if (response.Error) {
+                alert(response.Message);
+                return;
+            }
+
+            var actionKey = "invite-person-to-event";
+            var controlId = response.Data.InviteControlId;
+            var id = response.Data.PersonId;
+            var email = response.Data.Email;
+            var text = (response.Data.FirstName == null || response.Data.LastName == null)
+                ? response.Data.UserName
+                : response.Data.FirstName + " " + response.Data.LastName;
+            var value = (id == 0) ? email + "╫" + response.Data.FirstName + "╫" + response.Data.LastName : id;
+            $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
             APP.Autocomplete.addSelectedItem(controlId, value);
-            
+
             //Clear the fields...
-            emailField.val("");
-            firstNameField.val("");
-            lastNameField.val("");
+            $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
+                $(this).val("");
+            });
+
+            EventPlanner.Modals.dismiss(actionKey);
         },
         addFacebookInvites: function(controlId) {
             var selectedCheckBoxes = $("input:checkbox:checked.facebook-invites");

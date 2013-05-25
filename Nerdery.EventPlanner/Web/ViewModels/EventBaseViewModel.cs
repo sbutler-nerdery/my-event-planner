@@ -57,12 +57,12 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set a list of all the food items being brought to the event
         /// </summary>
-        [Display(Name = "Food items coming to the event")]
+        [Display(Name = "Food items other people are bringing")]
         public List<FoodItemViewModel> AllEventFoodItems { get; set; }
         /// <summary>
         /// Get or set a list of all the games being brought to the event
         /// </summary>
-        [Display(Name = "Games coming to the event")]
+        [Display(Name = "Games other people are brining")]
         public List<GameViewModel> AllEventGames { get; set; }
     }
 }

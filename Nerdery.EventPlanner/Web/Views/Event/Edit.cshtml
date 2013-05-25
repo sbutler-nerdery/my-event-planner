@@ -3,6 +3,13 @@
 @{
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var myFoodItemIds = Model.MyFoodItems.Select(item => item.Value).ToList();
+    var foodOtherPeopleAreBringing =
+        Model.AllEventFoodItems.Where(x => !myFoodItemIds.Contains(x.FoodItemId.ToString())).ToList();
+    var myGameIds = Model.MyGames.Select(item => item.Value).ToList();
+    var gamesOtherPeopleAreBringing =
+        Model.AllEventGames.Where(x => !myGameIds.Contains(x.GameId.ToString())).ToList();     
 }
 
 <h2>Edit Event</h2>
@@ -77,36 +84,34 @@
                 </div>                
                 <div class="editor-field">
                     @Html.LabelFor(model => model.AllEventFoodItems) 
-                    @if (Model.AllEventFoodItems.Count > 0)
+                    @if (foodOtherPeopleAreBringing.Count > 0)
                     {
                         <ul>
-                            @foreach (var food in Model.AllEventFoodItems)
+                            @foreach (var food in foodOtherPeopleAreBringing)
                             {
-                                var whoIsBringingIt = Model.MyFoodItems.Select(x => x.Value).Contains(food.FoodItemId.ToString()) ? " - Brought by you" : "";
-                                <li>@food.Title @whoIsBringingIt</li>
+                                <li>@food.Title</li>
                             }
                         </ul>
                     }
                     else
                     {
-                        @:No one is bringing any food yet.
+                        @:No one else is bringing any food yet.
                     }
                 </div>
                 <div class="editor-field">
                     @Html.LabelFor(model => model.AllEventGames)        
-                    @if (Model.AllEventGames.Count > 0)
+                    @if (gamesOtherPeopleAreBringing.Count > 0)
                     {
                         <ul>
-                            @foreach (var game in Model.AllEventGames)
+                            @foreach (var game in gamesOtherPeopleAreBringing)
                             {
-                                var whoIsBringingIt = Model.MyGames.Select(x => x.Value).Contains(game.GameId.ToString()) ? " - Brought by you" : "";
-                                <li>@game.Title @whoIsBringingIt</li>
+                                <li>@game.Title</li>
                             }
                         </ul>
                     }
                     else
                     {
-                        @:No one is bringing any games yet.
+                        @:No one else is bringing any games yet.
                     }                
                 </div>
                 <div class="editor-label">

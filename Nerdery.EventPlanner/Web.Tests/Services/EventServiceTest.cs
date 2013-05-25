@@ -68,9 +68,10 @@ namespace Web.Tests.Services
         public void Invite_New_People_By_Email()
         {
             //Arrange
-            var ben = "ben@email.com|Ben|Bufford";
-            var dan = "dan@email.com|Dan|Gidman";
-            var herb = "herb@email.com|Herb|Nease";
+            var template = "{0}{1}{2}{1}{3}";
+            var ben = string.Format(template, "ben@email.com", Constants.EVENT_INVITE_DELIMITER.ToString(), "Ben","Bufford");
+            var dan = string.Format(template, "dan@email.com", Constants.EVENT_INVITE_DELIMITER.ToString(), "Dan", "Gidman");
+            var herb = string.Format(template, "herb@email.com", Constants.EVENT_INVITE_DELIMITER.ToString(), "Herb", "Nease");
             var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { dan, herb } };
             var dataModel = new Event
             {

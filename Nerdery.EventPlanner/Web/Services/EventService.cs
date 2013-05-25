@@ -19,6 +19,7 @@ namespace Web.Services
         private readonly IRepository<Game> _gameRepository;
         private readonly IRepository<FoodItem> _foodRepository;
         private readonly IRepository<PendingInvitation> _invitationRepository;
+        private readonly char delimiter = Constants.EVENT_INVITE_DELIMITER;
 
         #endregion
 
@@ -148,12 +149,12 @@ namespace Web.Services
             //Add the temp user ids to the pending invitations table
             var emailList = new List<string>();
             var facebookIdList = new List<string>();
-            var emailInvites = viewModel.PeopleInvited.Where(x => x.Split('|').Length == 3).ToList();
-            var facebookInvites = viewModel.PeopleInvited.Where(x => x.Split('|').Length == 2).ToList();
+            var emailInvites = viewModel.PeopleInvited.Where(x => x.Split(delimiter).Length == 3).ToList();
+            var facebookInvites = viewModel.PeopleInvited.Where(x => x.Split(delimiter).Length == 2).ToList();
 
             emailInvites.ForEach(x =>
                 {
-                    var tempUserArray = x.Split('|');
+                    var tempUserArray = x.Split(delimiter);
                     var emailAddress = tempUserArray[0];
                     emailList.Add(emailAddress);
 
@@ -176,7 +177,7 @@ namespace Web.Services
 
             facebookInvites.ForEach(x =>
             {
-                var tempUserArray = x.Split('|');
+                var tempUserArray = x.Split(delimiter);
                 var facebookId = tempUserArray[0];
 
                 //Get the first and last name values
@@ -327,14 +328,14 @@ namespace Web.Services
             //Process people without user accounts
             var emailList = new List<string>();
             var facebookIdList = new List<string>();
-            viewModel.PeopleInvited.Where(x => x.Split('|').Length == 3).ToList().ForEach(x =>
+            viewModel.PeopleInvited.Where(x => x.Split(delimiter).Length == 3).ToList().ForEach(x =>
             {
-                var tempArray = x.Split('|');
+                var tempArray = x.Split(delimiter);
                 emailList.Add(tempArray[0]);
             });
-            viewModel.PeopleInvited.Where(x => x.Split('|').Length == 2).ToList().ForEach(x =>
+            viewModel.PeopleInvited.Where(x => x.Split(delimiter).Length == 2).ToList().ForEach(x =>
             {
-                var tempArray = x.Split('|');
+                var tempArray = x.Split(delimiter);
                 facebookIdList.Add(tempArray[0]);
             });
 

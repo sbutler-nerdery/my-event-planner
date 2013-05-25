@@ -81,6 +81,10 @@ namespace Web.ViewModels
         /// Get or set whether or not this person is selected in a checkbox list
         /// </summary>
         public bool Selected { get; set; }
+        /// <summary>
+        /// Get or set the name of the control id used by the invite people dialog
+        /// </summary>
+        public string InviteControlId { get; set; }
 
         #endregion
 
