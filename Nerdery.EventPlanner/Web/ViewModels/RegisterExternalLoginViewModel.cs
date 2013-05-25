@@ -14,6 +14,10 @@ namespace Web.ViewModels
         [Required]
         [Display(Name = "User name")]
         public string UserName { get; set; }
+        [Required]
+        [Display(Name = "Email address")]
+        [EmailAddress]
+        public string Email { get; set; }
 
         public string ExternalLoginData { get; set; }
         public int EventId { get; set; }

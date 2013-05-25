@@ -41,25 +41,29 @@
             {
                 <fieldset>
                     <legend>FacebookFriends</legend>
-                    <div data-list="long">
-                        @for (int i = 0; i < Model.FacebookFriends.Count; i++)
-                        {
-                            var friend = Model.FacebookFriends[i];
-                            var userName = friend.FirstName + " " + friend.LastName;
-                            <div class="editor-field">
-                                <input type="checkbox" id="FacebookFriends_FacebookId" class="facebook-invites" value = "@string.Format("facbookid{0}", i)" title="@userName"/>
-                                <img src="@friend.ProfilePicUrl" alt="Profile Pic" style="width: 50px"/>                                
-                                @userName
-                            </div>                      
-                        }
-                    </div>
-                    @Html.HiddenFor(m => m.Title)
-                    @Html.HiddenFor(m => m.Description)
-                    @Html.HiddenFor(m => m.Location)
-                    @Html.HiddenFor(m => m.StartDate)
-                    @Html.HiddenFor(m => m.StartTime)
-                    @Html.HiddenFor(m => m.EndTime)
-                    <input type="submit" value="Invite these people" />
+                    @if(Model.FacebookFriends.Count > 0) {  
+                        <div data-list="long">
+                            @for (int i = 0; i < Model.FacebookFriends.Count; i++)
+                            {
+                                var friend = Model.FacebookFriends[i];
+                                var userName = friend.UserName;
+                                <div class="editor-field">
+                                    <input type="checkbox" id="FacebookFriends_FacebookId" class="facebook-invites" value = "@string.Format("facbookid{0}", i)" title="@userName"/>
+                                    <img src="@friend.ProfilePicUrl" alt="Profile Pic" style="width: 50px"/>                                
+                                    @userName
+                                </div>                      
+                            }
+                        </div>
+                        @Html.HiddenFor(m => m.Title)
+                        @Html.HiddenFor(m => m.Description)
+                        @Html.HiddenFor(m => m.Location)
+                        @Html.HiddenFor(m => m.StartDate)
+                        @Html.HiddenFor(m => m.StartTime)
+                        @Html.HiddenFor(m => m.EndTime)
+                        <input type="submit" value="Invite these people" />
+                    }else{
+                        <p>No Facebook friends found. @Html.ActionLink("Have you registered your user account with Facebook", "Manage","Account")?</p>
+                    }
                 </fieldset>                  
             }         
         </div>

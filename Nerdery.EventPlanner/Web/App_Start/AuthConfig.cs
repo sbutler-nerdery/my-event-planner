@@ -22,8 +22,8 @@ namespace Web
             //    consumerSecret: "");
 
             OAuthWebSecurity.RegisterFacebookClient(
-                appId: "324253151015060",
-                appSecret: "9c13f71cf01bee5190f6455d1b7ea7c5");
+                appId: "544766328895160", //324253151015060
+                appSecret: "e609dd8e2b2e403002edd7ed69d098b0"); //9c13f71cf01bee5190f6455d1b7ea7c5
 
             //OAuthWebSecurity.RegisterGoogleClient();
         }

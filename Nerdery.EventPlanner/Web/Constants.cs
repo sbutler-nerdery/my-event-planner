@@ -152,6 +152,12 @@ namespace Web
 
         #endregion
 
+        #region Facebook Queries
+
+        public const string GET_FACEBOOK_FRIENDS = "https://graph.facebook.com/fql?q={{\"friendsIds\":\"SELECT+uid2+FROM+friend+WHERE+uid1=me()\",\"friends\":\"SELECT+id,+name,+url,+pic,+pic_big+FROM+profile+WHERE+id+IN+(SELECT+uid2+FROM+%23friendsIds)\"}}&access_token={0}";
+
+        #endregion 
+
         #region Images
 
         public const string IMAGE_EMPTY_PROFILE =

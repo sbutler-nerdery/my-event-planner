@@ -358,7 +358,7 @@ namespace Web.Controllers
                     if (user == null)
                     {
                         // Insert name into the profile table
-                        db.People.Add(new Person { UserName = model.UserName });
+                        db.People.Add(new Person { UserName = model.UserName, NotifyWithEmail = true, Email = model.Email });
                         db.SaveChanges();
 
                         OAuthWebSecurity.CreateOrUpdateAccount(provider, providerUserId, model.UserName);
