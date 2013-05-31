@@ -28,9 +28,11 @@ namespace Web.ViewModels
         public DateTime? StartDate { get; set; }
         [Required]
         [Display(Name = "Start time")]
+        [RegularExpression(@"^([0-1][1-9]:[0-5][0-9]\s[AaPp][Mm])|([1-9]:[0-5][0-9]\s[AaPp][Mm])$", ErrorMessage = "Must enter hh:mm AM or PM")]
         public string StartTime { get; set; }
         [Required]
         [Display(Name = "End time")]
+        [RegularExpression(@"^([0-1][1-9]:[0-5][0-9]\s[AaPp][Mm])|([1-9]:[0-5][0-9]\s[AaPp][Mm])$", ErrorMessage = "Must enter hh:mm AM or PM")]
         public string EndTime { get; set; }
         /// <summary>
         /// Get or set the list of food item ids that the user will add to the event
