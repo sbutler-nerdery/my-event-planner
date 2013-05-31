@@ -336,7 +336,7 @@
     <Content Include="Views\Event\_InvitePeopleDialog.cshtml" />
     <Content Include="Views\Account\_UpdateUserInformation.cshtml" />
     <Content Include="Views\Home\ViewInvitation.cshtml" />
-    <Content Include="Views\Shared\_AddEventItems.cshtml" />
+    <Content Include="Views\Shared\_ManageEventItems.cshtml" />
     <Content Include="Views\Shared\_FoodItemListTemplate.cshtml" />
     <Content Include="Views\Shared\_GameListTemplate.cshtml" />
   </ItemGroup>

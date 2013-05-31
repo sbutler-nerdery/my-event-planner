@@ -46,6 +46,8 @@ namespace Web.ViewModels
         public List<GameViewModel> WillBringTheseGames { get; set; }
         public FoodItemViewModel AddFoodItem { get; set; }
         public GameViewModel AddGameItem { get; set; }
+        public FoodItemViewModel UpdateFoodItem { get; set; }
+        public GameViewModel UpdateGameItem { get; set; }
         /// <summary>
         /// Get or set the person id for the user accepting the invitation
         /// </summary>

@@ -10,13 +10,16 @@
     });
 
     APP.Events = {
-        addFoodItem: function (response) {
+        getSingleFoodItem: function (foodItemId, callback) {
+            APP.Ajax.call("/Service/GetSingleFoodItem", { foodItemId: foodItemId }, callback);
+        },
+        refreshFoodItems: function (actionKey, response) {
             if (response.Error) {
                 alert(response.Message);
                 return;
             }
 
-            var actionKey = "add-food-item";
+            //var actionKey = "add-food-item";
             var list = $(".food-list").first();
             list.html(response.Data);
 
@@ -24,7 +27,7 @@
             $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
                 $(this).val("");
             });
-            
+
             APP.Modals.dismiss(actionKey);
         },
         addExistingFoodItem: function (foodItemId, personId, eventId) {
@@ -40,8 +43,29 @@
 
             APP.Ajax.call("/Service/AddExistingFoodItem", { eventId: eventId, foodItemId: foodItemId, personId: personId }, callback);
         },
+        updateFoodItem: function (foodItemId, actionKey) {
+            //Get single item from the database
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var foodItem = response.Data;
+
+                //Set the appropriate form values
+                $("#UpdateFoodItem_FoodItemId").val(foodItemId);
+                $("#UpdateFoodItem_Title").val(foodItem.Title);
+                $("#UpdateFoodItem_Description").val(foodItem.Description);
+
+                //Open the dialog box for the specified action key
+                APP.Modals.open(actionKey);
+            };
+
+            APP.Events.getSingleFoodItem(foodItemId, callback);
+        },
         removeFoodItem: function (eventId, foodItemId) {
-            var callback = function(response) {
+            var callback = function (response) {
                 if (response.Error) {
                     alert(response.Message);
                     return;
@@ -51,15 +75,18 @@
                 list.html(response.Data);
             };
 
-            APP.Ajax.call("/Service/RemoveFoodItem", {eventId : eventId, foodItemId : foodItemId}, callback);
+            APP.Ajax.call("/Service/RemoveFoodItem", { eventId: eventId, foodItemId: foodItemId }, callback);
         },
-        addGame: function (response) {
+        getSingleGame: function (gameId, callback) {
+            APP.Ajax.call("/Service/GetSingleGame", { gameId: gameId }, callback);
+        },
+        refreshGames: function (actionKey, response) {
             if (response.Error) {
                 alert(response.Message);
                 return;
             }
 
-            var actionKey = "add-game-item";
+            //var actionKey = "add-game-item";
             var list = $(".game-list").first();
             list.html(response.Data);
 
@@ -67,7 +94,7 @@
             $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
                 $(this).val("");
             });
-            
+
             APP.Modals.dismiss(actionKey);
         },
         addExistingGame: function (gameId, personId, eventId) {
@@ -97,6 +124,27 @@
 
             APP.Ajax.call("/Service/RemoveGame", { eventId: eventId, gameId: gameId }, callback);
         },
+        updateGame: function (gameId, actionKey) {
+            //Get single item from the database
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var foodItem = response.Data;
+
+                //Set the appropriate form values
+                $("#UpdateGameItem_GameId").val(gameId);
+                $("#UpdateGameItem_Title").val(foodItem.Title);
+                $("#UpdateGameItem_Description").val(foodItem.Description);
+
+                //Open the dialog box for the specified action key
+                APP.Modals.open(actionKey);
+            };
+
+            APP.Events.getSingleGame(gameId, callback);
+        },
         addEmailInvite: function (response) {
             if (response.Error) {
                 alert(response.Message);
@@ -121,12 +169,12 @@
 
             EventPlanner.Modals.dismiss(actionKey);
         },
-        addFacebookInvites: function(controlId) {
+        addFacebookInvites: function (controlId) {
             var selectedCheckBoxes = $("input:checkbox:checked.facebook-invites");
-            var facebookInviteValues = selectedCheckBoxes.map(function() {
+            var facebookInviteValues = selectedCheckBoxes.map(function () {
                 return $(this).val();
             });
-            var names = selectedCheckBoxes.map(function() {
+            var names = selectedCheckBoxes.map(function () {
                 return $(this).attr("Title");
             });
 
@@ -140,7 +188,7 @@
 
             //Clear the fields...
             selectedCheckBoxes.each(function () {
-                $(this).prop("checked",false);
+                $(this).prop("checked", false);
             });
         }
     },
@@ -152,7 +200,7 @@
         }
     },
     APP.Calendars = {
-        init: function() {
+        init: function () {
             $("[data-calendar=true]").datepicker();
         }
     },
@@ -171,27 +219,33 @@
                 height: $defaultHeight,
                 modal: true
             });
-            
+
             //Set up triggers to open modals
             $modals.each(function () {
                 var modal = this;
                 var actionKey = $(modal).data("action");
                 var trigger = $("[data-open-modal=" + actionKey + "]").first();
                 var longList = $("[data-list=long]");
-                
+
                 longList.height($defaultHeight - 200);
-                longList.css({ "overflow-y":"scroll" });
+                longList.css({ "overflow-y": "scroll" });
                 trigger.click(function () {
                     $(modal).dialog("open");
                 });
             });
         },
+        open: function (actionKey) {
+            var targetModal = APP.Modals.getModelByActionKey(actionKey);
+            $(targetModal).dialog("open");
+        },
         dismiss: function (actionKey) {
-            var targetModal = $.grep($modals, function (modal) {
+            var targetModal = APP.Modals.getModelByActionKey(actionKey);
+            $(targetModal).dialog("close");
+        },
+        getModelByActionKey: function (actionKey) {
+            return $.grep($modals, function (modal) {
                 return $(modal).attr("data-action") == actionKey;
             });
-            
-            $(targetModal).dialog("close");
         }
     },
     APP.Tabs = {
@@ -233,24 +287,24 @@
             $(gameLists).select2({ placeholder: "Click here to see a list of your games... " });
 
             //jQuery autocomplete
-            var callback = function(response) {
+            var callback = function (response) {
                 if (!response.Error) {
                     $("[data-autocomplete=true]").autocomplete({ source: JSON.parse(response.Data) });
                 } else {
                     alert(response.Message);
                 }
             };
-            
+
             APP.Ajax.call("/Service/GetTimeList", null, callback);
-                       
+
             var eventId = $("#EventId").val();
             var personId = $("#PersonId").val();
             $("[data-autocomplete-list=food]").autocomplete({
-                minLength:0,
+                minLength: 0,
                 source: function (request, response) {
                     callback = function (serverResponse) {
                         if (!serverResponse.Error) {
-                            response($.map(serverResponse.Data, function(item) {
+                            response($.map(serverResponse.Data, function (item) {
                                 return { label: item.Title, value: item.FoodItemId };
                             }));
                         } else {
@@ -261,7 +315,7 @@
                 },
                 select: function (event, ui) {
                     this.value = "";
-                    
+
                     //Add the existing item to the list of items
                     APP.Events.addExistingFoodItem(ui.item.value, personId, eventId);
 
@@ -270,7 +324,7 @@
             }).on("click", function () {
                 $(this).autocomplete("search", "");
             });
-            
+
             $("[data-autocomplete-list=games]").autocomplete({
                 minLength: 0,
                 source: function (request, response) {
@@ -305,7 +359,7 @@
 
             //Get the previously selected values
             var previousValues = $(control).select2("val");
-            
+
             //Set the new values
             previousValues.push(newVal);
             $(control).select2("val", previousValues);

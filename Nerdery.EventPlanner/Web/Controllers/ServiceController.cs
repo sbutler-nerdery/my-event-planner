@@ -75,7 +75,30 @@ namespace Web.Controllers
 
             return Json(response);
         }
+        /// <summary>
+        /// Get a single food item from the database by the specified id
+        /// </summary>
+        /// <param name="foodItemId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult GetSingleFoodItem(int foodItemId)
+        {
+            var response = new Response { Error = false };
 
+            try
+            {
+                var foodItem = _foodRepository.GetAll().FirstOrDefault(x => x.FoodItemId == foodItemId);
+                response.Data = new FoodItemViewModel(foodItem);
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_GET_FOOD_ITEM_FAIL;
+            }
+
+            return Json(response);            
+        }
         /// <summary>
         /// Add a food item to a user's personal list of food items.
         /// </summary>
@@ -159,6 +182,44 @@ namespace Web.Controllers
             return Json(response);
         }
         /// <summary>
+        /// Update a food item.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult UpdateFoodItem(EventBaseViewModel model)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                var personId = _userService.GetCurrentUserId(User.Identity.Name);
+                var theEvent = GetEventById(model.EventId); ;
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+
+                //Update the food item
+                var updateMe = _foodRepository.GetAll().FirstOrDefault(x => x.FoodItemId == model.UpdateFoodItem.FoodItemId);
+                updateMe.Title = model.UpdateFoodItem.Title;
+                updateMe.Description = model.UpdateFoodItem.Description;
+
+                var clonedList = CopyFoodList(theEvent);
+                UpdateEventFoodItem(updateMe, clonedList);
+
+                var foodList = GetSelectedFoodItems(theEvent, thePerson);
+                response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
+
+                //Save to the database last
+                _foodRepository.SubmitChanges();
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_UPDATE_FOOD_ITEM_FAIL;
+            }
+
+            return Json(response);
+        }
+        /// <summary>
         /// Remove a food item to the current event or to the user's personal list of food items.
         /// </summary>
         /// <param name="eventId">The specified event id</param>
@@ -216,6 +277,30 @@ namespace Web.Controllers
                 //TODO: log to database
                 response.Error = true;
                 response.Message = "An error occurred. Unable to retrieve your list of games.";
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Get a single game from the database
+        /// </summary>
+        /// <param name="gameId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult GetSingleGame(int gameId)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                var game = _gameRepository.GetAll().FirstOrDefault(x => x.GameId == gameId);
+                response.Data = new GameViewModel(game);
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_GET_GAME_FAIL;
             }
 
             return Json(response);
@@ -298,6 +383,45 @@ namespace Web.Controllers
                 //TODO: log error to database
                 response.Error = true;
                 response.Message = Constants.SERVICE_ADD_FOOD_ITEM_FAIL;
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Update properties of the specified game in the view model
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult UpdateGame(EventBaseViewModel model)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                var personId = _userService.GetCurrentUserId(User.Identity.Name);
+                var theEvent = GetEventById(model.EventId); ;
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+
+                //Update the food item
+                var updateMe = _gameRepository.GetAll().FirstOrDefault(x => x.GameId == model.UpdateGameItem.GameId);
+                updateMe.Title = model.UpdateGameItem.Title;
+                updateMe.Description = model.UpdateGameItem.Description;
+
+                var clonedList = CopyGameList(theEvent);
+                UpdateEventGame(updateMe, clonedList);
+
+                var selectedGames = GetSelectedGames(theEvent, thePerson);
+                response.Data = RenderRazorViewToString("_GameListTemplate", selectedGames);
+
+                //Save to the database last
+                _gameRepository.SubmitChanges();
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_UPDATE_GAME_FAIL;
             }
 
             return Json(response);
@@ -511,6 +635,60 @@ namespace Web.Controllers
                                 : new Event { Games = new List<Game>(), FoodItems = new List<FoodItem>() };
 
             return theEvent;
+        }
+
+        private void UpdateEventFoodItem(FoodItem food, ICollection<FoodItemViewModel> foodItems)
+        {
+            var updateMe = foodItems.FirstOrDefault(x => x.FoodItemId == food.FoodItemId);
+
+            //This the event has not been created yet, then it will not have a list of food items... so we add it
+            if (updateMe == null)
+                foodItems.Add(new FoodItemViewModel(food));
+            else
+            {
+                //Else we update the existing food items properties so that the user see the changes in the view model
+                updateMe.Title = food.Title;
+                updateMe.Description = food.Description;
+            }
+        }
+
+        private void UpdateEventGame(Game game, ICollection<GameViewModel> gameList)
+        {
+            var updateMe = gameList.FirstOrDefault(x => x.GameId == game.GameId);
+
+            //This the event has not been created yet, then it will not have a list of food items... so we add it
+            if (updateMe == null)
+                gameList.Add(new GameViewModel(game));
+            else
+            {
+                //Else we update the existing food items properties so that the user see the changes in the view model
+                updateMe.Title = game.Title;
+                updateMe.Description = game.Description;
+            }
+        }
+
+        /// <summary>
+        /// Copy a list of event food items into a list of foodviewmodels
+        /// </summary>
+        /// <param name="theEvent"></param>
+        /// <returns></returns>
+        private List<FoodItemViewModel> CopyFoodList(Event theEvent)
+        {
+            var clonedList = new List<FoodItemViewModel>();
+            theEvent.FoodItems.ForEach(x => clonedList.Add(new FoodItemViewModel(x)));
+            return clonedList;
+        }
+
+        /// <summary>
+        /// Copy a list of event food items into a list of foodviewmodels
+        /// </summary>
+        /// <param name="theEvent"></param>
+        /// <returns></returns>
+        private List<GameViewModel> CopyGameList(Event theEvent)
+        {
+            var clonedList = new List<GameViewModel>();
+            theEvent.Games.ForEach(x => clonedList.Add(new GameViewModel(x)));
+            return clonedList;
         }
 
         #endregion

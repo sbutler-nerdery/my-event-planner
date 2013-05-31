@@ -13,7 +13,7 @@
             var foodItem = Model.ToArray()[i];
             <li>
                 @foodItem.Title
-                <a href="javascript:EventPlanner.Events.updateFoodItem(@foodItem.EventId, @foodItem.FoodItemId);">Update</a>
+                <a href="javascript:EventPlanner.Events.updateFoodItem(@foodItem.FoodItemId, 'update-food-item');">Update</a>
                 <a href="javascript:EventPlanner.Events.removeFoodItem(@foodItem.EventId, @foodItem.FoodItemId);">Remove</a>
                 <input type="hidden" name="WillBringTheseFoodItems[@i].FoodItemId" value="@foodItem.FoodItemId"/>
                 <input type="hidden" name="WillBringTheseFoodItems[@i].Title" value="@foodItem.Title"/>

@@ -1,0 +1,107 @@
+﻿@model Web.ViewModels.EventBaseViewModel
+
+<div data-dialog="true" title="Add a Munchy" data-action="add-food-item">
+    @using (Ajax.BeginForm("AddFoodItem", "Service", new AjaxOptions { HttpMethod = "Post", OnSuccess = "EventPlanner.Events.refreshFoodItems('add-food-item', data)" }))
+    {
+        <fieldset>
+            <legend>AddFoodItem</legend>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.AddFoodItem.Title)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.AddFoodItem.Title)
+                @Html.ValidationMessageFor(model => model.AddFoodItem.Title)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.AddFoodItem.Description)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.AddFoodItem.Description)
+                @Html.ValidationMessageFor(model => model.AddFoodItem.Description)
+            </div>    
+            @Html.HiddenFor(m => m.PersonId)
+            @Html.HiddenFor(m => m.EventId)
+            <input type="submit" value="Add" />
+        </fieldset>                  
+    }    
+</div>
+
+<div data-dialog="true" title="Add a Game" data-action="add-game-item">
+    @using (Ajax.BeginForm("AddGame", "Service", new AjaxOptions { HttpMethod = "Post", OnSuccess = "EventPlanner.Events.refreshGames('add-game-item', data)" }))
+    {
+        <fieldset>
+            <legend>AddFoodItem</legend>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.AddGameItem.Title)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.AddGameItem.Title)
+                @Html.ValidationMessageFor(model => model.AddGameItem.Title)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.AddGameItem.Description)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.AddGameItem.Description)
+                @Html.ValidationMessageFor(model => model.AddGameItem.Description)
+            </div>    
+            @Html.HiddenFor(m => m.PersonId)
+            @Html.HiddenFor(m => m.EventId)
+            <input type="submit" value="Add" />
+        </fieldset>                  
+    }    
+</div>
+
+<div data-dialog="true" title="Update Item" data-action="update-food-item">
+    @using (Ajax.BeginForm("UpdateFoodItem", "Service", new AjaxOptions { HttpMethod = "Post", OnSuccess = "EventPlanner.Events.refreshFoodItems('update-food-item', data)" }))
+    {
+        <fieldset>
+            <legend>AddFoodItem</legend>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.UpdateFoodItem.Title)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.UpdateFoodItem.Title)
+                @Html.ValidationMessageFor(model => model.UpdateFoodItem.Title)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.UpdateFoodItem.Description)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.UpdateFoodItem.Description)
+                @Html.ValidationMessageFor(model => model.UpdateFoodItem.Description)
+            </div>    
+            @Html.HiddenFor(m => m.UpdateFoodItem.FoodItemId)
+            @Html.HiddenFor(m => m.PersonId)
+            @Html.HiddenFor(m => m.EventId)
+            <input type="submit" value="Update" />
+        </fieldset>                  
+    }    
+</div>
+
+<div data-dialog="true" title="Update Game" data-action="update-game-item">
+    @using (Ajax.BeginForm("UpdateGame", "Service", new AjaxOptions { HttpMethod = "Post", OnSuccess = "EventPlanner.Events.refreshGames('update-game-item',data)" }))
+    {
+        <fieldset>
+            <legend>AddFoodItem</legend>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.UpdateGameItem.Title)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.UpdateGameItem.Title)
+                @Html.ValidationMessageFor(model => model.UpdateGameItem.Title)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.UpdateGameItem.Description)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.UpdateGameItem.Description)
+                @Html.ValidationMessageFor(model => model.UpdateGameItem.Description)
+            </div>    
+            @Html.HiddenFor(m => m.UpdateGameItem.GameId)
+            @Html.HiddenFor(m => m.PersonId)
+            @Html.HiddenFor(m => m.EventId)
+            <input type="submit" value="Update" />
+        </fieldset>                  
+    }    
+</div>
