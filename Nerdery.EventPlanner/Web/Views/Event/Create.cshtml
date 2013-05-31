@@ -64,7 +64,6 @@
                 <div class="editor-field">
                     @Html.TextBoxFor(model => model.EndTime, new { data_autocomplete="true" })
                     @Html.ValidationMessageFor(model => model.EndTime)
-                    @Html.HiddenFor(model => model.EventId)
                 </div>
                 
                 <div class="editor-label">
@@ -80,21 +79,32 @@
                     @Html.LabelFor(model => model.WillBringTheseFoodItems)
                 </div>
                 <div class="editor-field">
-                    <p><a href="javascript:;" data-open-modal="add-food-item">Add to my food list</a></p>
-                    @Html.ListBoxFor(model => model.WillBringTheseFoodItems, Model.MyFoodItems, new { name="FoodItemsSelected", @class="fancy-list-box", data_placeholder_type="food-list"})
+                    <p>
+                        <input type="text" data-autocomplete-list="food" data-event-id="@Model.EventId" data-person-id="@Model.PersonId" />
+                        <a href="javascript:;" data-open-modal="add-food-item">Add to my food list</a>
+                    </p>
+                    <div class="food-list">
+                        @Html.Partial("_FoodItemListTemplate", Model.WillBringTheseFoodItems)
+                    </div>
                 </div>  
           
                 <div class="editor-label">
                     @Html.LabelFor(model => model.WillBringTheseGames)
                 </div>
                 <div class="editor-field">
-                    <p><a href="javascript:;" data-open-modal="add-game-item">Add to my games list</a></p>
-                    @Html.ListBoxFor(model => model.WillBringTheseGames, Model.MyGames, new { name="MyGames", @class="fancy-list-box", data_placeholder_type="game-list"})
-                </div>                         
+                    <p>
+                        <input type="text" data-autocomplete-list="games" />
+                        <a href="javascript:;" data-open-modal="add-game-item">Add to my games list</a>
+                    </p>
+                    <div class="game-list">
+                        @Html.Partial("_GameListTemplate", Model.WillBringTheseGames)
+                    </div>
+                </div>                              
 
                 <p>
                     @Html.HiddenFor(model => model.EventId)
-                    <input type="submit" value="Create" />
+                    @Html.HiddenFor(model => model.PersonId)
+                    <input type="submit" value="Save" />
                 </p>
             </fieldset>
         }

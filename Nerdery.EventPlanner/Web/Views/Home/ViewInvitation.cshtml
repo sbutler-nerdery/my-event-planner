@@ -81,7 +81,6 @@
             <div class="food-list">
                 @Html.Partial("_FoodItemListTemplate", Model.WillBringTheseFoodItems)
             </div>
-            @*@Html.ListBoxFor(model => model.WillBringTheseFoodItems, Model.MyFoodItems, new { name="MyFoodItems", @class="fancy-list-box", data_placeholder_type="food-list"})*@
         </div>  
           
         <h3>Games I can bring</h3>
@@ -93,7 +92,6 @@
             <div class="game-list">
                 @Html.Partial("_GameListTemplate", Model.WillBringTheseGames)
             </div>
-            @*@Html.ListBoxFor(model => model.WillBringTheseGames, Model.MyGames, new { name="MyGames", @class="fancy-list-box", data_placeholder_type="game-list"})*@
         </div> 
 
         @Html.HiddenFor(model => model.Title)

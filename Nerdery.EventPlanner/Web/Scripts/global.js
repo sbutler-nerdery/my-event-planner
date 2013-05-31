@@ -83,7 +83,7 @@
 
             APP.Ajax.call("/Service/AddExistingGame", { eventId: eventId, gameId: gameId, personId: personId }, callback);
         },
-        removeGame: function (response) {
+        removeGame: function (eventId, gameId) {
             var callback = function (response) {
                 if (response.Error) {
                     alert(response.Message);
@@ -95,7 +95,7 @@
                 list.html(response.Data);
             };
 
-            APP.Ajax.call("/Service/RemoveGame", { eventId: eventId, foodItemId: foodItemId }, callback);
+            APP.Ajax.call("/Service/RemoveGame", { eventId: eventId, gameId: gameId }, callback);
         },
         addEmailInvite: function (response) {
             if (response.Error) {
@@ -245,7 +245,6 @@
                        
             var eventId = $("#EventId").val();
             var personId = $("#PersonId").val();
-            var isSelecting = false;
             $("[data-autocomplete-list=food]").autocomplete({
                 minLength:0,
                 source: function (request, response) {
@@ -265,6 +264,32 @@
                     
                     //Add the existing item to the list of items
                     APP.Events.addExistingFoodItem(ui.item.value, personId, eventId);
+
+                    return false;
+                }
+            }).on("click", function () {
+                $(this).autocomplete("search", "");
+            });
+            
+            $("[data-autocomplete-list=games]").autocomplete({
+                minLength: 0,
+                source: function (request, response) {
+                    callback = function (serverResponse) {
+                        if (!serverResponse.Error) {
+                            response($.map(serverResponse.Data, function (item) {
+                                return { label: item.Title, value: item.GameId };
+                            }));
+                        } else {
+                            alert(serverResponse.Message);
+                        }
+                    };
+                    APP.Ajax.call("/Service/GetPersonGameList", { personId: personId, eventId: eventId, contains: request.term }, callback);
+                },
+                select: function (event, ui) {
+                    this.value = "";
+
+                    //Add the existing item to the list of items
+                    APP.Events.addExistingGame(ui.item.value, personId, eventId);
 
                     return false;
                 }

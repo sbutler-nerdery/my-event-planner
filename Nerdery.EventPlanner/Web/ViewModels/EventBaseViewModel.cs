@@ -15,10 +15,12 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set the title of the event.
         /// </summary>
+        [Required]
         public string Title { get; set; }
         /// <summary>
         /// Get or set the description of an event.
         /// </summary>
+        [Required]
         public string Description { get; set; }
         [Required]
         [Display(Name = "Date")]

@@ -58,7 +58,7 @@ namespace Web.Controllers
 
             try
             {
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = GetEventById(eventId);
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
 
                 var foodList = GetNonSelectedFoodItems(theEvent, thePerson)
@@ -75,6 +75,7 @@ namespace Web.Controllers
 
             return Json(response);
         }
+
         /// <summary>
         /// Add a food item to a user's personal list of food items.
         /// </summary>
@@ -130,7 +131,7 @@ namespace Web.Controllers
             try
             {
                 //Get the event 
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = GetEventById(eventId);
 
                 //Get the person
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
@@ -142,7 +143,7 @@ namespace Web.Controllers
                 theEvent.FoodItems.Add(foodItem);
 
                 //Populate the food items already ing brought
-                var foodList = GetSelectedFoodItems(theEvent, thePerson).OrderBy(x => x.Title);
+                var foodList = GetSelectedFoodItems(theEvent, thePerson);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
 
                 //Save to the database last
@@ -172,7 +173,7 @@ namespace Web.Controllers
             {
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
                 //Remove from the event
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = GetEventById(eventId); ;
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
                 var removeMe = _foodRepository.GetAll().FirstOrDefault(x => x.FoodItemId == foodItemId);
 
@@ -181,8 +182,9 @@ namespace Web.Controllers
                 var foodList = GetSelectedFoodItems(theEvent, thePerson);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
 
-                //Save to the database if no errors have occured
-                _eventRepository.SubmitChanges();
+                //Save to the database last and only if the event exists in the database
+                if(eventId != 0)
+                    _eventRepository.SubmitChanges();
             }
             catch (Exception)
             {
@@ -198,15 +200,16 @@ namespace Web.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult GetPersonGameList(int eventId, int personId)
+        public ActionResult GetPersonGameList(int eventId, int personId, string contains)
         {
             var response = new Response { Error = false };
 
             try
             {
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = GetEventById(eventId);
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-                response.Data = GetNonSelectedGames(theEvent, thePerson);
+                response.Data = GetNonSelectedGames(theEvent, thePerson)
+                    .Where(x => x.Title.ToLower().Contains(contains.ToLower()));
             }
             catch (Exception)
             {
@@ -272,7 +275,7 @@ namespace Web.Controllers
             try
             {
                 //Get the event 
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = GetEventById(eventId);
 
                 //Get the person
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
@@ -314,7 +317,7 @@ namespace Web.Controllers
             {
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
                 //Remove from the event
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = GetEventById(eventId);
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
                 var removeMe = _gameRepository.GetAll().FirstOrDefault(x => x.GameId == gameId);
 
@@ -324,7 +327,8 @@ namespace Web.Controllers
                 response.Data = RenderRazorViewToString("_GameListTemplate", gameList);
 
                 //Save to the database last
-                _eventRepository.SubmitChanges();
+                if (eventId != 0)
+                    _eventRepository.SubmitChanges();
             }
             catch (Exception)
             {
@@ -498,6 +502,15 @@ namespace Web.Controllers
             });
 
             return gameList;
+        }
+
+        private Event GetEventById(int eventId)
+        {
+            var theEvent = (eventId != 0)
+                                ? _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId)
+                                : new Event { Games = new List<Game>(), FoodItems = new List<FoodItem>() };
+
+            return theEvent;
         }
 
         #endregion

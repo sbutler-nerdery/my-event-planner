@@ -304,6 +304,8 @@ namespace Web.Controllers
 
             model.MyFoodItems = new MultiSelectList(foodItems, "Value", "Text");
             model.MyGames = new MultiSelectList(games, "Value", "Text");
+            model.EventId = dataModel.EventId;
+            model.PersonId = coordinator.PersonId;
 
             //Stuff the user is already bringing
             if (dataModel.FoodItems != null)
@@ -311,7 +313,14 @@ namespace Web.Controllers
                 var eventFoodItemIds = dataModel.FoodItems.Select(x => x.FoodItemId);
                 var hostFoodItemIds = coordinator.MyFoodItems.Select(x => x.FoodItemId);
                 var selectedFoodItems = hostFoodItemIds.Intersect(eventFoodItemIds);
-                model.WillBringTheseFoodItems = dataModel.FoodItems.Where(x => selectedFoodItems.Contains(x.FoodItemId)).Select(x => new FoodItemViewModel(x)).ToList();
+                model.WillBringTheseFoodItems = dataModel.FoodItems
+                    .Where(x => selectedFoodItems.Contains(x.FoodItemId))
+                    .Select(x => new FoodItemViewModel(x)).ToList();
+                model.WillBringTheseFoodItems.ForEach(x =>
+                    {
+                        x.EventId = model.EventId;
+                        x.Index = model.WillBringTheseFoodItems.IndexOf(x);
+                });
             }
 
             if (dataModel.Games != null)
@@ -321,6 +330,11 @@ namespace Web.Controllers
                 var selectedGames = hostGameIds.Intersect(eventGameIds);
                 model.WillBringTheseGames =
                     dataModel.Games.Where(x => selectedGames.Contains(x.GameId)).Select(x => new GameViewModel(x)).ToList();
+                model.WillBringTheseGames.ForEach(x =>
+                {
+                    x.EventId = model.EventId;
+                    x.Index = model.WillBringTheseGames.IndexOf(x);
+                });
             }
 
             model.PersonId = coordinator.PersonId;
