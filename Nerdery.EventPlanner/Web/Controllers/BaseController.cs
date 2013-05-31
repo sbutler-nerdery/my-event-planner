@@ -66,7 +66,7 @@ namespace Web.Controllers
                             : id == BaseControllerMessageId.BuildViewModelFail ? Constants.BASE_BUILD_VIEW_FAIL
                             : id == BaseControllerMessageId.AcceptInvitationFail ? Constants.BASE_ACCEPT_INVITATION_FAIL
                             : id == BaseControllerMessageId.AcceptInvitationSuccess ? Constants.BASE_ACCEPT_INVITATION_SUCCESS
-                            : id == BaseControllerMessageId.UpdateInvitationFail ? Constants.BASE_UPDATE_INVITATION_SUCCESS
+                            : id == BaseControllerMessageId.UpdateInvitationFail ? Constants.BASE_UPDATE_INVITATION_FAIL
                             : id == BaseControllerMessageId.UpdateInvitationSuccess ? Constants.BASE_UPDATE_INVITATION_SUCCESS
                             : id == BaseControllerMessageId.DeclineInvitationFail ? Constants.BASE_DECLINE_INVITATION_FAIL
                             : id == BaseControllerMessageId.DeclineInvitationSuccess ? Constants.BASE_DECLINE_INVITATION_SUCCESS

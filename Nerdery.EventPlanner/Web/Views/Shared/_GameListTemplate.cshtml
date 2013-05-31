@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Web.ViewModels.GameViewModel>
+@*    
+{0} = Title
+{1} = Id
+{2} = Index 
+{3} = Description
+*@
+@if (Model.Any())
+{
+    <ul class="game-list">
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            var game = Model.ToArray()[i];
+            <li>
+                @game.Title
+                <a href="javascript:EventPlanner.Events.updateGame(@game.GameId, @game.EventId);">Update</a>
+                <a href="javascript:EventPlanner.Events.removeGame(@game.GameId, @game.EventId);">Remove</a>
+                <input type="hidden" name="WillBringTheseGames[@game.Index].GameId" value="@game.GameId"/>
+                <input type="hidden" name="WillBringTheseGames[@game.Index].Title" value="@game.Title"/>
+                <input type="hidden" name="WillBringTheseGames[@game.Index].Description" value="@game.Description"/>
+            </li>
+        }
+    </ul>
+}
+else
+{
+    @:You are not bringing any food items yet.
+}

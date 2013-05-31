@@ -19,8 +19,8 @@
                 @Html.EditorFor(model => model.AddFoodItem.Description)
                 @Html.ValidationMessageFor(model => model.AddFoodItem.Description)
             </div>    
-            @Html.Hidden("FoodControlId", "WillBringTheseFoodItems")
             @Html.HiddenFor(m => m.PersonId)
+            @Html.HiddenFor(m => m.EventId)
             <input type="submit" value="Add this munchy" />
         </fieldset>                  
     }    
@@ -45,8 +45,8 @@
                 @Html.EditorFor(model => model.AddGameItem.Description)
                 @Html.ValidationMessageFor(model => model.AddGameItem.Description)
             </div>    
-            @Html.Hidden("FoodControlId", "WillBringTheseGames")
             @Html.HiddenFor(m => m.PersonId)
+            @Html.HiddenFor(m => m.EventId)
             <input type="submit" value="Add Game" />
         </fieldset>                  
     }    

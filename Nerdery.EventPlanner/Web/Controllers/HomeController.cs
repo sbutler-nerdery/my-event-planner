@@ -99,13 +99,15 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult ViewInvitation(InvitationDetailsViewModel model)
         {
+            Event theEvent = null;
+            Person thePerson = null;
             try
             {
+                theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
+                thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
+
                 if (ModelState.IsValid)
                 {
-                    var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
-                    var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
-
                     PopulateFoodAndGames(theEvent, thePerson, model);
 
                     //Process food items
@@ -127,10 +129,11 @@ namespace Web.Controllers
             catch (Exception)
             {
                 //TODO:log to database
-                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.UpdateInvitationFail);
             }
 
             //If we get to here there is a problem
+            ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.UpdateInvitationFail);
+            model = GetViewModel(theEvent, thePerson);
             return View(model);
         }
 
@@ -161,17 +164,19 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult AcceptInvitation(InvitationDetailsViewModel model)
         {
+            Event theEvent = null;
+            Person thePerson = null;
+
             try
             {
+                theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
+                thePerson =
+                    _personRepository.GetAll()
+                                     .FirstOrDefault(x => x.PersonId == model.PersonId);
+
                 if (ModelState.IsValid)
                 {
-                    var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
-                    var thePerson =
-                        _personRepository.GetAll()
-                                         .FirstOrDefault(x => x.PersonId == model.PersonId);
-
                     PopulateFoodAndGames(theEvent, thePerson, model);
-
                     thePerson.AmAttending.Add(theEvent);
                     thePerson.HaveDeclined.Remove(theEvent);
 
@@ -204,10 +209,11 @@ namespace Web.Controllers
             catch (Exception)
             {
                 //TODO:log to database
-                ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.AcceptInvitationFail);
             }
 
             //If we get to here there is a problem
+            ViewBag.StatusMessage = GetMessageFromMessageId(BaseControllerMessageId.AcceptInvitationFail);
+            model = GetViewModel(theEvent, thePerson);
             return View(model);
         }
         /// <summary>
@@ -260,13 +266,23 @@ namespace Web.Controllers
             PopulateFoodAndGames(theEvent, thePerson, model);
 
             //Stuff the user is already bringing
-            var eventFoodItemIds = theEvent.FoodItems.Select(x => x.FoodItemId).ToList();
-            var personFoodItemIds = thePerson.MyFoodItems.Select(x => x.FoodItemId).ToList();
-            model.WillBringTheseFoodItems = personFoodItemIds.Intersect(eventFoodItemIds).Select(x => x.ToString()).ToList();
+            var eventFoodItemIds = theEvent.FoodItems.Select(x => x.FoodItemId);
+            var personFoodItemIds = thePerson.MyFoodItems.Select(x => x.FoodItemId);
+            var selectedFoodItems = personFoodItemIds.Intersect(eventFoodItemIds);
+            model.WillBringTheseFoodItems = 
+                theEvent.FoodItems.Where(x => selectedFoodItems.Contains(x.FoodItemId)).Select(x => new FoodItemViewModel(x)).ToList();
 
-            var eventGameIds = theEvent.Games.Select(x => x.GameId).ToList();
-            var personGameIds = thePerson.MyGames.Select(x => x.GameId).ToList();
-            model.WillBringTheseGames = personGameIds.Intersect(eventGameIds).Select(x => x.ToString()).ToList();
+            //Populate the event id for each item
+            model.WillBringTheseFoodItems.ForEach(x => x.EventId = theEvent.EventId);
+
+            var eventGameIds = theEvent.Games.Select(x => x.GameId);
+            var personGameIds = thePerson.MyGames.Select(x => x.GameId);
+            var selectedGames = personGameIds.Intersect(eventGameIds);
+            model.WillBringTheseGames =
+                theEvent.Games.Where(x => selectedGames.Contains(x.GameId)).Select(x => new GameViewModel(x)).ToList();
+
+            //Populate the event id for each item
+            model.WillBringTheseGames.ForEach(x => x.EventId = theEvent.EventId);
 
             return model;
         }

@@ -80,14 +80,13 @@ namespace Web.Services
 
         public void AppendNewFoodItems(Event dataModel, EventBaseViewModel viewModel)
         {
-            var dataFoodIds = dataModel.FoodItems.Select(x => x.FoodItemId.ToString()).ToArray(); //Items in the database
-            var newFoodItems = viewModel.WillBringTheseFoodItems.Where(x => !dataFoodIds.Contains(x)).ToList();
+            var dataFoodIds = dataModel.FoodItems.Select(x => x.FoodItemId).ToArray(); //Items in the database
+            var newFoodItems = viewModel.WillBringTheseFoodItems.Where(x => !dataFoodIds.Contains(x.FoodItemId)).ToList();
 
             //Add new items
-            newFoodItems.ForEach(foodId =>
+            newFoodItems.ForEach(foodItem =>
                 {
-                    var id = int.Parse(foodId);
-                    var addMe = _foodRepository.GetAll().FirstOrDefault(y => y.FoodItemId == id);
+                    var addMe = _foodRepository.GetAll().FirstOrDefault(y => y.FoodItemId == foodItem.FoodItemId);
 
                     if (addMe != null)
                         dataModel.FoodItems.Add(addMe);
@@ -96,9 +95,9 @@ namespace Web.Services
 
         public void RemoveFoodItems(Event dataModel, EventBaseViewModel viewModel)
         {
-            var hostFoodIds = viewModel.WillBringTheseFoodItems.Select(x => x).ToArray();
+            var hostFoodIds = viewModel.WillBringTheseFoodItems.Select(x => x.FoodItemId).ToArray();
             var thePerson = _personPersonRepo.GetAll().FirstOrDefault(x => x.PersonId == viewModel.PersonId);
-            var deletedFoodItemIds = thePerson.MyFoodItems.Where(x => !hostFoodIds.Contains(x.FoodItemId.ToString())).Select(x => x.FoodItemId).ToList();
+            var deletedFoodItemIds = thePerson.MyFoodItems.Where(x => !hostFoodIds.Contains(x.FoodItemId)).Select(x => x.FoodItemId).ToList();
 
             //Delete items
             deletedFoodItemIds.ForEach(id =>
@@ -113,13 +112,12 @@ namespace Web.Services
         public void AppendNewGames(Event dataModel, EventBaseViewModel viewModel)
         {
             var dataGameIds = dataModel.Games.Select(x => x.GameId).ToArray(); //Items in the database
-            var newGameItems = viewModel.WillBringTheseGames.Where(x => !dataGameIds.Contains(int.Parse(x))).ToList();
+            var newGameItems = viewModel.WillBringTheseGames.Where(x => !dataGameIds.Contains(x.GameId)).ToList();
 
             //Add new items
-            newGameItems.ForEach(gameId =>
+            newGameItems.ForEach(game =>
                 {
-                    var id = int.Parse(gameId);
-                    var addMe = _gameRepository.GetAll().FirstOrDefault(y => y.GameId == id);
+                    var addMe = _gameRepository.GetAll().FirstOrDefault(y => y.GameId == game.GameId);
 
                     if (addMe != null)
                         dataModel.Games.Add(addMe);
@@ -128,9 +126,9 @@ namespace Web.Services
 
         public void RemoveGames(Event dataModel, EventBaseViewModel viewModel)
         {
-            var hostGameIds = viewModel.WillBringTheseGames.Select(x => x).ToArray(); //Items in local view model
+            var hostGameIds = viewModel.WillBringTheseGames.Select(x => x.GameId).ToArray(); //Items in local view model
             var thePerson = _personPersonRepo.GetAll().FirstOrDefault(x => x.PersonId == viewModel.PersonId);
-            var deletedGameIds = thePerson.MyGames.Where(x => !hostGameIds.Contains(x.GameId.ToString())).Select(x => x.GameId).ToList();
+            var deletedGameIds = thePerson.MyGames.Where(x => !hostGameIds.Contains(x.GameId)).Select(x => x.GameId).ToList();
 
             //Delete items
             deletedGameIds.ForEach(id =>

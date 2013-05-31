@@ -177,8 +177,8 @@ namespace Web.Tests.Controllers
             var viewModel = result.Model as InvitationDetailsViewModel;
 
             //Act
-            newFoodItems.ForEach(x => viewModel.WillBringTheseFoodItems.Add(x.FoodItemId.ToString()));
-            newGames.ForEach(x => viewModel.WillBringTheseGames.Add(x.GameId.ToString()));
+            newFoodItems.ForEach(x => viewModel.WillBringTheseFoodItems.Add(x));
+            newGames.ForEach(x => viewModel.WillBringTheseGames.Add(x));
             var redirectResult = controller.AcceptInvitation(viewModel) as RedirectToRouteResult;
 
             //Assert

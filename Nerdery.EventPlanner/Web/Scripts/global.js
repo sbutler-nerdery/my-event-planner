@@ -17,21 +17,41 @@
             }
 
             var actionKey = "add-food-item";
-            var controlId = response.Data.FoodControlId;
-            var id = response.Data.FoodItemId;
-            var title = response.Data.Title;
-            var description = response.Data.Description;
-            var text = title;
-            var value = id;
-            $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
-            APP.Autocomplete.addSelectedItem(controlId, value);
+            var list = $(".food-list").first();
+            list.html(response.Data);
 
             //Clear the fields...
             $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
                 $(this).val("");
             });
             
-            EventPlanner.Modals.dismiss(actionKey);
+            APP.Modals.dismiss(actionKey);
+        },
+        addExistingFoodItem: function (foodItemId, personId, eventId) {
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var list = $(".food-list").first();
+                list.html(response.Data);
+            };
+
+            APP.Ajax.call("/Service/AddExistingFoodItem", { eventId: eventId, foodItemId: foodItemId, personId: personId }, callback);
+        },
+        removeFoodItem: function (eventId, foodItemId) {
+            var callback = function(response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var list = $(".food-list").first();
+                list.html(response.Data);
+            };
+
+            APP.Ajax.call("/Service/RemoveFoodItem", {eventId : eventId, foodItemId : foodItemId}, callback);
         },
         addGame: function (response) {
             if (response.Error) {
@@ -40,21 +60,42 @@
             }
 
             var actionKey = "add-game-item";
-            var controlId = response.Data.GameControlId;
-            var id = response.Data.GameId;
-            var title = response.Data.Title;
-            var description = response.Data.Description;
-            var text = title;
-            var value = id;
-            $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
-            APP.Autocomplete.addSelectedItem(controlId, value);
-            
+            var list = $(".game-list").first();
+            list.html(response.Data);
+
             //Clear the fields...
             $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
                 $(this).val("");
             });
             
-            EventPlanner.Modals.dismiss(actionKey);
+            APP.Modals.dismiss(actionKey);
+        },
+        addExistingGame: function (gameId, personId, eventId) {
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var list = $(".game-list").first();
+                list.html(response.Data);
+            };
+
+            APP.Ajax.call("/Service/AddExistingGame", { eventId: eventId, gameId: gameId, personId: personId }, callback);
+        },
+        removeGame: function (response) {
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var actionKey = "remove-game-item";
+                var list = $(".game-list").first();
+                list.html(response.Data);
+            };
+
+            APP.Ajax.call("/Service/RemoveGame", { eventId: eventId, foodItemId: foodItemId }, callback);
         },
         addEmailInvite: function (response) {
             if (response.Error) {
@@ -158,6 +199,21 @@
             $("[data-tabs=true]").tabs();
         }
     },
+    APP.Ajax = {
+        call: function (url, args, successCallback) {
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: args,
+                dataType: "json",
+                /*NOTE: if you use complete instead of success, you will get back a different json object!!! 
+                Took me a while to figure that out. */
+                success: function (response) {
+                    successCallback(response);
+                }
+            });
+        }
+    },
     APP.Autocomplete = {
         $selectControls: null,
         init: function () {
@@ -177,19 +233,43 @@
             $(gameLists).select2({ placeholder: "Click here to see a list of your games... " });
 
             //jQuery autocomplete
-            $.ajax({
-                url: "/Service/GetTimeList",
-                type: "POST",
-                dataType: "json",
-                /*NOTE: if you use complete instead of success, you will get back a different json object!!! 
-                Took me a while to figure that out. */
-                success: function (response) {
-                    if (!response.Error) {
-                        $("[data-autocomplete=true]").autocomplete({ source: JSON.parse(response.Data) });
-                    } else {
-                        alert(response.Message);
-                    }
+            var callback = function(response) {
+                if (!response.Error) {
+                    $("[data-autocomplete=true]").autocomplete({ source: JSON.parse(response.Data) });
+                } else {
+                    alert(response.Message);
                 }
+            };
+            
+            APP.Ajax.call("/Service/GetTimeList", null, callback);
+                       
+            var eventId = $("#EventId").val();
+            var personId = $("#PersonId").val();
+            var isSelecting = false;
+            $("[data-autocomplete-list=food]").autocomplete({
+                minLength:0,
+                source: function (request, response) {
+                    callback = function (serverResponse) {
+                        if (!serverResponse.Error) {
+                            response($.map(serverResponse.Data, function(item) {
+                                return { label: item.Title, value: item.FoodItemId };
+                            }));
+                        } else {
+                            alert(serverResponse.Message);
+                        }
+                    };
+                    APP.Ajax.call("/Service/GetPersonFoodList", { personId: personId, eventId: eventId, contains: request.term }, callback);
+                },
+                select: function (event, ui) {
+                    this.value = "";
+                    
+                    //Add the existing item to the list of items
+                    APP.Events.addExistingFoodItem(ui.item.value, personId, eventId);
+
+                    return false;
+                }
+            }).on("click", function () {
+                $(this).autocomplete("search", "");
             });
         },
         addSelectedItem: function (controlId, newVal) {

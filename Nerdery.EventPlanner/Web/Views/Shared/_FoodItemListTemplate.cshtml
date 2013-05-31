@@ -1,0 +1,28 @@
+﻿@model IEnumerable<Web.ViewModels.FoodItemViewModel>
+@*    
+{0} = Title
+{1} = Id
+{2} = Index 
+{3} = Description
+*@
+@if (Model.Any())
+{
+    <ul >
+        @for (int i = 0; i < Model.Count(); i++)
+        {
+            var foodItem = Model.ToArray()[i];
+            <li>
+                @foodItem.Title
+                <a href="javascript:EventPlanner.Events.updateFoodItem(@foodItem.EventId, @foodItem.FoodItemId);">Update</a>
+                <a href="javascript:EventPlanner.Events.removeFoodItem(@foodItem.EventId, @foodItem.FoodItemId);">Remove</a>
+                <input type="hidden" name="WillBringTheseFoodItems[@i].FoodItemId" value="@foodItem.FoodItemId"/>
+                <input type="hidden" name="WillBringTheseFoodItems[@i].Title" value="@foodItem.Title"/>
+                <input type="hidden" name="WillBringTheseFoodItems[@i].Description" value="@foodItem.Description"/>
+            </li>  
+        }                    
+    </ul>
+}
+else
+{
+    @:You are not bringing any food items yet.
+}

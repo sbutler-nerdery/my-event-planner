@@ -28,16 +28,19 @@ namespace Web.ViewModels
         #endregion 
 
         #region Properties
-
+        /// <summary>
+        /// Get or set the event id that this food item belongs to
+        /// </summary>
+        public int EventId { get; set; }
         public int FoodItemId { get; set; }
         [Required]
         public string Title { get; set; }
         [Required]
         public string Description { get; set; }
         /// <summary>
-        /// Get or set the control id for the listbox that will be updated when adding food items
+        /// The index of this item when part of a collection
         /// </summary>
-        public string FoodControlId { get; set; }
+        public int Index { get; set; }
 
         #endregion 
 

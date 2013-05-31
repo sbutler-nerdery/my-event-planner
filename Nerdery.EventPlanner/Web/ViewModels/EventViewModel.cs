@@ -15,8 +15,8 @@ namespace Web.ViewModels
         public EditEventViewModel()
         {
             PeopleInvited = new List<string>();
-            WillBringTheseFoodItems = new List<string>();
-            WillBringTheseGames = new List<string>();
+            WillBringTheseFoodItems = new List<FoodItemViewModel>();
+            WillBringTheseGames = new List<GameViewModel>();
             AllEventFoodItems = new List<FoodItemViewModel>();
             AllEventGames = new List<GameViewModel>();
             PeopleWhoAccepted = new List<int>();
@@ -32,8 +32,8 @@ namespace Web.ViewModels
             StartDate = model.StartDate;
             StartTime = model.StartDate.ToString("h:mm tt");
             EndTime = model.EndDate.ToString("h:mm tt");
-            if (model.FoodItems != null) model.FoodItems.ForEach(x => WillBringTheseFoodItems.Add(x.FoodItemId.ToString()));
-            if (model.Games != null) model.Games.ForEach(x => WillBringTheseGames.Add(x.GameId.ToString()));
+            if (model.FoodItems != null) model.FoodItems.ForEach(x => WillBringTheseFoodItems.Add(new FoodItemViewModel(x)));
+            if (model.Games != null) model.Games.ForEach(x => WillBringTheseGames.Add(new GameViewModel(x)));
             if (model.RegisteredInvites != null) model.RegisteredInvites.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
             if (model.NonRegisteredInvites != null) model.NonRegisteredInvites.ForEach(x =>
                 {

@@ -143,10 +143,12 @@ namespace Web.Controllers
         [HttpPost]
         public ActionResult Edit(EditEventViewModel model)
         {
-            var updateMe = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
+            Event updateMe = null;
 
             try
             {
+                updateMe = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == model.EventId);
+
                 if (ModelState.IsValid)
                 {
                     var initialRequiredFieldsState = _eventService.GetSerializedModelState(updateMe);
@@ -306,17 +308,19 @@ namespace Web.Controllers
             //Stuff the user is already bringing
             if (dataModel.FoodItems != null)
             {
-                var eventFoodItemIds = dataModel.FoodItems.Select(x => x.FoodItemId).ToList();
-                var personFoodItemIds = coordinator.MyFoodItems.Select(x => x.FoodItemId).ToList();
-                model.WillBringTheseFoodItems =
-                    personFoodItemIds.Intersect(eventFoodItemIds).Select(x => x.ToString()).ToList();
+                var eventFoodItemIds = dataModel.FoodItems.Select(x => x.FoodItemId);
+                var hostFoodItemIds = coordinator.MyFoodItems.Select(x => x.FoodItemId);
+                var selectedFoodItems = hostFoodItemIds.Intersect(eventFoodItemIds);
+                model.WillBringTheseFoodItems = dataModel.FoodItems.Where(x => selectedFoodItems.Contains(x.FoodItemId)).Select(x => new FoodItemViewModel(x)).ToList();
             }
 
             if (dataModel.Games != null)
             {
-                var eventGameIds = dataModel.Games.Select(x => x.GameId).ToList();
-                var personGameIds = coordinator.MyGames.Select(x => x.GameId).ToList();
-                model.WillBringTheseGames = personGameIds.Intersect(eventGameIds).Select(x => x.ToString()).ToList();
+                var eventGameIds = dataModel.Games.Select(x => x.GameId);
+                var hostGameIds = coordinator.MyGames.Select(x => x.GameId);
+                var selectedGames = hostGameIds.Intersect(eventGameIds);
+                model.WillBringTheseGames =
+                    dataModel.Games.Where(x => selectedGames.Contains(x.GameId)).Select(x => new GameViewModel(x)).ToList();
             }
 
             model.PersonId = coordinator.PersonId;

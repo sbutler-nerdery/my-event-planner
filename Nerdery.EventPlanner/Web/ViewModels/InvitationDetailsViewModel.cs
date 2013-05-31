@@ -12,8 +12,8 @@ namespace Web.ViewModels
         {
             AllEventFoodItems = new List<FoodItemViewModel>();
             AllEventGames = new List<GameViewModel>();
-            WillBringTheseFoodItems = new List<string>();
-            WillBringTheseGames = new List<string>();
+            WillBringTheseFoodItems = new List<FoodItemViewModel>();
+            WillBringTheseGames = new List<GameViewModel>();
         }
         /// <summary>
         /// Get or set the list of food items belonging to the user accepting the invitation
