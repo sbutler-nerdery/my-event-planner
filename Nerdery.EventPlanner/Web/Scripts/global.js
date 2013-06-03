@@ -240,6 +240,14 @@
                 });
             });
         },
+        showLoader: function (actionKey) {
+            $("[data-action=" + actionKey + "] .loader").show();
+            $("[data-action=" + actionKey + "] :input[type=submit]").hide();
+        },
+        hideLoader: function (actionKey) {
+            $("[data-action=" + actionKey + "] .loader").hide();
+            $("[data-action=" + actionKey + "] :input[type=submit]").show();
+        },
         open: function (actionKey) {
             var targetModal = APP.Modals.getModelByActionKey(actionKey);
             $(targetModal).dialog("open");

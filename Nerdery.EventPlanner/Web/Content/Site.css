@@ -761,3 +761,10 @@ tr.pager td {
 }
 
 .ui-autocomplete-loading { background: white url('../images/ui-anim_basic_16x16.gif') right center no-repeat; }
+
+.loader {
+    display: none; 
+    background: white url('../images/ui-anim_basic_16x16.gif') right center no-repeat;
+    width: 16px;
+    height: 16px;
+}
