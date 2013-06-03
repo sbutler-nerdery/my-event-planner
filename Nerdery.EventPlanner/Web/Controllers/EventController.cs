@@ -52,7 +52,10 @@ namespace Web.Controllers
                 var dataModel = new Event
                     {
                         StartDate = DateTime.Now.Date.AddHours(19), //7:00 PM
-                        EndDate = DateTime.Now.Date.AddHours(21) //9:00 pm                  
+                        EndDate = DateTime.Now.Date.AddHours(21), //9:00 pm 
+                        PeopleWhoAccepted = new List<Person>(),
+                        PeopleWhoDeclined = new List<Person>(),
+                        RegisteredInvites = new List<Person>()
                     };
 
                 var model = GetViewModel(dataModel);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -20,6 +21,7 @@ namespace Web.Services
         private readonly IRepository<Event> _eventRepository;
         private readonly IRepository<PendingInvitation> _invitationRepository;
         private readonly SmtpClient _emailClient;
+        private readonly bool _useSendGrid = false;
 
         #endregion
 
@@ -31,6 +33,7 @@ namespace Web.Services
             _eventRepository = factory.GetRepository<Event>();
             _invitationRepository = factory.GetRepository<PendingInvitation>();
             _emailClient = new SmtpClient();
+            _useSendGrid = bool.Parse(ConfigurationManager.AppSettings["MailWithSendGrid"]);
         }
 
         #endregion
@@ -39,42 +42,46 @@ namespace Web.Services
 
         public void SendNotifications(List<EventPlannerNotification> notifications)
         {
-            //TODO: Add logic that will actually send a facebook message.
             foreach (var eventPlannerNotification in notifications)
             {
                 if (eventPlannerNotification.SendToEmail)
                 {
-                    //var email = new MailMessage();
-                    //email.To.Add(eventPlannerNotification.Email);
-                    //email.IsBodyHtml = true;
-                    //email.Subject = eventPlannerNotification.Title;
-                    //email.Body = eventPlannerNotification.Message;
-                    //_emailClient.Send(email);
+                    if (!_useSendGrid)
+                    {
+                        var email = new MailMessage();
+                        email.To.Add(eventPlannerNotification.Email);
+                        email.IsBodyHtml = true;
+                        email.Subject = eventPlannerNotification.Title;
+                        email.Body = eventPlannerNotification.Message;
+                        _emailClient.Send(email);
+                    }
+                    else
+                    {
+                        //Use Azure sendgrid for email stuff
+                        // Setup the email properties.
+                        var from = new MailAddress("noreply@eventplanner.net");
+                        var to = new[] {new MailAddress(eventPlannerNotification.Email)};
+                        var cc = new MailAddress[0];
+                        var bcc = new MailAddress[0];
+                        var subject = eventPlannerNotification.Title;
+                        var html = eventPlannerNotification.Message;
+                        var text = eventPlannerNotification.Message;
 
-                    //Use Azure sendgrid for email stuff
-                    // Setup the email properties.
-                    var from = new MailAddress("noreply@eventplanner.net");
-                    var to = new [] { new MailAddress(eventPlannerNotification.Email) };
-                    var cc = new MailAddress[0];
-                    var bcc = new MailAddress[0];
-                    var subject = eventPlannerNotification.Title;
-                    var html = eventPlannerNotification.Message;
-                    var text = eventPlannerNotification.Message;
+                        // Create an email, passing in the the eight properties as arguments.
+                        var emailMessage = SendGrid.GetInstance(from, to, cc, bcc, subject, html, text);
 
-                    // Create an email, passing in the the eight properties as arguments.
-                    var emailMessage = SendGrid.GetInstance(from, to, cc, bcc, subject, html, text);
+                        // Create network credentials to access your SendGrid account.
+                        var username = "azure_ee7157f9810b7c7e83ffcc1febc5a652@azure.com";
+                        var pswd = "jqj9ikpj";
 
-                    // Create network credentials to access your SendGrid account.
-                    var username = "azure_ee7157f9810b7c7e83ffcc1febc5a652@azure.com";
-                    var pswd = "jqj9ikpj";
+                        var credentials = new NetworkCredential(username, pswd);
 
-                    var credentials = new NetworkCredential(username, pswd);
+                        // Create an SMTP transport for sending email.
+                        var transportSMTP = SMTP.GetInstance(credentials);
 
-                    // Create an SMTP transport for sending email.
-                    var transportSMTP = SMTP.GetInstance(credentials);
-
-                    // Send the email.
-                    transportSMTP.Deliver(emailMessage);
+                        // Send the email.
+                        transportSMTP.Deliver(emailMessage);
+                    }
                 }
             }
         }
