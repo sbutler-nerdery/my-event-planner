@@ -70,19 +70,15 @@
                     @Html.LabelFor(model => model.PeopleInvited)
                 </div>
                 <div class="editor-field">
-                    <p><a href="javascript:;" data-open-modal="invite-person-to-event">Invite people to my friends list</a></p>
-                    @Html.ListBoxFor(model => model.PeopleInvited, Model.PeopleList, new {name="PeopleInvited", @class="fancy-list-box", data_placeholder_type="friend-list"})
-                    @Html.ValidationMessageFor(model => model.EndTime)
+                    @Html.ListBoxFor(model => model.PeopleInvited, Model.PeopleList, new {name="PeopleInvited", @class="fancy-list-box", data_placeholder_type="friend-list"}) <a href="javascript:;" data-open-modal="invite-person-to-event">Invite people to my friends list</a>
                 </div> 
                 
                 <div class="editor-label">
                     @Html.LabelFor(model => model.WillBringTheseFoodItems)
                 </div>
                 <div class="editor-field">
-                    <p>
-                        <input type="text" data-autocomplete-list="food" data-event-id="@Model.EventId" data-person-id="@Model.PersonId" />
-                        <a href="javascript:;" data-open-modal="add-food-item">Add to my food list</a>
-                    </p>
+                    <input type="text" data-autocomplete-list="food" data-event-id="@Model.EventId" data-person-id="@Model.PersonId" />
+                    <a href="javascript:;" data-open-modal="add-food-item">Add to my food list</a>
                     <div class="food-list">
                         @Html.Partial("_FoodItemListTemplate", Model.WillBringTheseFoodItems)
                     </div>
@@ -92,10 +88,8 @@
                     @Html.LabelFor(model => model.WillBringTheseGames)
                 </div>
                 <div class="editor-field">
-                    <p>
-                        <input type="text" data-autocomplete-list="games" />
-                        <a href="javascript:;" data-open-modal="add-game-item">Add to my games list</a>
-                    </p>
+                    <input type="text" data-autocomplete-list="games" />
+                    <a href="javascript:;" data-open-modal="add-game-item">Add to my games list</a>
                     <div class="game-list">
                         @Html.Partial("_GameListTemplate", Model.WillBringTheseGames)
                     </div>

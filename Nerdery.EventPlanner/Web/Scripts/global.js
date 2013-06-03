@@ -4,12 +4,17 @@
     // DOM Ready Function
     $(function () {
         APP.Calendars.init();
+        APP.Events.init();
         APP.Autocomplete.init();
         APP.Tabs.init();
         APP.Modals.init();
     });
 
     APP.Events = {
+        $delimieter: null,
+        init: function () {
+            $delimieter = "╫";
+        },
         getSingleFoodItem: function (foodItemId, callback) {
             APP.Ajax.call("/Service/GetSingleFoodItem", { foodItemId: foodItemId }, callback);
         },
@@ -158,7 +163,7 @@
             var text = (response.Data.FirstName == null || response.Data.LastName == null)
                 ? response.Data.UserName
                 : response.Data.FirstName + " " + response.Data.LastName;
-            var value = (id == 0) ? email + "╫" + response.Data.FirstName + "╫" + response.Data.LastName : id;
+            var value = (id == 0) ? email + $delimieter + response.Data.FirstName + $delimieter + response.Data.LastName : id;
             $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
             APP.Autocomplete.addSelectedItem(controlId, value);
 
@@ -169,6 +174,7 @@
 
             EventPlanner.Modals.dismiss(actionKey);
         },
+        //This is not being used at the moment because there is no way to send a facebook invitation via the Graph API
         addFacebookInvites: function (controlId) {
             var selectedCheckBoxes = $("input:checkbox:checked.facebook-invites");
             var facebookInviteValues = selectedCheckBoxes.map(function () {
@@ -273,18 +279,12 @@
         init: function () {
             //Setup select 2 stuff...
             $selectControls = $('.fancy-list-box');
+            
             var friendLists = $.grep($selectControls, function (select) {
                 return $(select).data("placeholder-type") == "friend-list";
             });
-            var foodLists = $.grep($selectControls, function (select) {
-                return $(select).data("placeholder-type") == "food-list";
-            });
-            var gameLists = $.grep($selectControls, function (select) {
-                return $(select).data("placeholder-type") == "game-list";
-            });
+
             $(friendLists).select2({ placeholder: "Click here to see a list of your friends... " });
-            $(foodLists).select2({ placeholder: "Click here to see a list of your munchies... " });
-            $(gameLists).select2({ placeholder: "Click here to see a list of your games... " });
 
             //jQuery autocomplete
             var callback = function (response) {
