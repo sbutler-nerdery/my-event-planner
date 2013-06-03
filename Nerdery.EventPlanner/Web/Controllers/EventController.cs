@@ -276,32 +276,6 @@ namespace Web.Controllers
             //Ids of friends who have declined
             var declinedIds = dataModel.PeopleWhoDeclined.Select(x => x.PersonId);
 
-            //Ids of friends who are invited
-            var invitedIds =
-                dataModel.RegisteredInvites
-                    .Where(x => !acceptedIds.Contains(x.PersonId) && !declinedIds.Contains(x.PersonId))
-                    .Select(x => x.PersonId);
-
-            //Friends who are invited
-            coordinator.MyRegisteredFriends
-                             .Where(x => invitedIds.Contains(x.PersonId))
-                             .ToList()
-                             .ForEach(
-                                 x => people.Add(new SelectListItem
-                                 {
-                                     Value = x.PersonId.ToString(),
-                                     Text = (x.FirstName == null || x.LastName == null) ? x.UserName : x.FirstName + " " + x.LastName
-                                 }));
-
-            coordinator.MyNonRegisteredFriends
-                             .ToList()
-                             .ForEach(
-                                 x => people.Add(new SelectListItem
-                                 {
-                                     Value = (x.Email != null) ? x.Email + "|" + x.FirstName + "|" + x.LastName : x.FacebookId + "|" + x.FirstName + " " + x.LastName,
-                                     Text = x.FirstName + " " + x.LastName
-                                 }));
-
             //Friends who have accepted
             coordinator.MyRegisteredFriends
                              .Where(x => acceptedIds.Contains(x.PersonId))
@@ -322,6 +296,26 @@ namespace Web.Controllers
                                  {
                                      Value = x.PersonId.ToString(),
                                      Text = (x.FirstName == null || x.LastName == null) ? x.UserName : x.FirstName + " " + x.LastName + " (declined)"
+                                 }));
+
+            //Everone else
+            coordinator.MyRegisteredFriends
+                             .Where(x => !acceptedIds.Contains(x.PersonId) && !declinedIds.Contains(x.PersonId))
+                             .ToList()
+                             .ForEach(
+                                 x => people.Add(new SelectListItem
+                                 {
+                                     Value = x.PersonId.ToString(),
+                                     Text = (x.FirstName == null || x.LastName == null) ? x.UserName : x.FirstName + " " + x.LastName
+                                 }));
+
+            coordinator.MyNonRegisteredFriends
+                             .ToList()
+                             .ForEach(
+                                 x => people.Add(new SelectListItem
+                                 {
+                                     Value = (x.Email != null) ? x.Email + "|" + x.FirstName + "|" + x.LastName : x.FacebookId + "|" + x.FirstName + " " + x.LastName,
+                                     Text = x.FirstName + " " + x.LastName
                                  }));
 
             model.PeopleList = new MultiSelectList(people, "Value", "Text");
