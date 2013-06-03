@@ -17,10 +17,8 @@
         <div class="content-wrapper">
             <hgroup class="title">
                 <h1>@Model.Title</h1>
+                <h2>starts on @Model.StartDate.Value.ToShortDateString() and goes from @Model.StartTime to @Model.EndTime</h2>
             </hgroup>
-            <p>
-                This event starts on @Model.StartDate.Value.ToShortDateString() and goes from @Model.StartTime to @Model.EndTime
-            </p>
             <p>
                 @Model.Description
             </p>
