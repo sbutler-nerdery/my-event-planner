@@ -93,3 +93,6 @@ C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debu
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\DotNetOpenAuth.OpenId.xml
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\Org.Mentalis.Security.Cryptography.xml
 C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\Mono.Math.xml
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\SendGridMail.dll
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\RestSharp.dll
+C:\Development\Personal\my-event-planner\Nerdery.EventPlanner\Web.Tests\bin\Debug\RestSharp.xml

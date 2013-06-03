@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Mail;
 using System.Web;
+using SendGridMail;
+using SendGridMail.Transport;
 using Web.Data;
 using Web.Data.Models;
 using Web.Extensions;
@@ -41,12 +44,37 @@ namespace Web.Services
             {
                 if (eventPlannerNotification.SendToEmail)
                 {
-                    var email = new MailMessage();
-                    email.To.Add(eventPlannerNotification.Email);
-                    email.IsBodyHtml = true;
-                    email.Subject = eventPlannerNotification.Title;
-                    email.Body = eventPlannerNotification.Message;
-                    _emailClient.Send(email);
+                    //var email = new MailMessage();
+                    //email.To.Add(eventPlannerNotification.Email);
+                    //email.IsBodyHtml = true;
+                    //email.Subject = eventPlannerNotification.Title;
+                    //email.Body = eventPlannerNotification.Message;
+                    //_emailClient.Send(email);
+
+                    //Use Azure sendgrid for email stuff
+                    // Setup the email properties.
+                    var from = new MailAddress("noreply@eventplanner.net");
+                    var to = new [] { new MailAddress(eventPlannerNotification.Email) };
+                    var cc = new MailAddress[0];
+                    var bcc = new MailAddress[0];
+                    var subject = eventPlannerNotification.Title;
+                    var html = eventPlannerNotification.Message;
+                    var text = eventPlannerNotification.Message;
+
+                    // Create an email, passing in the the eight properties as arguments.
+                    var emailMessage = SendGrid.GetInstance(from, to, cc, bcc, subject, html, text);
+
+                    // Create network credentials to access your SendGrid account.
+                    var username = "azure_ee7157f9810b7c7e83ffcc1febc5a652@azure.com";
+                    var pswd = "jqj9ikpj";
+
+                    var credentials = new NetworkCredential(username, pswd);
+
+                    // Create an SMTP transport for sending email.
+                    var transportSMTP = SMTP.GetInstance(credentials);
+
+                    // Send the email.
+                    transportSMTP.Deliver(emailMessage);
                 }
             }
         }
