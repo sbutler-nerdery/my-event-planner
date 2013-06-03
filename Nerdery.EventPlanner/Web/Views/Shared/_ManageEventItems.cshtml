@@ -20,7 +20,7 @@
                 @Html.LabelFor(model => model.AddFoodItem.Description)
             </div>
             <div class="editor-field">
-                @Html.EditorFor(model => model.AddFoodItem.Description)
+                @Html.TextAreaFor(model => model.AddFoodItem.Description)
                 @Html.ValidationMessageFor(model => model.AddFoodItem.Description)
             </div>    
             @Html.HiddenFor(m => m.PersonId)
@@ -51,7 +51,7 @@
                 @Html.LabelFor(model => model.AddGameItem.Description)
             </div>
             <div class="editor-field">
-                @Html.EditorFor(model => model.AddGameItem.Description)
+                @Html.TextAreaFor(model => model.AddGameItem.Description)
                 @Html.ValidationMessageFor(model => model.AddGameItem.Description)
             </div>    
             @Html.HiddenFor(m => m.PersonId)
@@ -82,7 +82,7 @@
                 @Html.LabelFor(model => model.UpdateFoodItem.Description)
             </div>
             <div class="editor-field">
-                @Html.EditorFor(model => model.UpdateFoodItem.Description)
+                @Html.TextAreaFor(model => model.UpdateFoodItem.Description)
                 @Html.ValidationMessageFor(model => model.UpdateFoodItem.Description)
             </div>    
             @Html.HiddenFor(m => m.UpdateFoodItem.FoodItemId)
@@ -114,7 +114,7 @@
                 @Html.LabelFor(model => model.UpdateGameItem.Description)
             </div>
             <div class="editor-field">
-                @Html.EditorFor(model => model.UpdateGameItem.Description)
+                @Html.TextAreaFor(model => model.UpdateGameItem.Description)
                 @Html.ValidationMessageFor(model => model.UpdateGameItem.Description)
             </div>    
             @Html.HiddenFor(m => m.UpdateGameItem.GameId)
