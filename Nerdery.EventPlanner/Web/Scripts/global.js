@@ -18,6 +18,27 @@
         getSingleFoodItem: function (foodItemId, callback) {
             APP.Ajax.call("/Service/GetSingleFoodItem", { foodItemId: foodItemId }, callback);
         },
+        viewFoodItem: function (foodItemId, actionKey) {
+            //Get single item from the database
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var foodItem = response.Data;
+
+                //Set the appropriate form values
+                var dialog = $("[data-action=view-food-item]").first();
+                dialog.find(".food-title").html(foodItem.Title);
+                dialog.find(".food-description").html(foodItem.Description);
+
+                //Open the dialog box for the specified action key
+                APP.Modals.open(actionKey);
+            };
+
+            APP.Events.getSingleFoodItem(foodItemId, callback);
+        },
         refreshFoodItems: function (actionKey, response) {
             if (response.Error) {
                 alert(response.Message);
@@ -84,6 +105,27 @@
         },
         getSingleGame: function (gameId, callback) {
             APP.Ajax.call("/Service/GetSingleGame", { gameId: gameId }, callback);
+        },
+        viewGame: function (gameId, actionKey) {
+            //Get single item from the database
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var game = response.Data;
+
+                //Set the appropriate form values
+                var dialog = $("[data-action=view-game]").first();
+                dialog.find(".game-title").html(game.Title);
+                dialog.find(".game-description").html(game.Description);
+
+                //Open the dialog box for the specified action key
+                APP.Modals.open(actionKey);
+            };
+
+            APP.Events.getSingleGame(gameId, callback);
         },
         refreshGames: function (actionKey, response) {
             if (response.Error) {

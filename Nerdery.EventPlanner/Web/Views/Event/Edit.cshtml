@@ -109,7 +109,7 @@
                         <ul>
                             @foreach (var food in foodOtherPeopleAreBringing)
                             {
-                                <li>@food.Title</li>
+                                <li><a href="javascript:EventPlanner.Events.viewFoodItem(@food.FoodItemId,'view-food-item');">@food.Title</a></li>
                             }
                         </ul>
                     }
@@ -127,7 +127,7 @@
                         <ul>
                             @foreach (var game in gamesOtherPeopleAreBringing)
                             {
-                                <li>@game.Title</li>
+                                <li><a href="javascript:EventPlanner.Events.viewGame(@game.GameId,'view-game');">@game.Title</a></li>
                             }
                         </ul>
                     }
