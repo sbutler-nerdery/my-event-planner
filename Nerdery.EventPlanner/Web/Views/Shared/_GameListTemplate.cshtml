@@ -13,7 +13,7 @@
             var game = Model.ToArray()[i];
             <li>
                 @game.Title
-                <a href="javascript:EventPlanner.Events.updateGame(@game.EventId, 'update-game-item');">Update</a>
+                <a href="javascript:EventPlanner.Events.updateGame(@game.GameId, 'update-game-item');">Update</a>
                 <a href="javascript:EventPlanner.Events.removeGame(@game.EventId, @game.GameId);">Remove</a>
                 <input type="hidden" name="WillBringTheseGames[@game.Index].GameId" value="@game.GameId"/>
                 <input type="hidden" name="WillBringTheseGames[@game.Index].Title" value="@game.Title"/>

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using Web.Data;
 using Web.Data.Models;
 using Web.Extensions;
+using Web.Helpers;
 using Web.Services;
 using Web.ViewModels;
 using WebMatrix.WebData;
@@ -20,7 +21,6 @@ namespace Web.Controllers
     /// </summary>
     public class ServiceController : BaseController
     {
-
         #region Fields
 
         private readonly IRepository<Event> _eventRepository;
@@ -47,6 +47,45 @@ namespace Web.Controllers
         #endregion
 
         #region Methods
+
+        #region Find User
+
+        /// <summary>
+        /// Find out if the user's email address already exists in the system.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult FindUserByEmail(EditEventViewModel model)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                var exists = _personRepository.GetAll().FirstOrDefault(x => x.Email == model.EmailInvite.Email);
+
+                var userName = model.EmailInvite.FirstName + " " + model.EmailInvite.LastName;
+                response.Data = new { PersonId = 0, model.EmailInvite.Email, UserName = userName, model.EmailInvite.FirstName, model.EmailInvite.LastName, model.EmailInvite.InviteControlId };
+
+                if (exists != null)
+                {
+                    response.Data = new { exists.PersonId, exists.Email, exists.UserName, exists.FirstName, exists.LastName, model.EmailInvite.InviteControlId };
+                }
+            }
+            catch (Exception ex)
+            {
+                //TODO: write to database
+                response.Error = true;
+                response.Message = "Error while trying to retrieve user account by email.";
+            }
+
+            return Json(response);
+        }
+
+        #endregion
+
+        #region Food Items
+
         /// <summary>
         /// Get a list of all food items belonging to the current user
         /// </summary>
@@ -58,10 +97,11 @@ namespace Web.Controllers
 
             try
             {
-                var theEvent = GetEventById(eventId);
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+                //Get list of pending food ids for this event from session
+                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(eventId);
+                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
 
-                var foodList = GetNonSelectedFoodItems(theEvent, thePerson)
+                var foodList = GetNonSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, eventId)
                     .Where(x => x.Title.ToLower().Contains(contains.ToLower()));
 
                 response.Data = foodList;
@@ -110,21 +150,25 @@ namespace Web.Controllers
 
             try
             {
-                //Get the event 
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == model.EventId);
-
                 //Add to the food items table if it doesn't exist
                 var newFoodItem = new FoodItem { Title = model.AddFoodItem.Title, Description = model.AddFoodItem.Description };
                 _foodRepository.Insert(newFoodItem);
                 _foodRepository.SubmitChanges();
 
-                //Add to the user's collection of food items
+                //Add to the user's personal list of food items
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
                 thePerson.MyFoodItems.Add(newFoodItem);
-                theEvent.FoodItems.Add(newFoodItem);
+
+                //Add the pending food item to session
+                SessionHelper.Events.AddFoodItem(newFoodItem.FoodItemId, model.EventId);
+                SessionHelper.Person.AddFoodItem(newFoodItem.FoodItemId, model.PersonId);
+
+                //Get list of pending food ids for this event from session
+                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(model.EventId);
+                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(model.PersonId);
 
                 //Populate the food items already ing brought
-                var foodList = GetSelectedFoodItems(theEvent, thePerson);
+                var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, model.EventId);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
 
                 //Save to the database if no errors have occurred
@@ -153,24 +197,20 @@ namespace Web.Controllers
 
             try
             {
-                //Get the event 
-                var theEvent = GetEventById(eventId);
-
-                //Get the person
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-
-                //Get the food item
+                //Get the food item id
                 var foodItem = _foodRepository.GetAll().FirstOrDefault(x => x.FoodItemId == foodItemId);
 
-                //Add to the event (but don't save it yet... this is just for building the correct view model)
-                theEvent.FoodItems.Add(foodItem);
+                //Add the pending food item to session
+                SessionHelper.Events.AddFoodItem(foodItem.FoodItemId, eventId);
+                SessionHelper.Person.AddFoodItem(foodItem.FoodItemId, personId);
+
+                //Get list of pending food ids for this event from session
+                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(eventId);
+                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
 
                 //Populate the food items already ing brought
-                var foodList = GetSelectedFoodItems(theEvent, thePerson);
+                var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, eventId);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
-
-                //Save to the database last
-                _personRepository.SubmitChanges();
             }
             catch (Exception)
             {
@@ -201,10 +241,11 @@ namespace Web.Controllers
                 updateMe.Title = model.UpdateFoodItem.Title;
                 updateMe.Description = model.UpdateFoodItem.Description;
 
-                var clonedList = CopyFoodList(theEvent);
-                UpdateEventFoodItem(updateMe, clonedList);
+                //Get list of pending food ids for this event from session
+                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(model.EventId);
+                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
 
-                var foodList = GetSelectedFoodItems(theEvent, thePerson);
+                var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, model.EventId);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
 
                 //Save to the database last
@@ -233,14 +274,16 @@ namespace Web.Controllers
             try
             {
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
-                //Remove from the event
-                var theEvent = GetEventById(eventId); ;
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-                var removeMe = _foodRepository.GetAll().FirstOrDefault(x => x.FoodItemId == foodItemId);
 
-                theEvent.FoodItems.Remove(removeMe);
+                //Remove from the list
+                SessionHelper.Events.RemoveFoodItem(foodItemId, eventId);
 
-                var foodList = GetSelectedFoodItems(theEvent, thePerson);
+                //Get list of pending food ids for this event from session
+                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(eventId);
+                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
+
+                var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, eventId);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
 
                 //Save to the database last and only if the event exists in the database
@@ -256,6 +299,11 @@ namespace Web.Controllers
 
             return Json(response);
         }
+
+        #endregion
+
+        #region Games
+
         /// <summary>
         /// Get a list of all games belonging to the current user
         /// </summary>
@@ -267,9 +315,11 @@ namespace Web.Controllers
 
             try
             {
-                var theEvent = GetEventById(eventId);
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-                response.Data = GetNonSelectedGames(theEvent, thePerson)
+                //Get list of pending game ids for this event from session
+                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(eventId);
+                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(personId);
+
+                response.Data = GetNonSelectedGames(pendingEventGameIds, pendingPersonGameIds, eventId)
                     .Where(x => x.Title.ToLower().Contains(contains.ToLower()));
             }
             catch (Exception)
@@ -316,21 +366,25 @@ namespace Web.Controllers
 
             try
             {
-                //Get the event 
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == model.EventId);
-
-                //Add to the food items table if it doesn't exist
+                //Add to the games table if it doesn't exist
                 var newGame = new Game { Title = model.AddGameItem.Title, Description = model.AddGameItem.Description};
                 _gameRepository.Insert(newGame);
                 _gameRepository.SubmitChanges();
 
-                //Add to the user's collection of games
+                //Add to the user's personal list of food items
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
                 thePerson.MyGames.Add(newGame);
-                theEvent.Games.Add(newGame);
+
+                //Add the pending game to session
+                SessionHelper.Events.AddGame(newGame.GameId, model.EventId);
+                SessionHelper.Person.AddGame(newGame.GameId, model.PersonId);
+
+                //Get list of pending game ids for this event from session
+                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(model.EventId);
+                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(model.PersonId);
 
                 //Populate the games already ing brought
-                var gameList = GetSelectedGames(theEvent, thePerson);
+                var gameList = GetSelectedGames(pendingEventGameIds, pendingPersonGameIds, model.EventId);
                 response.Data = RenderRazorViewToString("_GameListTemplate", gameList);
 
                 //Save to the database last
@@ -359,24 +413,17 @@ namespace Web.Controllers
 
             try
             {
-                //Get the event 
-                var theEvent = GetEventById(eventId);
+                //Add the pending game to session
+                SessionHelper.Events.AddGame(gameId, eventId);
+                SessionHelper.Person.AddGame(gameId, personId);
 
-                //Get the person
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-
-                //Get the game
-                var game = _gameRepository.GetAll().FirstOrDefault(x => x.GameId == gameId);
-
-                //Add to the event (but don't save it yet... this is just for building the correct view model)
-                theEvent.Games.Add(game);
+                //Get list of pending game ids for this event from session
+                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(eventId);
+                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(personId);
 
                 //Populate the games already ing brought
-                var gameList = GetSelectedGames(theEvent, thePerson);
+                var gameList = GetSelectedGames(pendingEventGameIds, pendingPersonGameIds, eventId);
                 response.Data = RenderRazorViewToString("_GameListTemplate", gameList);
-
-                //Save to the database last
-                _personRepository.SubmitChanges();
             }
             catch (Exception)
             {
@@ -400,7 +447,6 @@ namespace Web.Controllers
             try
             {
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
-                var theEvent = GetEventById(model.EventId); ;
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
 
                 //Update the food item
@@ -408,10 +454,11 @@ namespace Web.Controllers
                 updateMe.Title = model.UpdateGameItem.Title;
                 updateMe.Description = model.UpdateGameItem.Description;
 
-                var clonedList = CopyGameList(theEvent);
-                UpdateEventGame(updateMe, clonedList);
+                //Get list of pending food ids for this event from session
+                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(model.EventId);
+                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
 
-                var selectedGames = GetSelectedGames(theEvent, thePerson);
+                var selectedGames = GetSelectedGames(pendingEventFoodItemIds, pendingPersonFoodItemIds, model.EventId);
                 response.Data = RenderRazorViewToString("_GameListTemplate", selectedGames);
 
                 //Save to the database last
@@ -439,15 +486,17 @@ namespace Web.Controllers
 
             try
             {
+                //Get the person id
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
+
                 //Remove from the event
-                var theEvent = GetEventById(eventId);
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-                var removeMe = _gameRepository.GetAll().FirstOrDefault(x => x.GameId == gameId);
+                SessionHelper.Events.RemoveGame(gameId, eventId);
 
-                theEvent.Games.Remove(removeMe);
+                //Get list of pending game ids for this event from session
+                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(eventId);
+                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(personId);
 
-                var gameList = GetSelectedGames(theEvent, thePerson);
+                var gameList = GetSelectedGames(pendingEventGameIds, pendingPersonGameIds, eventId);
                 response.Data = RenderRazorViewToString("_GameListTemplate", gameList);
 
                 //Save to the database last
@@ -463,10 +512,16 @@ namespace Web.Controllers
 
             return Json(response);
         }
+
+        #endregion
+
+        #region Other
+
         /// <summary>
         /// Get a list of the times that are used to autocomplete an event's start and end time.
         /// </summary>
         /// <returns></returns>
+        /// 
         [HttpPost]
         public ActionResult GetTimeList()
         {
@@ -493,36 +548,8 @@ namespace Web.Controllers
         {
             return Json("");
         }
-        /// <summary>
-        /// Find out if the user's email address already exists in the system.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public ActionResult FindUserByEmail(EditEventViewModel model)
-        {
-            var response = new Response { Error = false };
 
-            try
-            {
-                var exists = _personRepository.GetAll().FirstOrDefault(x => x.Email == model.EmailInvite.Email);
-
-                var userName = model.EmailInvite.FirstName + " " + model.EmailInvite.LastName;
-                response.Data = new { PersonId = 0, model.EmailInvite.Email, UserName = userName, model.EmailInvite.FirstName, model.EmailInvite.LastName, model.EmailInvite.InviteControlId };
-
-                if(exists != null){
-                    response.Data = new { exists.PersonId, exists.Email, exists.UserName, exists.FirstName, exists.LastName, model.EmailInvite.InviteControlId };
-                }
-            }
-            catch (Exception ex)
-            {
-                //TODO: write to database
-                response.Error = true;
-                response.Message = "Error while trying to retrieve user account by email.";
-            }
-
-            return Json(response);
-        }
+        #endregion
 
         #endregion
 
@@ -548,80 +575,72 @@ namespace Web.Controllers
             }
         }
 
-        private List<FoodItemViewModel> GetSelectedFoodItems(Event theEvent, Person thePerson)
+        private List<FoodItemViewModel> GetSelectedFoodItems(List<int> eventFoodItemIds, List<int> personFoodItemIds, int eventId)
         {
             var foodList = new List<FoodItemViewModel>();
-            var eventFoodItemIds = theEvent.FoodItems.Select(x => x.FoodItemId);
-            var myFoodItemIds = thePerson.MyFoodItems.Select(x => x.FoodItemId);
-            var selectedFoodItemIds = myFoodItemIds.Intersect(eventFoodItemIds);
-            var remainingFoodItems = theEvent.FoodItems
+            var selectedFoodItemIds = personFoodItemIds.Intersect(eventFoodItemIds);
+            var remainingFoodItems = _foodRepository.GetAll()
+                .Where(x => selectedFoodItemIds.Contains(x.FoodItemId))
+                .OrderBy(x => x.Title).ToList();
+            remainingFoodItems.ForEach(x =>
+                {
+                    var viewModel = new FoodItemViewModel(x);
+                    viewModel.Index = remainingFoodItems.IndexOf(x);
+                    viewModel.EventId = eventId;
+                    foodList.Add(viewModel);
+                });
+
+            return foodList;
+        }
+
+        private List<FoodItemViewModel> GetNonSelectedFoodItems(List<int> eventFoodItemIds, List<int> personFoodItemIds, int eventId)
+        {
+            var foodList = new List<FoodItemViewModel>();
+            var selectedFoodItemIds = personFoodItemIds.Where(x => !eventFoodItemIds.Contains(x));
+            var remainingFoodItems = _foodRepository.GetAll()
                 .Where(x => selectedFoodItemIds.Contains(x.FoodItemId))
                 .OrderBy(x => x.Title).ToList();
             remainingFoodItems.ForEach(x =>
             {
                 var viewModel = new FoodItemViewModel(x);
                 viewModel.Index = remainingFoodItems.IndexOf(x);
-                viewModel.EventId = theEvent.EventId;
+                viewModel.EventId = eventId;
                 foodList.Add(viewModel);
             });
 
             return foodList;
         }
 
-        private List<FoodItemViewModel> GetNonSelectedFoodItems(Event theEvent, Person thePerson)
-        {
-            var foodList = new List<FoodItemViewModel>();
-            var eventFoodItemIds = theEvent.FoodItems.Select(x => x.FoodItemId);
-            var myFoodItemIds = thePerson.MyFoodItems.Select(x => x.FoodItemId);
-            var selectedFoodItemIds = myFoodItemIds.Where(x => !eventFoodItemIds.Contains(x));
-            var remainingFoodItems = thePerson.MyFoodItems
-                .Where(x => selectedFoodItemIds.Contains(x.FoodItemId))
-                .OrderBy(x => x.Title).ToList();
-            remainingFoodItems.ForEach(x =>
-            {
-                var viewModel = new FoodItemViewModel(x);
-                viewModel.Index = remainingFoodItems.IndexOf(x);
-                viewModel.EventId = theEvent.EventId;
-                foodList.Add(viewModel);
-            });
-
-            return foodList;
-        }
-
-        private List<GameViewModel> GetSelectedGames(Event theEvent, Person thePerson)
+        private List<GameViewModel> GetSelectedGames(List<int> eventGameIds, List<int> personGameIds, int eventId)
         {
             var gameList = new List<GameViewModel>();
-            var eventGameIds = theEvent.Games.Select(x => x.GameId);
-            var myGameIds = thePerson.MyGames.Select(x => x.GameId);
-            var selectedGamesIds = myGameIds.Intersect(eventGameIds);
-            var remainingGames = theEvent.Games
+            var selectedGamesIds = personGameIds.Intersect(eventGameIds);
+            var remainingGames = _gameRepository.GetAll()
                 .Where(x => selectedGamesIds.Contains(x.GameId))
                 .OrderBy(x => x.Title).ToList();
             remainingGames.ForEach(x =>
-            {
-                var viewModel = new GameViewModel(x);
-                viewModel.Index = remainingGames.IndexOf(x);
-                viewModel.EventId = theEvent.EventId;
-                gameList.Add(viewModel);
+                {
+                    var viewModel = new GameViewModel(x);
+                    viewModel.Index = remainingGames.IndexOf(x);
+                    viewModel.EventId = eventId;
+                    gameList.Add(viewModel);
             });
 
             return gameList;
         }
 
-        private List<GameViewModel> GetNonSelectedGames(Event theEvent, Person thePerson)
+        private List<GameViewModel> GetNonSelectedGames(List<int> eventGameIds, List<int> personGameIds, int eventId)
         {
             var gameList = new List<GameViewModel>();
-            var eventGameIds = theEvent.Games.Select(x => x.GameId);
-            var myGameIds = thePerson.MyGames.Select(x => x.GameId);
-            var selectedGamesIds = myGameIds.Where(x => !eventGameIds.Contains(x));
-            var remainingGames = thePerson.MyGames
+            var selectedGamesIds = personGameIds.Where(x => !eventGameIds.Contains(x));
+            var remainingGames = _gameRepository.GetAll()
                 .Where(x => selectedGamesIds.Contains(x.GameId))
                 .OrderBy(x => x.Title).ToList();
             remainingGames.ForEach(x =>
             {
                 var viewModel = new GameViewModel(x);
                 viewModel.Index = remainingGames.IndexOf(x);
-                viewModel.EventId = theEvent.EventId;
+                viewModel.EventId = eventId;
                 gameList.Add(viewModel);
             });
 
@@ -635,60 +654,6 @@ namespace Web.Controllers
                                 : new Event { Games = new List<Game>(), FoodItems = new List<FoodItem>() };
 
             return theEvent;
-        }
-
-        private void UpdateEventFoodItem(FoodItem food, ICollection<FoodItemViewModel> foodItems)
-        {
-            var updateMe = foodItems.FirstOrDefault(x => x.FoodItemId == food.FoodItemId);
-
-            //This the event has not been created yet, then it will not have a list of food items... so we add it
-            if (updateMe == null)
-                foodItems.Add(new FoodItemViewModel(food));
-            else
-            {
-                //Else we update the existing food items properties so that the user see the changes in the view model
-                updateMe.Title = food.Title;
-                updateMe.Description = food.Description;
-            }
-        }
-
-        private void UpdateEventGame(Game game, ICollection<GameViewModel> gameList)
-        {
-            var updateMe = gameList.FirstOrDefault(x => x.GameId == game.GameId);
-
-            //This the event has not been created yet, then it will not have a list of food items... so we add it
-            if (updateMe == null)
-                gameList.Add(new GameViewModel(game));
-            else
-            {
-                //Else we update the existing food items properties so that the user see the changes in the view model
-                updateMe.Title = game.Title;
-                updateMe.Description = game.Description;
-            }
-        }
-
-        /// <summary>
-        /// Copy a list of event food items into a list of foodviewmodels
-        /// </summary>
-        /// <param name="theEvent"></param>
-        /// <returns></returns>
-        private List<FoodItemViewModel> CopyFoodList(Event theEvent)
-        {
-            var clonedList = new List<FoodItemViewModel>();
-            theEvent.FoodItems.ForEach(x => clonedList.Add(new FoodItemViewModel(x)));
-            return clonedList;
-        }
-
-        /// <summary>
-        /// Copy a list of event food items into a list of foodviewmodels
-        /// </summary>
-        /// <param name="theEvent"></param>
-        /// <returns></returns>
-        private List<GameViewModel> CopyGameList(Event theEvent)
-        {
-            var clonedList = new List<GameViewModel>();
-            theEvent.Games.ForEach(x => clonedList.Add(new GameViewModel(x)));
-            return clonedList;
         }
 
         #endregion

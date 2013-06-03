@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Web.Data;
 using Web.Data.Models;
 using Web.Extensions;
+using Web.Helpers;
 using Web.Services;
 using Web.ViewModels;
 
@@ -55,6 +56,11 @@ namespace Web.Controllers
                     };
 
                 var model = GetViewModel(dataModel);
+                var personId = _userService.GetCurrentUserId(User.Identity.Name);
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+
+                //Setup session
+                SetupSession(GetEventById(0), thePerson);
 
                 return View(model);
             }
@@ -124,8 +130,13 @@ namespace Web.Controllers
         {
             try
             {
-                var dataModel = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == id);
-                var model = GetViewModel(dataModel);
+                var personId = _userService.GetCurrentUserId(User.Identity.Name);
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == id);
+                var model = GetViewModel(theEvent);
+
+                //Setup session
+                SetupSession(theEvent, thePerson);
 
                 //Nothing to report if everything succeeds
                 ViewBag.StatusMessage = string.Empty;
@@ -481,6 +492,28 @@ namespace Web.Controllers
 
             _notificationService.SendNotifications(notifications);
         }
+
+        private void SetupSession(Event theEvent, Person thePerson)
+        {
+            //Reset the session manager
+            SessionHelper.Events.Reset(theEvent.EventId);
+            SessionHelper.Person.Reset(thePerson.PersonId);
+
+            //Build out the list of food and games items in session
+            theEvent.FoodItems.ForEach(x => SessionHelper.Events.AddFoodItem(x.FoodItemId, theEvent.EventId));
+            theEvent.Games.ForEach(x => SessionHelper.Events.AddGame(x.GameId, theEvent.EventId));
+            thePerson.MyFoodItems.ForEach(x => SessionHelper.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
+            thePerson.MyGames.ForEach(x => SessionHelper.Person.AddGame(x.GameId, thePerson.PersonId));
+        }
+
+        private Event GetEventById(int eventId)
+        {
+            var theEvent = (eventId != 0)
+                                ? _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId)
+                                : new Event { Games = new List<Game>(), FoodItems = new List<FoodItem>() };
+
+            return theEvent;
+        }        
 
         #endregion
 
