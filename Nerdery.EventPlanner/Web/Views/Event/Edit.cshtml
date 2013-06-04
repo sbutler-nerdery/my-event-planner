@@ -148,7 +148,7 @@
         @Html.Partial("_ManageEventItems", Model)
     }
 <div>
-    @Html.ActionLink("Cancel Event", "Delete", new { id = Model.EventId })            
+    @Html.ActionLink("Cancel Event", "Delete", new { id = Model.EventId }, new { onclick = "return confirm('Are you sure you want to permanently delete this event?')" })            
 </div>
 <div>
     @Html.ActionLink("Back to Dashboard", "Index","Home")

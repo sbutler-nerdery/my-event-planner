@@ -27,7 +27,7 @@
     <ul>
         @foreach (var item in Model.MyEvents)
         {
-            <li>@item.Title - @Html.ActionLink("Edit", "Edit", "Event", new { id = item.EventId}, null) | @Html.ActionLink("Cancel", "Delete", "Event", new { id = item.EventId}, null)</li>
+            <li>@item.Title - @Html.ActionLink("Edit", "Edit", "Event", new { id = item.EventId}, null) | @Html.ActionLink("Cancel", "Delete", "Event", new { id = item.EventId}, new { onclick = "return confirm('Are you sure you want to permanently delete this event?')" })</li>
         }
     </ul>
     
