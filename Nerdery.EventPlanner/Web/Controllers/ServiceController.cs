@@ -233,9 +233,7 @@ namespace Web.Controllers
             try
             {
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
-                var theEvent = GetEventById(model.EventId); ;
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-
+  
                 //Update the food item
                 var updateMe = _foodRepository.GetAll().FirstOrDefault(x => x.FoodItemId == model.UpdateFoodItem.FoodItemId);
                 updateMe.Title = model.UpdateFoodItem.Title;
@@ -447,22 +445,21 @@ namespace Web.Controllers
             try
             {
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
 
                 //Update the food item
                 var updateMe = _gameRepository.GetAll().FirstOrDefault(x => x.GameId == model.UpdateGameItem.GameId);
                 updateMe.Title = model.UpdateGameItem.Title;
                 updateMe.Description = model.UpdateGameItem.Description;
 
+                //Save to the database last
+                _gameRepository.SubmitChanges();
+
                 //Get list of pending food ids for this event from session
-                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(model.EventId);
-                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
+                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingGames(model.EventId);
+                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingGames(personId);
 
                 var selectedGames = GetSelectedGames(pendingEventFoodItemIds, pendingPersonFoodItemIds, model.EventId);
                 response.Data = RenderRazorViewToString("_GameListTemplate", selectedGames);
-
-                //Save to the database last
-                _gameRepository.SubmitChanges();
             }
             catch (Exception)
             {
