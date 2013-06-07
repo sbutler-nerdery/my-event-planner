@@ -113,10 +113,6 @@ namespace Web.ViewModels
         /// Get or set the name of the control id used by the invite people dialog
         /// </summary>
         public string InviteControlId { get; set; }
-        /// <summary>
-        /// Get or set an event id this person is attending
-        /// </summary>
-        public int EventId { get; set; }
 
         #endregion
 

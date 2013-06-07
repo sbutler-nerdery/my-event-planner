@@ -175,11 +175,7 @@ namespace Web.Controllers
 
                 //Get list of pending invitation ids
                 var pendingEventInvitations = SessionHelper.Events.GetGuestList(model.EventId);
-                var personFriendsList = new List<int>();
-
-                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
-                //Make the pending ids negative to avoid conflicts with normal ids
-                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(-x.PendingInvitationId));
+                var personFriendsList = GetPersonFriendList(thePerson);
 
                 //Populate the guest list
                 var viewModel = GetEventViewModel(theEvent);
@@ -224,10 +220,7 @@ namespace Web.Controllers
 
                 //Get list of pending invitation ids
                 var pendingEventInvitations = SessionHelper.Events.GetGuestList(eventId);
-                var personFriendsList = new List<int>();
-
-                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
-                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(-x.PendingInvitationId));
+                var personFriendsList = GetPersonFriendList(thePerson);
 
                 //Populate the guset list
                 var viewModel = GetEventViewModel(theEvent);
@@ -317,10 +310,7 @@ namespace Web.Controllers
 
                 //Get list of pending invitation ids
                 var pendingEventInvitations = SessionHelper.Events.GetGuestList(eventId);
-                var personFriendsList = new List<int>();
-
-                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
-                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(x.PendingInvitationId));
+                var personFriendsList = GetPersonFriendList(thePerson);
 
                 //Populate the guset list
                 var viewModel = GetEventViewModel(theEvent);
@@ -914,7 +904,6 @@ namespace Web.Controllers
                 .ToList().ForEach(x =>
                 {
                     var viewModel = new PersonViewModel(x);
-                    viewModel.EventId = eventId;
                     guestList.Add(viewModel);
                 });
 
@@ -937,7 +926,6 @@ namespace Web.Controllers
                             Email = x.Email,
                             IsRegistered = false
                         };
-                    viewModel.EventId = eventId;
                     guestList.Add(viewModel);
                 });
 
@@ -954,7 +942,6 @@ namespace Web.Controllers
                 .ToList().ForEach(x =>
                 {
                     var viewModel = new PersonViewModel(x);
-                    viewModel.EventId = eventId;
                     guestList.Add(viewModel);
                 });
 
@@ -977,11 +964,21 @@ namespace Web.Controllers
                         Email = x.Email,
                         IsRegistered = false
                     };
-                    viewModel.EventId = eventId;
                     guestList.Add(viewModel);
                 });
 
             return guestList;
+        }
+
+        private List<int> GetPersonFriendList(Person thePerson)
+        {
+            var personFriendsList = new List<int>();
+
+            thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
+            //Make the pending ids negative to avoid conflicts with normal ids
+            thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(-x.PendingInvitationId));
+
+            return personFriendsList;
         }
         /// <summary>
         /// Get a new instance of the edit event view model with the accepted and declined attendee lists populated
@@ -991,6 +988,7 @@ namespace Web.Controllers
         private EditEventViewModel GetEventViewModel(Event theEvent)
         {
             var viewModel = new EditEventViewModel();
+            viewModel.EventId = theEvent.EventId;
             theEvent.PeopleWhoAccepted.ForEach(x => viewModel.PeopleWhoAccepted.Add(new PersonViewModel(x)));
             theEvent.PeopleWhoDeclined.ForEach(x => viewModel.PeopleWhoDeclined.Add(new PersonViewModel(x)));
 

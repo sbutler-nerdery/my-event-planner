@@ -261,7 +261,7 @@
                 list.html(response.Data);
             };
 
-            APP.Ajax.call("/Service/RemoveGame", { eventId: eventId, gameId: guestId }, callback);
+            APP.Ajax.call("/Service/RemoveGuest", { eventId: eventId, guestId: guestId }, callback);
         },
         updateGuest: function (guestId, actionKey) {
             //Get single item from the database
