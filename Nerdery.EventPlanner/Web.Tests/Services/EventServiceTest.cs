@@ -70,10 +70,9 @@ namespace Web.Tests.Services
         public void Invite_New_People_By_Email()
         {
             //Arrange
-            var template = "{0}{1}{2}{1}{3}";
-            var ben = new PersonViewModel{ PersonId = 1, Email = "ben@email.com", FirstName = "Ben", LastName = "Bufford" };
-            var dan = new PersonViewModel { PersonId = 2, Email = "dan@email.com", FirstName = "Dan", LastName = "Gidman" };
-            var herb = new PersonViewModel { PersonId = 3, Email = "herb@email.com", FirstName = "Herb", LastName = "Neese" };
+            var ben = new PersonViewModel{ PersonId = -1, Email = "ben@email.com", FirstName = "Ben", LastName = "Bufford" };
+            var dan = new PersonViewModel { PersonId = -2, Email = "dan@email.com", FirstName = "Dan", LastName = "Gidman" };
+            var herb = new PersonViewModel { PersonId = -3, Email = "herb@email.com", FirstName = "Herb", LastName = "Neese" };
             var viewModel = new EditEventViewModel { PeopleInvited = new List<PersonViewModel> { dan, herb } };
             var dataModel = new Event
             {

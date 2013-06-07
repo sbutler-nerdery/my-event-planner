@@ -39,14 +39,8 @@ namespace Web.ViewModels
                 {
                     if (x.Email != null)
                     {
-                        PeopleInvited.Add(new PersonViewModel{ FirstName = x.FirstName, LastName = x.LastName, Email = x.Email, IsRegistered = false});
+                        PeopleInvited.Add(new PersonViewModel{ PersonId = -x.PendingInvitationId, FirstName = x.FirstName, LastName = x.LastName, Email = x.Email, IsRegistered = false});
                     }
-
-                    //if (x.FacebookId != null)
-                    //{
-                    //    var value = string.Format("{0}|{1} {2}", x.FacebookId, x.FirstName, x.LastName);
-                    //    PeopleInvited.Add(value);                        
-                    //}
                 });
             if (model.PeopleWhoAccepted != null) model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(new PersonViewModel(x)));
             if (model.PeopleWhoDeclined != null) model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(new PersonViewModel(x)));

@@ -541,7 +541,13 @@ namespace Web.Controllers
         {
             var theEvent = (eventId != 0)
                                 ? _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId)
-                                : new Event { Games = new List<Game>(), FoodItems = new List<FoodItem>() };
+                                : new Event
+                                    {
+                                        Games = new List<Game>(), 
+                                        FoodItems = new List<FoodItem>(),
+                                        RegisteredInvites = new List<Person>(),
+                                        UnRegisteredInvites = new List<PendingInvitation>()
+                                    };
 
             return theEvent;
         }        

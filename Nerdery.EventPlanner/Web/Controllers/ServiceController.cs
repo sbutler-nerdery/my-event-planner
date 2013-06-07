@@ -252,7 +252,6 @@ namespace Web.Controllers
             try
             {
                 //Get the person
-                var personId = _userService.GetCurrentUserId(User.Identity.Name);
                 var thePerson = GetCurrentUser();
 
                 //Get the event
@@ -905,6 +904,7 @@ namespace Web.Controllers
                 .ToList().ForEach(x =>
                 {
                     var viewModel = new PersonViewModel(x);
+                    viewModel.IsRegistered = true;
                     guestList.Add(viewModel);
                 });
 
@@ -943,6 +943,7 @@ namespace Web.Controllers
                 .ToList().ForEach(x =>
                 {
                     var viewModel = new PersonViewModel(x);
+                    viewModel.IsRegistered = true;
                     guestList.Add(viewModel);
                 });
 

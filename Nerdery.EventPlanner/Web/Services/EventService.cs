@@ -206,7 +206,7 @@ namespace Web.Services
             //Find the existing user ids
             var dataPeopleIds = dataModel.RegisteredInvites.Select(x => x.PersonId).ToArray(); //Items in the database
             var newPeople = viewModel.PeopleInvited
-                .Where(x => x.PersonId != 0)
+                .Where(x => x.PersonId > 0)
                 .Where(x => !dataPeopleIds.Contains(x.PersonId)).ToList();
 
             //Add new people
@@ -334,39 +334,23 @@ namespace Web.Services
                 });
 
             //Process people without user accounts
-            var emailList = new List<string>();
-            //var facebookIdList = new List<string>();
-
-            viewModel.PeopleInvited.Where(x => x.PersonId == 0).Select(x => x.Email).ToList().ForEach(emailList.Add);
-
-            //viewModel.PeopleInvited.Where(x => x.Split(delimiter).Length == 2).ToList().ForEach(x =>
-            //{
-            //    var tempArray = x.Split(delimiter);
-            //    facebookIdList.Add(tempArray[0]);
-            //});
+            var unRegisteredIds = new List<int>();
+            viewModel.PeopleInvited.Where(x => x.PersonId < 0)
+                .Select(x => Math.Abs(x.PersonId)) //Note that we are making the ids posative... they are negative in the view model to keep from conflicting with registered ids
+                .ToList()
+                .ForEach(unRegisteredIds.Add);
 
             var deletedEmailInvites = dataModel.UnRegisteredInvites
-                .Where(x => !emailList.Contains(x.Email) && x.FacebookId == null)
-                .Select(x => x.Email).ToList();
-            //var deletedFacebookInvites = dataModel.NonRegisteredInvites
-            //    .Where(x => !facebookIdList.Contains(x.FacebookId) && x.Email == null)
-            //    .Select(x => x.FacebookId).ToList();
+                .Where(x => !unRegisteredIds.Contains(x.PendingInvitationId))
+                .Select(x => x.PendingInvitationId).ToList();
 
-            deletedEmailInvites.ForEach(email =>
+            deletedEmailInvites.ForEach(pendingId =>
             {
-                var removeInvitation = dataModel.UnRegisteredInvites.FirstOrDefault(y => y.Email == email);
+                var removeInvitation = dataModel.UnRegisteredInvites.FirstOrDefault(y => y.PendingInvitationId == pendingId);
 
                 //Remove from the invitation list
                 dataModel.UnRegisteredInvites.Remove(removeInvitation);
             });
-
-            //deletedFacebookInvites.ForEach(facebookId =>
-            //{
-            //    var removeInvitation = dataModel.NonRegisteredInvites.FirstOrDefault(y => y.FacebookId == facebookId);
-
-            //    //Remove from the invitation list
-            //    dataModel.NonRegisteredInvites.Remove(removeInvitation);
-            //});
         }
 
         public string GetSerializedModelState(Event dataModel)
