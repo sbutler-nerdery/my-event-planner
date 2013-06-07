@@ -1,10 +1,10 @@
 ﻿@model Web.ViewModels.EditEventViewModel
 
 <div data-dialog="true" title="Invite More People" data-action="invite-person-to-event">
-    @using (Ajax.BeginForm("FindUserByEmail", "Service", new AjaxOptions
+    @using (Ajax.BeginForm("AddNewGuest", "Service", new AjaxOptions
         {
             HttpMethod = "POST",
-            OnSuccess = "EventPlanner.Events.addEmailInvite",
+            OnSuccess = "EventPlanner.Events.refreshGuests('invite-person-to-event', data)",
             OnBegin = "EventPlanner.Modals.showLoader('invite-person-to-event')",
             OnComplete = "EventPlanner.Modals.hideLoader('invite-person-to-event')"
         }))
@@ -32,7 +32,8 @@
                 @Html.EditorFor(model => model.EmailInvite.Email)
                 @Html.ValidationMessageFor(model => model.EmailInvite.Email)
             </div>  
-            @Html.Hidden("EmailInvite.InviteControlId", "PeopleInvited")
+            @Html.HiddenFor(model => model.EventId)
+            @Html.HiddenFor(model => model.PersonId)
             <input type="submit" value="Send Invite" />
             <div class="loader"></div>
         </fieldset>                  

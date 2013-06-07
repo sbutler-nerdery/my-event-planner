@@ -142,7 +142,7 @@ namespace Web.Helpers
             /// </summary>
             /// <param name="eventId"></param>
             /// <returns></returns>
-            public static List<int> GetPendingInvites(int eventId)
+            public static List<int> GetGuestList(int eventId)
             {
                 var sessionKey = GetFoodSessionKey(eventId);
                 EnsureSessionKeyValue(sessionKey);

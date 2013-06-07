@@ -51,38 +51,6 @@ namespace Web.Controllers
         #region Methods
 
         #region Users
-
-        /// <summary>
-        /// Find out if the user's email address already exists in the system.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public ActionResult FindUserByEmail(EditEventViewModel model)
-        {
-            var response = new Response { Error = false };
-
-            try
-            {
-                var exists = _personRepository.GetAll().FirstOrDefault(x => x.Email == model.EmailInvite.Email);
-
-                var userName = model.EmailInvite.FirstName + " " + model.EmailInvite.LastName;
-                response.Data = new { PersonId = 0, model.EmailInvite.Email, UserName = userName, model.EmailInvite.FirstName, model.EmailInvite.LastName, model.EmailInvite.InviteControlId };
-
-                if (exists != null)
-                {
-                    response.Data = new { exists.PersonId, exists.Email, exists.UserName, exists.FirstName, exists.LastName, model.EmailInvite.InviteControlId };
-                }
-            }
-            catch (Exception ex)
-            {
-                //TODO: write to database
-                response.Error = true;
-                response.Message = "Error while trying to retrieve user account by email.";
-            }
-
-            return Json(response);
-        }
         /// <summary>
         /// Get a list of all friends belonging to the current user
         /// </summary>
@@ -95,7 +63,7 @@ namespace Web.Controllers
             try
             {
                 //Get list of pending food ids for this event from session
-                var pendingGuestListIds = SessionHelper.Events.GetPendingInvites(eventId);
+                var pendingGuestListIds = SessionHelper.Events.GetGuestList(eventId);
                 var personFriendIds = new List<int>();
                 var thePerson = GetCurrentUser();
 
@@ -165,33 +133,53 @@ namespace Web.Controllers
 
             try
             {
-                //Add the unregistered guest to the database
-                var newGuest = new PendingInvitation
+                //Get the event
+                var theEvent = GetEventById(model.EventId);
+
+                //Get the host
+                var thePerson = GetPersonById(model.PersonId);
+
+                //Find out the if the user being added already has en email as a registered user
+                var exists = _personRepository.GetAll().FirstOrDefault(x => x.Email == model.EmailInvite.Email);
+
+                if (exists == null)
+                {
+                    var userName = model.EmailInvite.FirstName + " " + model.EmailInvite.LastName;
+                    response.Data = new { PersonId = 0, model.EmailInvite.Email, UserName = userName, model.EmailInvite.FirstName, model.EmailInvite.LastName, model.EmailInvite.InviteControlId };
+
+                    //Add the unregistered guest to the database
+                    var newGuest = new PendingInvitation
                     {
-                        FirstName = model.EmailInvite.FirstName, 
+                        FirstName = model.EmailInvite.FirstName,
                         LastName = model.EmailInvite.LastName,
                         Email = model.EmailInvite.Email
                     };
 
-                _inviteRepository.Insert(newGuest);
-                _inviteRepository.SubmitChanges();
+                    _inviteRepository.Insert(newGuest);
+                    _inviteRepository.SubmitChanges();
 
-                //Get the event
-                var theEvent = GetEventById(model.EventId);
+                    //Add to the event host's list of unregistered friends
+                    thePerson.MyUnRegisteredFriends.Add(newGuest);
 
-                //Add to the event host's list of unregistered friends
-                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
-                thePerson.MyUnRegisteredFriends.Add(newGuest);
+                    //Add a negative value to the list
+                    var tempId = -newGuest.PendingInvitationId;
 
-                //Add the pending food item to session
-                SessionHelper.Events.AddGuest(newGuest.PersonId, model.EventId);
+                    //Add the unregistered user to session
+                    SessionHelper.Events.AddGuest(tempId, model.EventId);
+                }
+                else
+                {
+                    //Add the registered user to the session
+                    SessionHelper.Events.AddGuest(exists.PersonId, model.EventId);
+                }
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(model.EventId);
+                var pendingEventInvitations = SessionHelper.Events.GetGuestList(model.EventId);
                 var personFriendsList = new List<int>();
 
                 thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
-                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(x.PendingInvitationId));
+                //Make the pending ids negative to avoid conflicts with normal ids
+                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(-x.PendingInvitationId));
 
                 //Populate the guest list
                 var viewModel = GetEventViewModel(theEvent);
@@ -235,7 +223,7 @@ namespace Web.Controllers
                 SessionHelper.Events.AddGuest(guestId, eventId);
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(eventId);
+                var pendingEventInvitations = SessionHelper.Events.GetGuestList(eventId);
                 var personFriendsList = new List<int>();
 
                 thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
@@ -281,7 +269,7 @@ namespace Web.Controllers
                 updateMe.Email = model.EmailInvite.Email;
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(model.EventId);
+                var pendingEventInvitations = SessionHelper.Events.GetGuestList(model.EventId);
                 var personFriendsList = new List<int>();
 
                 thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
@@ -328,7 +316,7 @@ namespace Web.Controllers
                 SessionHelper.Events.RemoveGuest(guestId, eventId);
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(eventId);
+                var pendingEventInvitations = SessionHelper.Events.GetGuestList(eventId);
                 var personFriendsList = new List<int>();
 
                 thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));

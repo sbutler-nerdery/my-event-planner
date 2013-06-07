@@ -342,7 +342,7 @@
     <Content Include="Views\Event\Create.cshtml" />
     <Content Include="Views\Event\Edit.cshtml" />
     <Content Include="Views\Shared\EditorTemplates\DateTime.cshtml" />
-    <Content Include="Views\Event\_InvitePeopleDialog.cshtml" />
+    <Content Include="Views\Event\_ManageGuestDialogs.cshtml" />
     <Content Include="Views\Account\_UpdateUserInformation.cshtml" />
     <Content Include="Views\Home\ViewInvitation.cshtml" />
     <Content Include="Views\Shared\_ManageEventItems.cshtml" />
