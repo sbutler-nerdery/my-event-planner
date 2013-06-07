@@ -467,6 +467,8 @@
                 }
             }).on("click", function () {
                 $(this).autocomplete("search", "");
+            }).each(function () {
+                $(this).attr("placeholder", "View food you've brought before");
             });
 
             $("[data-autocomplete-list=games]").autocomplete({
@@ -493,6 +495,8 @@
                 }
             }).on("click", function () {
                 $(this).autocomplete("search", "");
+            }).each(function () {
+                $(this).attr("placeholder", "View games you've brought before");
             });
             
             $("[data-autocomplete-list=guests]").autocomplete({
@@ -519,6 +523,8 @@
                 }
             }).on("click", function () {
                 $(this).autocomplete("search", "");
+            }).each(function () {
+                $(this).attr("placeholder", "View friends you've invited before");
             });
         },
         addSelectedItem: function (controlId, newVal) {
