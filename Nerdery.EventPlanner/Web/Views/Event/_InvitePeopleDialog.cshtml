@@ -1,14 +1,16 @@
 ﻿@model Web.ViewModels.EditEventViewModel
 
 <div data-dialog="true" title="Invite More People" data-action="invite-person-to-event">
-    @using (Ajax.BeginForm("FindUserByEmail", "Service", new AjaxOptions { HttpMethod = "POST", 
-        OnSuccess = "EventPlanner.Events.addEmailInvite",
-        OnBegin = "EventPlanner.Modals.showLoader('invite-person-to-event')",
-        OnComplete = "EventPlanner.Modals.hideLoader('invite-person-to-event')"         
-    }))
+    @using (Ajax.BeginForm("FindUserByEmail", "Service", new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "EventPlanner.Events.addEmailInvite",
+            OnBegin = "EventPlanner.Modals.showLoader('invite-person-to-event')",
+            OnComplete = "EventPlanner.Modals.hideLoader('invite-person-to-event')"
+        }))
     {
         <fieldset>
-            <legend>EmailInvite</legend>
+            <legend>Invite a New Guest</legend>
             <div class="editor-label">
                 @Html.LabelFor(model => model.EmailInvite.FirstName)
             </div>
@@ -31,7 +33,46 @@
                 @Html.ValidationMessageFor(model => model.EmailInvite.Email)
             </div>  
             @Html.Hidden("EmailInvite.InviteControlId", "PeopleInvited")
-            <input type="submit" value="Invite this person" />
+            <input type="submit" value="Send Invite" />
+            <div class="loader"></div>
+        </fieldset>                  
+    }    
+</div>
+
+<div data-dialog="true" title="Update Guest Info" data-action="update-guest">
+    @using (Ajax.BeginForm("UpdateGuestInfo", "Service", new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "EventPlanner.Events.refreshGuests",
+        OnBegin = "EventPlanner.Modals.showLoader('update-guest')",
+        OnComplete = "EventPlanner.Modals.hideLoader('update-guest')"
+    }))
+    {
+        <fieldset>
+            <legend>Update Guest</legend>
+            <div class="editor-label">
+                @Html.LabelFor(model => model.UpdateGuest.FirstName)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.UpdateGuest.FirstName)
+                @Html.ValidationMessageFor(model => model.UpdateGuest.FirstName)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.UpdateGuest.LastName)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.UpdateGuest.LastName)
+                @Html.ValidationMessageFor(model => model.UpdateGuest.LastName)
+            </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.UpdateGuest.Email)
+            </div>
+            <div class="editor-field">
+                @Html.EditorFor(model => model.UpdateGuest.Email)
+                @Html.ValidationMessageFor(model => model.UpdateGuest.Email)
+            </div>  
+            @Html.HiddenFor(model => model.UpdateGuest.PersonId)
+            <input type="submit" value="Update" />
             <div class="loader"></div>
         </fieldset>                  
     }    

@@ -46,7 +46,7 @@ namespace Web.Tests.Controllers
                     FirstName = "Joe",
                     LastName = "Smith",
                     MyRegisteredFriends = new List<Person>(),
-                    MyNonRegisteredFriends = new List<PendingInvitation>()
+                    MyUnRegisteredFriends = new List<PendingInvitation>()
                 };
             A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { thePerson }.AsQueryable());
@@ -174,7 +174,7 @@ namespace Web.Tests.Controllers
         {
             //Arrange
             var dataModel = GetTestEventDataModel(1);
-            var theHost = new Person { PersonId = 1, MyNonRegisteredFriends = new List<PendingInvitation>()};
+            var theHost = new Person { PersonId = 1, MyUnRegisteredFriends = new List<PendingInvitation>()};
             var friendOne = new Person{PersonId = 4, FirstName = "Mark", LastName = "Walburg"};
             var friendTwo = new Person { PersonId = 5, FirstName = "Drew", LastName = "Smith" };
             theHost.MyRegisteredFriends = new List<Person>{friendOne, friendTwo};
@@ -190,7 +190,7 @@ namespace Web.Tests.Controllers
 
             //Assert
             Assert.AreEqual(((EditEventViewModel)result.Model).Title, dataModel.Title);
-            Assert.IsTrue(((EditEventViewModel)result.Model).PeopleList.ToList().Count == 2);
+            Assert.IsTrue(((EditEventViewModel)result.Model).PeopleInvited.ToList().Count == 2);
             Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
         }
 

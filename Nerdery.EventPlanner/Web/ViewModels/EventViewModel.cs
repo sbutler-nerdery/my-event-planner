@@ -14,13 +14,13 @@ namespace Web.ViewModels
 
         public EditEventViewModel()
         {
-            PeopleInvited = new List<string>();
+            PeopleInvited = new List<PersonViewModel>();
             WillBringTheseFoodItems = new List<FoodItemViewModel>();
             WillBringTheseGames = new List<GameViewModel>();
             AllEventFoodItems = new List<FoodItemViewModel>();
             AllEventGames = new List<GameViewModel>();
-            PeopleWhoAccepted = new List<int>();
-            PeopleWhoDeclined = new List<int>();
+            PeopleWhoAccepted = new List<PersonViewModel>();
+            PeopleWhoDeclined = new List<PersonViewModel>();
         }
 
         public EditEventViewModel(Event model) :this()
@@ -34,23 +34,22 @@ namespace Web.ViewModels
             EndTime = model.EndDate.ToString("h:mm tt");
             if (model.FoodItems != null) model.FoodItems.ForEach(x => WillBringTheseFoodItems.Add(new FoodItemViewModel(x)));
             if (model.Games != null) model.Games.ForEach(x => WillBringTheseGames.Add(new GameViewModel(x)));
-            if (model.RegisteredInvites != null) model.RegisteredInvites.ForEach(x => PeopleInvited.Add(x.PersonId.ToString()));
-            if (model.NonRegisteredInvites != null) model.NonRegisteredInvites.ForEach(x =>
+            if (model.RegisteredInvites != null) model.RegisteredInvites.ForEach(x => PeopleInvited.Add(new PersonViewModel(x)));
+            if (model.UnRegisteredInvites != null) model.UnRegisteredInvites.ForEach(x =>
                 {
                     if (x.Email != null)
                     {
-                        var value = string.Format("{0}|{1}|{2}", x.Email, x.FirstName, x.LastName);
-                        PeopleInvited.Add(value);
+                        PeopleInvited.Add(new PersonViewModel{ FirstName = x.FirstName, LastName = x.LastName, Email = x.Email, IsRegistered = false});
                     }
 
-                    if (x.FacebookId != null)
-                    {
-                        var value = string.Format("{0}|{1} {2}", x.FacebookId, x.FirstName, x.LastName);
-                        PeopleInvited.Add(value);                        
-                    }
+                    //if (x.FacebookId != null)
+                    //{
+                    //    var value = string.Format("{0}|{1} {2}", x.FacebookId, x.FirstName, x.LastName);
+                    //    PeopleInvited.Add(value);                        
+                    //}
                 });
-            if (model.PeopleWhoAccepted != null) model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(x.PersonId));
-            if (model.PeopleWhoDeclined != null) model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(x.PersonId));
+            if (model.PeopleWhoAccepted != null) model.PeopleWhoAccepted.ForEach(x => PeopleWhoAccepted.Add(new PersonViewModel(x)));
+            if (model.PeopleWhoDeclined != null) model.PeopleWhoDeclined.ForEach(x => PeopleWhoDeclined.Add(new PersonViewModel(x)));
         }
 
         #endregion
@@ -66,24 +65,36 @@ namespace Web.ViewModels
         /// <summary>
         /// Get or set a list of all the food items being provided by the host
         /// </summary>
-        public MultiSelectList MyFoodItems { get; set; }
+        public List<FoodItemViewModel> MyFoodItems { get; set; }
         /// <summary>
         /// Get or set a list of all the games that are being provided by the host
         /// </summary>
-        public MultiSelectList MyGames { get; set; }
+        public List<GameViewModel> MyGames { get; set; }
         /// <summary>
-        /// Get or set the complete list of people who could be invited to an event
+        /// Get or set the list of people who are invited to the event
         /// </summary>
-        public MultiSelectList PeopleList { get; set; }
         [Display(Name = "People who are invited")]
-        public List<string> PeopleInvited { get; set; }
-        public List<int> PeopleWhoAccepted { get; set; }
-        public List<int> PeopleWhoDeclined { get; set; }
+        public List<PersonViewModel> PeopleInvited { get; set; }
+        /// <summary>
+        /// Get or set the list of people who have accepted event invitations
+        /// </summary>
+        [Display(Name = "People who have accepted")]
+        public List<PersonViewModel> PeopleWhoAccepted { get; set; }
+        /// <summary>
+        /// Get or set the list of people who have declined event invitations
+        /// </summary>
+        [Display(Name = "People who have declined")]
+        public List<PersonViewModel> PeopleWhoDeclined { get; set; }
+
         public List<string> TimeList { get; set; }
         /// <summary>
         /// Get or set the person template used to send invitations via email
         /// </summary>
         public PersonViewModel EmailInvite { get; set; }
+        /// <summary>
+        /// Get or set the an un registered guest to be updated
+        /// </summary>
+        public PersonViewModel UpdateGuest { get; set; }
         /// <summary>
         /// Get or set the list of Facebook friends for the current user
         /// </summary>
@@ -112,7 +123,7 @@ namespace Web.ViewModels
             dataModel.RegisteredInvites = new List<Person>();
             dataModel.PeopleWhoAccepted = new List<Person>();
             dataModel.PeopleWhoDeclined = new List<Person>();
-            dataModel.NonRegisteredInvites = new List<PendingInvitation>();
+            dataModel.UnRegisteredInvites = new List<PendingInvitation>();
             return dataModel;
         }
 

@@ -17,6 +17,7 @@ namespace Web.ViewModels
             MyFoodItems = new List<FoodItemViewModel>();
             MyGames = new List<GameViewModel>();
             MyFriends = new List<PersonViewModel>();
+            IsRegistered = true;
         }
 
         public PersonViewModel(Person model) : this()
@@ -37,14 +38,32 @@ namespace Web.ViewModels
         #region Properties
 
         public int PersonId { get; set; }
+        /// <summary>
+        /// Get or set the user name for the person
+        /// </summary>
         public string UserName { get; set; }
+        /// <summary>
+        /// Get or set the first name of the person
+        /// </summary>
         [Required]
         public string FirstName { get; set; }
+        /// <summary>
+        /// Get or set the last name of the person
+        /// </summary>
         [Required]
         public string LastName { get; set; }
+        /// <summary>
+        /// Get or set the email of the person
+        /// </summary>
         [Required]
         public string Email { get; set; }
+        /// <summary>
+        /// Get or set the phone number of the person
+        /// </summary>
         public string PhoneNumber { get; set; }
+        /// <summary>
+        /// Get or set the profile picture of the person
+        /// </summary>
         public string ProfilePicUrl { get; set; }
         /// <summary>
         /// Get or set the facebook id for this person
@@ -66,8 +85,17 @@ namespace Web.ViewModels
         /// Get or set events that this user has declined
         /// </summary>
         public List<EditEventViewModel> HaveDeclined { get; set; }
+        /// <summary>
+        /// Get or set the food items that this person has previously contributed 
+        /// </summary>
         public List<FoodItemViewModel> MyFoodItems { get; set; }
+        /// <summary>
+        /// Get or set the games that this person has previously contributed
+        /// </summary>
         public List<GameViewModel> MyGames { get; set; }
+        /// <summary>
+        /// Get or set the list of friends this user has in the system
+        /// </summary>
         public List<PersonViewModel> MyFriends { get; set; }
         /// <summary>
         /// Get or set if the user will receive notifications via facebook.
@@ -78,13 +106,17 @@ namespace Web.ViewModels
         /// </summary>
         public bool NotifyWithEmail { get; set; }
         /// <summary>
-        /// Get or set whether or not this person is selected in a checkbox list
+        /// Get or set whether this person is a registered user in the system
         /// </summary>
-        public bool Selected { get; set; }
+        public bool IsRegistered { get; set; }
         /// <summary>
         /// Get or set the name of the control id used by the invite people dialog
         /// </summary>
         public string InviteControlId { get; set; }
+        /// <summary>
+        /// Get or set an event id this person is attending
+        /// </summary>
+        public int EventId { get; set; }
 
         #endregion
 

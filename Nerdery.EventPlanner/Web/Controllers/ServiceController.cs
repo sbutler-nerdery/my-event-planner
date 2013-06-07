@@ -25,6 +25,7 @@ namespace Web.Controllers
 
         private readonly IRepository<Event> _eventRepository;
         private readonly IRepository<Person> _personRepository;
+        private readonly IRepository<PendingInvitation> _inviteRepository;
         private readonly IRepository<FoodItem> _foodRepository;
         private readonly IRepository<Game> _gameRepository;
         private readonly IUserService _userService;
@@ -40,6 +41,7 @@ namespace Web.Controllers
             _personRepository = factory.GetRepository<Person>();
             _foodRepository = factory.GetRepository<FoodItem>();
             _gameRepository = factory.GetRepository<Game>();
+            _inviteRepository = factory.GetRepository<PendingInvitation>();
             _userService = userService;
             _eventService = eventService;
         }
@@ -48,7 +50,7 @@ namespace Web.Controllers
 
         #region Methods
 
-        #region Find User
+        #region Users
 
         /// <summary>
         /// Find out if the user's email address already exists in the system.
@@ -77,6 +79,276 @@ namespace Web.Controllers
                 //TODO: write to database
                 response.Error = true;
                 response.Message = "Error while trying to retrieve user account by email.";
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Get a list of all friends belonging to the current user
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult GetGuestList(int eventId, string contains)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                //Get list of pending food ids for this event from session
+                var pendingGuestListIds = SessionHelper.Events.GetPendingInvites(eventId);
+                var personFriendIds = new List<int>();
+                var thePerson = GetCurrentUser();
+
+                thePerson.MyRegisteredFriends.ForEach(x => personFriendIds.Add(x.PersonId));
+                //Make the unregistered ids negative to avoid conflicts
+                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendIds.Add(-x.PendingInvitationId));
+
+                var guestList = GetNonSelectedGuests(pendingGuestListIds, personFriendIds, eventId)
+                    .Where(x => 
+                        x.FirstName.ToLower().Contains(contains.ToLower()) ||
+                        x.LastName.ToLower().Contains(contains.ToLower()));
+
+                response.Data = guestList;
+            }
+            catch (Exception)
+            {
+                //TODO: log to database
+                response.Error = true;
+                response.Message = "An error occurred. Unable to retrieve your list of food items.";
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Get a single guest from the database using the specified id
+        /// </summary>
+        /// <param name="personId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult GetEventGuest(int personId)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                var registeredGuest = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+                var unRegisteredGuest = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == personId);
+
+                var guest = (registeredGuest != null) ? new PersonViewModel(registeredGuest) : new PersonViewModel
+                    {
+                        PersonId = unRegisteredGuest.PendingInvitationId, 
+                        FirstName = unRegisteredGuest.FirstName,
+                        LastName = unRegisteredGuest.LastName,
+                        Email = unRegisteredGuest.Email,
+                        IsRegistered = false
+                    };
+
+                response.Data = guest;
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_GET_GUEST_FAIL;
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Add a guest to the user's list of un-registred friends
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult AddNewGuest(EditEventViewModel model)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                //Add the unregistered guest to the database
+                var newGuest = new PendingInvitation
+                    {
+                        FirstName = model.EmailInvite.FirstName, 
+                        LastName = model.EmailInvite.LastName,
+                        Email = model.EmailInvite.Email
+                    };
+
+                _inviteRepository.Insert(newGuest);
+                _inviteRepository.SubmitChanges();
+
+                //Get the event
+                var theEvent = GetEventById(model.EventId);
+
+                //Add to the event host's list of unregistered friends
+                var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
+                thePerson.MyUnRegisteredFriends.Add(newGuest);
+
+                //Add the pending food item to session
+                SessionHelper.Events.AddGuest(newGuest.PersonId, model.EventId);
+
+                //Get list of pending invitation ids
+                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(model.EventId);
+                var personFriendsList = new List<int>();
+
+                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
+                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(x.PendingInvitationId));
+
+                //Populate the guest list
+                var viewModel = GetEventViewModel(theEvent);
+                viewModel.PeopleInvited = GetSelectedGuests(pendingEventInvitations, personFriendsList, model.EventId);
+
+                response.Data = RenderRazorViewToString("_InvitedPeopleTemplate", viewModel);
+
+                //Save to the database if no errors have occurred
+                _personRepository.SubmitChanges();
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_ADD_GUEST_FAIL;
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Add a guest to an event
+        /// </summary>
+        /// <param name="guestId"></param>
+        /// <param name="eventId"></param>
+        /// <param name="personId"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult AddPreviousGuest(int guestId, int eventId, int personId)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                //Get the event
+                var theEvent = GetEventById(eventId);
+
+                //Get the event host
+                var thePerson = GetPersonById(personId);
+
+                //Add the pending food item to session
+                SessionHelper.Events.AddGuest(guestId, eventId);
+
+                //Get list of pending invitation ids
+                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(eventId);
+                var personFriendsList = new List<int>();
+
+                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
+                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(-x.PendingInvitationId));
+
+                //Populate the guset list
+                var viewModel = GetEventViewModel(theEvent);
+                viewModel.PeopleInvited = GetSelectedGuests(pendingEventInvitations, personFriendsList, eventId);
+
+                response.Data = RenderRazorViewToString("_InvitedPeopleTemplate", viewModel);
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_ADD_GUEST_FAIL;
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Update a unregistered guest's info.
+        /// </summary>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult UpdateGuestInfo(EditEventViewModel model)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                //Get the person
+                var personId = _userService.GetCurrentUserId(User.Identity.Name);
+                var thePerson = GetCurrentUser();
+
+                //Get the event
+                var theEvent = GetEventById(model.EventId);
+
+                //Update the food item
+                var updateMe = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == model.EmailInvite.PersonId);
+                updateMe.FirstName = model.EmailInvite.FirstName;
+                updateMe.LastName = model.EmailInvite.LastName;
+                updateMe.Email = model.EmailInvite.Email;
+
+                //Get list of pending invitation ids
+                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(model.EventId);
+                var personFriendsList = new List<int>();
+
+                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
+                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(x.PendingInvitationId));
+
+                //Populate the guset list
+                var viewModel = GetEventViewModel(theEvent);
+                viewModel.PeopleInvited = GetSelectedGuests(pendingEventInvitations, personFriendsList, model.EventId);          
+
+                response.Data = RenderRazorViewToString("_InvitedPeopleTemplate", viewModel);
+
+                //Save to the database last
+                _inviteRepository.SubmitChanges();
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_UPDATE_GUEST_FAIL;
+            }
+
+            return Json(response);
+        }
+        /// <summary>
+        /// Remove a guest from an event
+        /// </summary>
+        /// <param name="eventId">The specified event id</param>
+        /// <param name="guestId">The id of the food item to be removed</param>
+        /// <returns></returns>
+        [HttpPost]
+        public ActionResult RemoveGuest(int eventId, int guestId)
+        {
+            var response = new Response { Error = false };
+
+            try
+            {
+                //Get the event host
+                var thePerson = GetCurrentUser();
+
+                //Get the event
+                var theEvent = GetEventById(eventId);
+
+                //Remove from the list
+                SessionHelper.Events.RemoveGuest(guestId, eventId);
+
+                //Get list of pending invitation ids
+                var pendingEventInvitations = SessionHelper.Events.GetPendingInvites(eventId);
+                var personFriendsList = new List<int>();
+
+                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
+                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(x.PendingInvitationId));
+
+                //Populate the guset list
+                var viewModel = GetEventViewModel(theEvent);
+                viewModel.PeopleInvited = GetSelectedGuests(pendingEventInvitations, personFriendsList, eventId);
+
+                response.Data = RenderRazorViewToString("_InvitedPeopleTemplate", viewModel);
+
+                //Save to the database last and only if the event exists in the database
+                if (eventId != 0)
+                    _eventRepository.SubmitChanges();
+            }
+            catch (Exception)
+            {
+                //TODO: log error to database
+                response.Error = true;
+                response.Message = Constants.SERVICE_REMOVE_GUEST_FAIL;
             }
 
             return Json(response);
@@ -644,11 +916,135 @@ namespace Web.Controllers
             return gameList;
         }
 
+        private List<PersonViewModel> GetSelectedGuests(List<int> eventGuestIds, List<int> personFriendIds, int eventId)
+        {
+            var guestList = new List<PersonViewModel>();
+            var selectedGuestIds = personFriendIds.Intersect(eventGuestIds);
+            _personRepository.GetAll()
+                .Where(x => selectedGuestIds.Contains(x.PersonId))
+                .OrderBy(x => x.FirstName)
+                .ToList().ForEach(x =>
+                {
+                    var viewModel = new PersonViewModel(x);
+                    viewModel.EventId = eventId;
+                    guestList.Add(viewModel);
+                });
+
+            //Make the unregistered numbers posative
+            var unRegisteredIds = new List<int>();
+            selectedGuestIds.Where(x => x < 0)
+                .ToList()
+                .ForEach(x => unRegisteredIds.Add(Math.Abs(x)));
+
+            _inviteRepository.GetAll()
+                .Where(x => unRegisteredIds.Contains(x.PendingInvitationId))
+                .OrderBy(x => x.FirstName)
+                .ToList().ForEach(x =>
+                {
+                    var viewModel = new PersonViewModel
+                        {
+                            PersonId = -x.PendingInvitationId,
+                            FirstName = x.FirstName,
+                            LastName = x.LastName,
+                            Email = x.Email,
+                            IsRegistered = false
+                        };
+                    viewModel.EventId = eventId;
+                    guestList.Add(viewModel);
+                });
+
+            return guestList;
+        }
+
+        private List<PersonViewModel> GetNonSelectedGuests(List<int> eventGuestIds, List<int> personFriendIds, int eventId)
+        {
+            var guestList = new List<PersonViewModel>();
+            var unSelectedGuestIds = personFriendIds.Where(x => !eventGuestIds.Contains(x));
+            _personRepository.GetAll()
+                .Where(x => unSelectedGuestIds.Contains(x.PersonId))
+                .OrderBy(x => x.FirstName)
+                .ToList().ForEach(x =>
+                {
+                    var viewModel = new PersonViewModel(x);
+                    viewModel.EventId = eventId;
+                    guestList.Add(viewModel);
+                });
+
+            //Make the unregistered numbers posative
+            var unRegisteredIds = new List<int>();
+            unSelectedGuestIds.Where(x => x < 0)
+                .ToList()
+                .ForEach(x => unRegisteredIds.Add(Math.Abs(x)));
+
+            _inviteRepository.GetAll()
+                .Where(x => unRegisteredIds.Contains(x.PendingInvitationId))
+                .OrderBy(x => x.FirstName)
+                .ToList().ForEach(x =>
+                {
+                    var viewModel = new PersonViewModel
+                    {
+                        PersonId = -x.PendingInvitationId,
+                        FirstName = x.FirstName,
+                        LastName = x.LastName,
+                        Email = x.Email,
+                        IsRegistered = false
+                    };
+                    viewModel.EventId = eventId;
+                    guestList.Add(viewModel);
+                });
+
+            return guestList;
+        }
+        /// <summary>
+        /// Get a new instance of the edit event view model with the accepted and declined attendee lists populated
+        /// </summary>
+        /// <param name="theEvent">An event</param>
+        /// <returns></returns>
+        private EditEventViewModel GetEventViewModel(Event theEvent)
+        {
+            var viewModel = new EditEventViewModel();
+            theEvent.PeopleWhoAccepted.ForEach(x => viewModel.PeopleWhoAccepted.Add(new PersonViewModel(x)));
+            theEvent.PeopleWhoDeclined.ForEach(x => viewModel.PeopleWhoDeclined.Add(new PersonViewModel(x)));
+
+            return viewModel;
+        }
+        /// <summary>
+        /// Get the person who is currently logged in
+        /// </summary>
+        /// <returns></returns>
+        private Person GetCurrentUser()
+        {
+            var userId = _userService.GetCurrentUserId(User.Identity.Name);
+            return _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
+        }
+        /// <summary>
+        /// Get a person by the specified person id
+        /// </summary>
+        /// <param name="personId">A person id</param>
+        /// <returns></returns>
+        private Person GetPersonById(int personId)
+        {
+            return _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
+        }
+        /// <summary>
+        /// Get an event by the specified event id
+        /// </summary>
+        /// <param name="eventId">An event id</param>
+        /// <returns></returns>
         private Event GetEventById(int eventId)
         {
-            var theEvent = (eventId != 0)
-                                ? _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId)
-                                : new Event { Games = new List<Game>(), FoodItems = new List<FoodItem>() };
+            var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+
+            if (theEvent == null)
+            {
+                theEvent = new Event
+                    {
+                        RegisteredInvites = new List<Person>(),
+                        UnRegisteredInvites = new List<PendingInvitation>(),
+                        PeopleWhoAccepted = new List<Person>(),
+                        PeopleWhoDeclined = new List<Person>()
+                    };
+            }
 
             return theEvent;
         }

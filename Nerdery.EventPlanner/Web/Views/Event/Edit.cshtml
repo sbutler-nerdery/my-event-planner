@@ -4,12 +4,12 @@
     ViewBag.Title = "Edit";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
-    var myFoodItemIds = Model.MyFoodItems.Select(item => item.Value).ToList();
+    var myFoodItemIds = Model.MyFoodItems.Select(item => item.FoodItemId).ToList();
     var foodOtherPeopleAreBringing =
-        Model.AllEventFoodItems.Where(x => !myFoodItemIds.Contains(x.FoodItemId.ToString())).ToList();
-    var myGameIds = Model.MyGames.Select(item => item.Value).ToList();
+        Model.AllEventFoodItems.Where(x => !myFoodItemIds.Contains(x.FoodItemId)).ToList();
+    var myGameIds = Model.MyGames.Select(item => item.GameId).ToList();
     var gamesOtherPeopleAreBringing =
-        Model.AllEventGames.Where(x => !myGameIds.Contains(x.GameId.ToString())).ToList();     
+        Model.AllEventGames.Where(x => !myGameIds.Contains(x.GameId)).ToList();     
 }
 
 <h2>Edit Event</h2>
@@ -77,8 +77,12 @@
                     @Html.LabelFor(model => model.PeopleInvited)
                 </div>
                 <div class="editor-field">
-                    @Html.ListBoxFor(model => model.PeopleInvited, Model.PeopleList, new {name="PeopleInvited", @class="fancy-list-box", data_placeholder_type="friend-list"}) <a href="javascript:;" data-open-modal="invite-person-to-event">Invite people to my friends list</a>
-                </div>     
+                    <input type="text" data-autocomplete-list="guests" />
+                    <a href="javascript:;" data-open-modal="invite-person-to-event">Invite people to my friends list</a>
+                    <div class="guest-lists">
+                        @Html.Partial("_InvitedPeopleTemplate", Model)
+                    </div>
+                </div>                  
                 <div class="editor-label">
                     @Html.LabelFor(model => model.WillBringTheseFoodItems)
                 </div>
@@ -88,8 +92,7 @@
                     <div class="food-list">
                         @Html.Partial("_FoodItemListTemplate", Model.WillBringTheseFoodItems)
                     </div>
-                </div>  
-          
+                </div>           
                 <div class="editor-label">
                     @Html.LabelFor(model => model.WillBringTheseGames)
                 </div>

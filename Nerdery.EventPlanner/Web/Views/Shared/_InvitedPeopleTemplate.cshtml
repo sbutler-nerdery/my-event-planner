@@ -1,0 +1,36 @@
+﻿@model Web.ViewModels.EditEventViewModel
+@{
+    var acceptedIds = Model.PeopleWhoAccepted.Select(x => x.PersonId);
+    var declinedIds = Model.PeopleWhoDeclined.Select(x => x.PersonId);
+}
+@if (Model.PeopleInvited.Count > 0)
+{
+    <ul>
+        @for (int i = 0; i < Model.PeopleInvited.Count; i++)
+        {
+            var person = Model.PeopleInvited[i];
+            var hasAccepted = acceptedIds.Contains(person.PersonId);
+            var hasDeclined = declinedIds.Contains(person.PersonId);
+            var status = (hasAccepted) ? "(Accepted) - "
+                         : (hasDeclined) ? "(Declined) - "
+                         : "- ";
+            var name = string.Format("{0} {1} {2}", person.FirstName, person.LastName, status);
+            
+            <li>
+                @name
+                @if (!person.IsRegistered)
+                {
+                    <a href="javascript:EventPlanner.Events.updateGuest(@person.PersonId, 'update-guest');">Update</a>
+                }
+                <a href="javascript:EventPlanner.Events.removeGuest(@Model.EventId, @person.PersonId);">Remove</a>
+                <input type="hidden" name="PeopleInvited[@i].PersonId" value="@person.PersonId"/>
+                <input type="hidden" name="PeopleInvited[@i].FirstName" value="@person.FirstName"/>
+                <input type="hidden" name="PeopleInvited[@i].LastName" value="@person.LastName"/>
+                <input type="hidden" name="PeopleInvited[@i].IsRegistered" value="@person.IsRegistered"/>
+                <input type="hidden" name="PeopleInvited[@i].Email" value="@person.Email"/>
+            </li>
+        }
+    </ul>
+}else{
+    @:No one has been invited to this event
+}

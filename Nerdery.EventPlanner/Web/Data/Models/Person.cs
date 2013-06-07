@@ -45,7 +45,7 @@ namespace Web.Data.Models
         /// <summary>
         /// Get or set a list of friends that do not have registered user accounts in the system.
         /// </summary>
-        public virtual List<PendingInvitation> MyNonRegisteredFriends { get; set; }
+        public virtual List<PendingInvitation> MyUnRegisteredFriends { get; set; }
         /// <summary>
         /// Get or set if the user will receive notifications via facebook.
         /// </summary>

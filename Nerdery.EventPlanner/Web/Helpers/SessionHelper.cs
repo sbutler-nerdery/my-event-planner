@@ -46,12 +46,14 @@ namespace Web.Helpers
             {
                 var foodSessionKey = GetFoodSessionKey(eventId);
                 var gameSessionKey = GetGameSessionKey(eventId);
+                var personSessionKey = GetInviteeSessionKey(eventId);
                 EnsureSessionKeyValue(foodSessionKey);
                 EnsureSessionKeyValue(gameSessionKey);
+                EnsureSessionKeyValue(personSessionKey);
                 Session[foodSessionKey] = new List<int>();
                 Session[gameSessionKey] = new List<int>();
+                Session[personSessionKey] = new List<int>();
             }
-
             /// <summary>
             /// Get the list of food items that are waiting to be added to the database
             /// </summary>
@@ -67,7 +69,6 @@ namespace Web.Helpers
 
                 return Session[sessionKey] as List<int>;
             }
-
             /// <summary>
             /// Add a food item to an event in session
             /// </summary>
@@ -137,6 +138,49 @@ namespace Web.Helpers
                 gameIds.Remove(gameId);
             }
             /// <summary>
+            /// Get the list of food items that are waiting to be added to the database
+            /// </summary>
+            /// <param name="eventId"></param>
+            /// <returns></returns>
+            public static List<int> GetPendingInvites(int eventId)
+            {
+                var sessionKey = GetFoodSessionKey(eventId);
+                EnsureSessionKeyValue(sessionKey);
+
+                if (!EventIds.Contains(eventId))
+                    EventIds.Add(eventId);
+
+                return Session[sessionKey] as List<int>;
+            }
+            /// <summary>
+            /// Add a person id as a guest of an event 
+            /// </summary>
+            /// <param name="personId">The specified person id</param>
+            /// <param name="eventId">The specified event id</param>
+            public static void AddGuest(int personId, int eventId)
+            {
+                var sessionKey = GetFoodSessionKey(eventId);
+                EnsureSessionKeyValue(sessionKey);
+                var personIds = Session[sessionKey] as List<int>;
+
+                if (!personIds.Contains(personId))
+                    personIds.Add(personId);
+            }
+            /// <summary>
+            /// Remove a person id as an event guest 
+            /// </summary>
+            /// <param name="personId">The specified person id</param>
+            /// <param name="eventId">The specified event id</param>
+            public static void RemoveGuest(int personId, int eventId)
+            {
+                var sessionKey = GetFoodSessionKey(eventId);
+                EnsureSessionKeyValue(sessionKey);
+
+                var personIds = Session[sessionKey] as List<int>;
+
+                personIds.Remove(personId);
+            }
+            /// <summary>
             /// Get the food session key for the specified event id
             /// </summary>
             /// <param name="eventId"></param>
@@ -153,6 +197,15 @@ namespace Web.Helpers
             private static string GetGameSessionKey(int eventId)
             {
                 return "game-for-event-" + eventId.ToString();
+            }
+            /// <summary>
+            /// Get the invitee session key for the specified event id
+            /// </summary>
+            /// <param name="eventId"></param>
+            /// <returns></returns>
+            private static string GetInviteeSessionKey(int eventId)
+            {
+                return "invited-to-event-" + eventId.ToString();
             }
         }
 

@@ -442,10 +442,10 @@ namespace Web.Controllers
                     context.PendingInvitations.FirstOrDefault(
                         x => x.PendingInvitationId == pendingInvitationId);
 
-                theEvent.NonRegisteredInvites.Remove(theUnregisteredInvite);
+                theEvent.UnRegisteredInvites.Remove(theUnregisteredInvite);
 
                 //Get rid of the pending registration friend association
-                theEvent.Coordinator.MyNonRegisteredFriends.Remove(theUnregisteredInvite);
+                theEvent.Coordinator.MyUnRegisteredFriends.Remove(theUnregisteredInvite);
 
                 //Get rid of the pending registration id
                 context.PendingInvitations.Remove(theUnregisteredInvite);

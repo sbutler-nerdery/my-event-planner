@@ -11,7 +11,7 @@ namespace Web
             BundleTable.EnableOptimizations = true;
 
 #if DEBUG
-    BundleTable.Enableoptimizations = false;
+            BundleTable.EnableOptimizations = false;
 #endif
 
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(

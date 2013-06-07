@@ -12,8 +12,10 @@
 
     APP.Events = {
         $delimieter: null,
+        $guestListClass: null,
         init: function () {
             $delimieter = "╫";
+            $guestListClass = ".guest-lists";
         },
         getSingleFoodItem: function (foodItemId, callback) {
             APP.Ajax.call("/Service/GetSingleFoodItem", { foodItemId: foodItemId }, callback);
@@ -192,6 +194,98 @@
 
             APP.Events.getSingleGame(gameId, callback);
         },
+        /**/
+        getSingleGuest: function (guestId, callback) {
+            APP.Ajax.call("/Service/GetEventGuest", { guestId: guestId }, callback);
+        },
+        viewGuest: function (guestId, actionKey) {
+            //Get single item from the database
+            //var callback = function (response) {
+            //    if (response.Error) {
+            //        alert(response.Message);
+            //        return;
+            //    }
+
+            //    var game = response.Data;
+
+            //    //Set the appropriate form values
+            //    var dialog = $("[data-action=view-guest]").first();
+            //    dialog.find(".game-title").html(game.Title);
+            //    dialog.find(".game-description").html(game.Description);
+
+            //    //Open the dialog box for the specified action key
+            //    APP.Modals.open(actionKey);
+            //};
+
+            //APP.Events.getSingleGuest(guestId, callback);
+        },
+        refreshGuests: function (actionKey, response) {
+            if (response.Error) {
+                alert(response.Message);
+                return;
+            }
+
+            //var actionKey = "add-game-item";
+            var list = $($guestListClass).first();
+            list.html(response.Data);
+
+            //Clear the fields...
+            $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
+                $(this).val("");
+            });
+
+            APP.Modals.dismiss(actionKey);
+        },
+        addRegisteredGuest: function (guestId, personId, eventId) {
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var list = $($guestListClass).first();
+                list.html(response.Data);
+            };
+
+            APP.Ajax.call("/Service/AddPreviousGuest", { eventId: eventId, guestId: guestId, personId: personId }, callback);
+        },
+        removeGuest: function (eventId, guestId) {
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var actionKey = "remove-guest";
+                var list = $($guestListClass).first();
+                list.html(response.Data);
+            };
+
+            APP.Ajax.call("/Service/RemoveGame", { eventId: eventId, gameId: guestId }, callback);
+        },
+        updateGuest: function (guestId, actionKey) {
+            //Get single item from the database
+            var callback = function (response) {
+                if (response.Error) {
+                    alert(response.Message);
+                    return;
+                }
+
+                var guest = response.Data;
+
+                //Set the appropriate form values
+                $("#UpdateGuest_PersonId").val(guestId);
+                $("#UpdateGuest_FirstName").val(guest.FirstName);
+                $("#UpdateGuest_LastName").val(guest.LastName);
+                $("#UpdateGuest_Email").val(guest.Email);
+
+                //Open the dialog box for the specified action key
+                APP.Modals.open(actionKey);
+            };
+
+            APP.Events.getSingleGame(guestId, callback);
+        },
+        /**/
         addEmailInvite: function (response) {
             if (response.Error) {
                 alert(response.Message);
@@ -394,6 +488,32 @@
 
                     //Add the existing item to the list of items
                     APP.Events.addExistingGame(ui.item.value, personId, eventId);
+
+                    return false;
+                }
+            }).on("click", function () {
+                $(this).autocomplete("search", "");
+            });
+            
+            $("[data-autocomplete-list=guests]").autocomplete({
+                minLength: 0,
+                source: function (request, response) {
+                    callback = function (serverResponse) {
+                        if (!serverResponse.Error) {
+                            response($.map(serverResponse.Data, function (item) {
+                                return { label: item.FirstName + " " + item.LastName, value: item.PersonId };
+                            }));
+                        } else {
+                            alert(serverResponse.Message);
+                        }
+                    };
+                    APP.Ajax.call("/Service/GetGuestList", { eventId: eventId, contains: request.term }, callback);
+                },
+                select: function (event, ui) {
+                    this.value = "";
+
+                    //Add the existing item to the list of items
+                    APP.Events.addRegisteredGuest(ui.item.value, personId, eventId);
 
                     return false;
                 }

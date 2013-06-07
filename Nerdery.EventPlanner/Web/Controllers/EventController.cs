@@ -107,7 +107,7 @@ namespace Web.Controllers
                     _eventRepository.SubmitChanges();
 
                     //Send notifications
-                    SendUpdateNotifications(createMe, createMe.RegisteredInvites, createMe.NonRegisteredInvites);
+                    SendUpdateNotifications(createMe, createMe.RegisteredInvites, createMe.UnRegisteredInvites);
 
                     return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
                 }
@@ -167,7 +167,7 @@ namespace Web.Controllers
                 {
                     var initialRequiredFieldsState = _eventService.GetSerializedModelState(updateMe);
                     var previousRegisteredInvites = new List<Person>(updateMe.RegisteredInvites);
-                    var previousNonRegisteredInvites = new List<PendingInvitation>(updateMe.NonRegisteredInvites);
+                    var previousNonRegisteredInvites = new List<PendingInvitation>(updateMe.UnRegisteredInvites);
 
                     updateMe.Title = model.Title;
                     updateMe.Description = model.Description;
@@ -193,9 +193,9 @@ namespace Web.Controllers
 
                     var updatedRequiredFieldsState = _eventService.GetSerializedModelState(updateMe);
                     var newRegisteredInvites = _eventService.GetRegisteredInvites(previousRegisteredInvites, updateMe.RegisteredInvites);
-                    var newNonRegisteredInvites = _eventService.GetNonRegisteredInvites(previousNonRegisteredInvites, updateMe.NonRegisteredInvites);
+                    var newNonRegisteredInvites = _eventService.GetNonRegisteredInvites(previousNonRegisteredInvites, updateMe.UnRegisteredInvites);
                     var uninvitedRegisteredUsers = _eventService.GetRegisteredUninvites(previousRegisteredInvites, updateMe.RegisteredInvites);
-                    var uninvitedNonRegisteredUsers = _eventService.GetNonRegisteredUninvites(previousNonRegisteredInvites, updateMe.NonRegisteredInvites);
+                    var uninvitedNonRegisteredUsers = _eventService.GetNonRegisteredUninvites(previousNonRegisteredInvites, updateMe.UnRegisteredInvites);
 
                     //Send notifications if the model has changed
                     if (!initialRequiredFieldsState.Equals(updatedRequiredFieldsState))
@@ -267,58 +267,69 @@ namespace Web.Controllers
             //Populate the total list of people who could be invited to an event.
             var userName = (User != null) ? User.Identity.Name : string.Empty;
             var userId = _userService.GetCurrentUserId(userName);
-            var people = new List<SelectListItem>();
+            //var people = new List<PersonViewModel>();
             var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
 
-            //Ids of friends who are coming
-            var acceptedIds = dataModel.PeopleWhoAccepted.Select(x => x.PersonId);
+            ////Ids of friends who are coming
+            //var acceptedIds = dataModel.PeopleWhoAccepted.Select(x => x.PersonId);
 
-            //Ids of friends who have declined
-            var declinedIds = dataModel.PeopleWhoDeclined.Select(x => x.PersonId);
+            ////Ids of friends who have declined
+            //var declinedIds = dataModel.PeopleWhoDeclined.Select(x => x.PersonId);
 
-            //Friends who have accepted
-            coordinator.MyRegisteredFriends
-                             .Where(x => acceptedIds.Contains(x.PersonId))
-                             .ToList()
-                             .ForEach(
-                                 x => people.Add(new SelectListItem
-                                 {
-                                     Value = x.PersonId.ToString(),
-                                     Text = (x.FirstName == null || x.LastName == null) ? x.UserName : x.FirstName + " " + x.LastName + " (accepted)"
-                                 }));
+            ////Friends who have accepted
+            //coordinator.MyRegisteredFriends
+            //                 .Where(x => acceptedIds.Contains(x.PersonId))
+            //                 .ToList()
+            //                 .ForEach(
+            //                     x => people.Add(new PersonViewModel
+            //                     {
+            //                         PersonId = x.PersonId,
+            //                         FirstName = x.FirstName,
+            //                         LastName = x.LastName,
+            //                         Email = x.Email,
+            //                         IsRegistered = true
+            //                     }));
 
-            //Friends who have declined
-            coordinator.MyRegisteredFriends
-                             .Where(x => declinedIds.Contains(x.PersonId))
-                             .ToList()
-                             .ForEach(
-                                 x => people.Add(new SelectListItem
-                                 {
-                                     Value = x.PersonId.ToString(),
-                                     Text = (x.FirstName == null || x.LastName == null) ? x.UserName : x.FirstName + " " + x.LastName + " (declined)"
-                                 }));
+            ////Friends who have declined
+            //coordinator.MyRegisteredFriends
+            //                 .Where(x => declinedIds.Contains(x.PersonId))
+            //                 .ToList()
+            //                 .ForEach(
+            //                     x => people.Add(new PersonViewModel
+            //                     {
+            //                         PersonId = x.PersonId,
+            //                         FirstName = x.FirstName,
+            //                         LastName = x.LastName,
+            //                         Email = x.Email,
+            //                         IsRegistered = true
+            //                     }));
 
-            //Everone else
-            coordinator.MyRegisteredFriends
-                             .Where(x => !acceptedIds.Contains(x.PersonId) && !declinedIds.Contains(x.PersonId))
-                             .ToList()
-                             .ForEach(
-                                 x => people.Add(new SelectListItem
-                                 {
-                                     Value = x.PersonId.ToString(),
-                                     Text = (x.FirstName == null || x.LastName == null) ? x.UserName : x.FirstName + " " + x.LastName
-                                 }));
+            ////Everone else
+            //coordinator.MyRegisteredFriends
+            //                 .Where(x => !acceptedIds.Contains(x.PersonId) && !declinedIds.Contains(x.PersonId))
+            //                 .ToList()
+            //                 .ForEach(
+            //                     x => people.Add(new PersonViewModel
+            //                     {
+            //                         PersonId = x.PersonId,
+            //                         FirstName = x.FirstName,
+            //                         LastName = x.LastName,
+            //                         Email = x.Email,
+            //                         IsRegistered = true
+            //                     }));
 
-            coordinator.MyNonRegisteredFriends
-                             .ToList()
-                             .ForEach(
-                                 x => people.Add(new SelectListItem
-                                 {
-                                     Value = (x.Email != null) ? x.Email + "|" + x.FirstName + "|" + x.LastName : x.FacebookId + "|" + x.FirstName + " " + x.LastName,
-                                     Text = x.FirstName + " " + x.LastName
-                                 }));
+            //coordinator.MyNonRegisteredFriends
+            //                 .ToList()
+            //                 .ForEach(
+            //                     x => people.Add(new PersonViewModel
+            //                     {
+            //                         PersonId = x.PersonId,
+            //                         FirstName = x.FirstName,
+            //                         LastName = x.LastName,
+            //                         Email = x.Email,
+            //                         IsRegistered = false
+            //                     }));
 
-            model.PeopleList = new MultiSelectList(people, "Value", "Text");
             model.TimeList = _eventService.GetTimeList();
             //model.FacebookFriends = _userService.GetFacebookFriends(userName);
 
@@ -326,29 +337,12 @@ namespace Web.Controllers
             if (dataModel.FoodItems != null) dataModel.FoodItems.ForEach(x => model.AllEventFoodItems.Add(new FoodItemViewModel(x)));
             if (dataModel.Games != null) dataModel.Games.ForEach(x => model.AllEventGames.Add(new GameViewModel(x)));
 
-            var foodItems = new List<SelectListItem>();
-            var games = new List<SelectListItem>();
+            model.MyFoodItems = new List<FoodItemViewModel>();
+            model.MyGames = new List<GameViewModel>();
 
-            coordinator.MyFoodItems
-                             .ToList()
-                             .ForEach(
-                                 x => foodItems.Add(new SelectListItem
-                                 {
-                                     Value = x.FoodItemId.ToString(),
-                                     Text = x.Title
-                                 }));
+            coordinator.MyFoodItems.ForEach(x => model.MyFoodItems.Add(new FoodItemViewModel(x)));
+            coordinator.MyGames.ForEach(x => model.MyGames.Add(new GameViewModel(x)));
 
-            coordinator.MyGames
-                             .ToList()
-                             .ForEach(
-                                 x => games.Add(new SelectListItem
-                                 {
-                                     Value = x.GameId.ToString(),
-                                     Text = x.Title
-                                 }));
-
-            model.MyFoodItems = new MultiSelectList(foodItems, "Value", "Text");
-            model.MyGames = new MultiSelectList(games, "Value", "Text");
             model.EventId = dataModel.EventId;
             model.PersonId = coordinator.PersonId;
 
@@ -410,7 +404,7 @@ namespace Web.Controllers
                 notifications.Add(updateNotification);
             });
 
-            theEvent.NonRegisteredInvites
+            theEvent.UnRegisteredInvites
                 .Where(x => !newNonRegisteredInvites.Select(y => y.PendingInvitationId).Contains(x.PendingInvitationId))
                 .ToList().ForEach(x =>
             {
@@ -518,7 +512,7 @@ namespace Web.Controllers
                     notifications.Add(updateNotification);
                 });
 
-            theEvent.NonRegisteredInvites.ForEach(x =>
+            theEvent.UnRegisteredInvites.ForEach(x =>
                 {
                     var updateNotification = _notificationService.GetNotificationForEventCancelled(theEvent.EventId, 0, x.PendingInvitationId);
                     notifications.Add(updateNotification);
@@ -536,6 +530,9 @@ namespace Web.Controllers
             //Build out the list of food and games items in session
             theEvent.FoodItems.ForEach(x => SessionHelper.Events.AddFoodItem(x.FoodItemId, theEvent.EventId));
             theEvent.Games.ForEach(x => SessionHelper.Events.AddGame(x.GameId, theEvent.EventId));
+            theEvent.RegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(x.PersonId, theEvent.EventId));
+            //Make the unregistered ids negative to avoid conflicts
+            theEvent.UnRegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(-x.PendingInvitationId, theEvent.EventId));
             thePerson.MyFoodItems.ForEach(x => SessionHelper.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
             thePerson.MyGames.ForEach(x => SessionHelper.Person.AddGame(x.GameId, thePerson.PersonId));
         }

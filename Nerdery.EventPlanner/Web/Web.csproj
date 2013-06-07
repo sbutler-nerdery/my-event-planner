@@ -217,6 +217,7 @@
     <Compile Include="ViewModels\LocalPasswordViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\ManageNonPasswordViewModel.cs" />
+    <Compile Include="ViewModels\PendingInvitationViewModel.cs" />
     <Compile Include="ViewModels\PersonViewModel.cs" />
     <Compile Include="ViewModels\RegisterExternalLoginViewModel.cs" />
     <Compile Include="ViewModels\RegisterViewModel.cs" />
@@ -347,6 +348,9 @@
     <Content Include="Views\Shared\_ManageEventItems.cshtml" />
     <Content Include="Views\Shared\_FoodItemListTemplate.cshtml" />
     <Content Include="Views\Shared\_GameListTemplate.cshtml" />
+    <Content Include="Views\Shared\_InvitedPeopleTemplate.cshtml">
+      <SubType>Code</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

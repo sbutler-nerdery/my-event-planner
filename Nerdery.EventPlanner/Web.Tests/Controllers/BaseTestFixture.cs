@@ -60,10 +60,10 @@ namespace Web.Tests.Controllers
         protected EditEventViewModel GetTestEventViewModel(int id = 0)
         {
             //People
-            var theHost = "1";
-            var guestOne = "2";
-            var guestTwo = "3";
-            var theInvitees = new List<string> { guestOne, guestTwo };
+            var theHost = new PersonViewModel { PersonId = 1 };
+            var guestOne = new PersonViewModel{ PersonId = 2 };
+            var guestTwo = new PersonViewModel { PersonId = 3 };
+            var theInvitees = new List<PersonViewModel> { guestOne, guestTwo };
 
             //Food
             var burgers = new FoodItemViewModel

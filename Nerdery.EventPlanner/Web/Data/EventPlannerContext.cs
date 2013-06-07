@@ -33,7 +33,7 @@ namespace Web.Data
                         mc.MapRightKey("FriendId");
                     });
 
-            modelBuilder.Entity<Person>().HasMany(p => p.MyNonRegisteredFriends)
+            modelBuilder.Entity<Person>().HasMany(p => p.MyUnRegisteredFriends)
                 .WithMany(pn => pn.MyFriends)
                 .Map(mc =>
                 {
@@ -91,7 +91,7 @@ namespace Web.Data
                 });
 
             //People Invited Who Don't Have an Account Yet
-            modelBuilder.Entity<Event>().HasMany(e => e.NonRegisteredInvites)
+            modelBuilder.Entity<Event>().HasMany(e => e.UnRegisteredInvites)
                 .WithMany(p => p.MyInvitations)
                 .Map(mc =>
                 {

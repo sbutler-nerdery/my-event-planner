@@ -68,10 +68,17 @@ namespace Web
         public const string SERVICE_REMOVE_FOOD_ITEM_FAIL = "An error occurred. Unable to remove the specified food item.";
         public const string SERVICE_GET_FOOD_ITEM_FAIL = "An error occurred. Unable to retieve the specified food item.";
         public const string SERVICE_UPDATE_FOOD_ITEM_FAIL = "An error occurred. Unable to update the food item.";
+
         public const string SERVICE_ADD_GAME_FAIL = "An error occurred. Unable to add the specified game.";
         public const string SERVICE_REMOVE_GAME_FAIL = "An error occurred. Unable to remove the specified game.";
         public const string SERVICE_GET_GAME_FAIL = "An error occurred. Unable to retieve the specified game.";
         public const string SERVICE_UPDATE_GAME_FAIL = "An error occurred. Unable to update the game.";
+
+        public const string SERVICE_ADD_GUEST_FAIL = "An error occurred. Unable to add the guest.";
+        public const string SERVICE_REMOVE_GUEST_FAIL = "An error occurred. Unable to remove the guest.";
+        public const string SERVICE_GET_GUEST_FAIL = "An error occurred. Unable to retieve the guest.";
+        public const string SERVICE_UPDATE_GUEST_FAIL = "An error occurred. Unable to update the guest.";
+
 
         #endregion
 

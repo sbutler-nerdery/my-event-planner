@@ -45,16 +45,16 @@ namespace Web.Tests.Services
         public void Invite_New_People()
         {
             //Arrange
-            var personOne = "1";
-            var personTwo = "2";
-            var personThree = "3";
-            var theHost = new Person { PersonId = 4, MyRegisteredFriends = new List<Person>(), MyNonRegisteredFriends = new List<PendingInvitation>()};
-            var viewModel = new EditEventViewModel{ PeopleInvited = new List<string>{personTwo, personThree} };
+            var personOne = new PersonViewModel{PersonId = 1};
+            var personTwo = new PersonViewModel { PersonId = 2 };
+            var personThree = new PersonViewModel { PersonId = 3 };
+            var theHost = new Person { PersonId = 4, MyRegisteredFriends = new List<Person>(), MyUnRegisteredFriends = new List<PendingInvitation>()};
+            var viewModel = new EditEventViewModel{ PeopleInvited = new List<PersonViewModel>{personTwo, personThree} };
             var dataModel = new Event
                 {
                     Coordinator = theHost,
                     RegisteredInvites = new List<Person> {new Person{PersonId = 2}, new Person{PersonId = 3}},
-                    NonRegisteredInvites = new List<PendingInvitation>()
+                    UnRegisteredInvites = new List<PendingInvitation>()
                 };
 
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { new Person() { PersonId = 1 } }.AsQueryable());
@@ -71,51 +71,59 @@ namespace Web.Tests.Services
         {
             //Arrange
             var template = "{0}{1}{2}{1}{3}";
-            var ben = string.Format(template, "ben@email.com", Constants.EVENT_INVITE_DELIMITER.ToString(), "Ben","Bufford");
-            var dan = string.Format(template, "dan@email.com", Constants.EVENT_INVITE_DELIMITER.ToString(), "Dan", "Gidman");
-            var herb = string.Format(template, "herb@email.com", Constants.EVENT_INVITE_DELIMITER.ToString(), "Herb", "Nease");
-            var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { dan, herb } };
+            var ben = new PersonViewModel{ PersonId = 1, Email = "ben@email.com", FirstName = "Ben", LastName = "Bufford" };
+            var dan = new PersonViewModel { PersonId = 2, Email = "dan@email.com", FirstName = "Dan", LastName = "Gidman" };
+            var herb = new PersonViewModel { PersonId = 3, Email = "herb@email.com", FirstName = "Herb", LastName = "Neese" };
+            var viewModel = new EditEventViewModel { PeopleInvited = new List<PersonViewModel> { dan, herb } };
             var dataModel = new Event
             {
-                Coordinator = new Person { PersonId = 1, MyNonRegisteredFriends = new List<PendingInvitation>()},
-                NonRegisteredInvites = new List<PendingInvitation> { new PendingInvitation { Email = "dan@email.com" }, new PendingInvitation { Email = "herb@email.com" } },
+                Coordinator = new Person { PersonId = 1, MyUnRegisteredFriends = new List<PendingInvitation>()},
+                UnRegisteredInvites = new List<PendingInvitation>
+                    {
+                        new PendingInvitation { PendingInvitationId = 2, Email = "dan@email.com" }, 
+                        new PendingInvitation { PendingInvitationId = 3, Email = "herb@email.com" }
+                    },
                 RegisteredInvites = new List<Person>()
             };
 
-            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation> { new PendingInvitation { Email = "ben@email.com" } }.AsQueryable());
+            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation> { new PendingInvitation
+                {
+                    PendingInvitationId = 1, 
+                    Email = "ben@email.com"
+                } }.AsQueryable());
 
             //Act
             viewModel.PeopleInvited.Add(ben);
             EventService.InviteNewPeople(dataModel, viewModel);
 
             //Assert
-            Assert.AreEqual(dataModel.NonRegisteredInvites.Count, 3);
+            Assert.AreEqual(dataModel.UnRegisteredInvites.Count, 3);
 
         }
         [Ignore]
         [TestMethod]
         public void Invite_New_People_By_Facebook()
         {
-            //Arrange
-            var ben = "00000|Ben Van Orm Bufford";
-            var dan = "11111|Dan Gidman";
-            var herb = "22222|Herb Nease";
-            var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { dan, herb } };
-            var dataModel = new Event
-            {
-                Coordinator = new Person { PersonId = 1, MyRegisteredFriends = new List<Person>(), MyNonRegisteredFriends = new List<PendingInvitation>()},
-                NonRegisteredInvites = new List<PendingInvitation> { new PendingInvitation { FacebookId = "11111" }, new PendingInvitation { FacebookId = "22222" } },
-                RegisteredInvites = new List<Person>()
-            };
+            ////Arrange
+            //var ben = "00000|Ben Van Orm Bufford";
+            //var dan = "11111|Dan Gidman";
+            //var herb = "22222|Herb Nease";
+            //var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { dan, herb } };
+            //var dataModel = new Event
+            //{
+            //    Coordinator = new Person { PersonId = 1, MyRegisteredFriends = new List<Person>(), MyUnRegisteredFriends = new List<PendingInvitation>()},
+            //    NonRegisteredInvites = new List<PendingInvitation> { new PendingInvitation { FacebookId = "11111" }, new PendingInvitation { FacebookId = "22222" } },
+            //    RegisteredInvites = new List<Person>()
+            //};
 
-            A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation> { new PendingInvitation { FacebookId = "00000" } }.AsQueryable());
+            //A.CallTo(() => InvitationRepo.GetAll()).Returns(new List<PendingInvitation> { new PendingInvitation { FacebookId = "00000" } }.AsQueryable());
 
-            //Act
-            viewModel.PeopleInvited.Add(ben);
-            EventService.InviteNewPeople(dataModel, viewModel);
+            ////Act
+            //viewModel.PeopleInvited.Add(ben);
+            //EventService.InviteNewPeople(dataModel, viewModel);
 
-            //Assert
-            Assert.AreEqual(dataModel.NonRegisteredInvites.Count, 3);
+            ////Assert
+            //Assert.AreEqual(dataModel.NonRegisteredInvites.Count, 3);
         }
         /// <summary>
         /// This unit test will ensure that people can be un-invited to an event
@@ -124,17 +132,24 @@ namespace Web.Tests.Services
         public void Uninvite_People()
         {
             //Arrange
-            var personOne = new Person{ PersonId = 1, MyFoodItems = new List<FoodItem>(), MyGames = new List<Game>()};
+            var personOne = new Person { PersonId = 1, MyFoodItems = new List<FoodItem>(), MyGames = new List<Game>()};
             var personTwo = new Person { PersonId = 2, MyFoodItems = new List<FoodItem>(), MyGames = new List<Game>() };
             var personThree = new Person { PersonId = 3, MyFoodItems = new List<FoodItem>(), MyGames = new List<Game>() };
-            var emailPerson = "bart@email.com|Bart|Simpson";
-            var facebookPerson = "00000|Homer Simpson";
-            var theHost = new Person { PersonId = 4, MyFoodItems = new List<FoodItem>(), MyGames = new List<Game>() };
-            var viewModel = new EditEventViewModel { PeopleInvited = new List<string> { personTwo.PersonId.ToString(), personThree.PersonId.ToString(), emailPerson, facebookPerson } };
+
+            var vmPersonOne = new PersonViewModel(personOne);
+            var vmPersonTwo = new PersonViewModel(personTwo);
+            var vmEmailPerson = new PersonViewModel { PersonId = -3, Email = "bart@email.com" };
+
+            var viewModel = new EditEventViewModel { PeopleInvited = new List<PersonViewModel>
+                {
+                    vmPersonOne, 
+                    vmPersonTwo, 
+                    vmEmailPerson
+                } };
             var dataModel = new Event
             {
                 RegisteredInvites = new List<Person> { new Person { PersonId = 2 }, new Person { PersonId = 3 } },
-                NonRegisteredInvites = new List<PendingInvitation> { new PendingInvitation { Email = "bart@email.com" }, new PendingInvitation { FacebookId = "00000" } },
+                UnRegisteredInvites = new List<PendingInvitation> { new PendingInvitation { PendingInvitationId = 3, Email = "bart@email.com" } },
                 PeopleWhoAccepted = new List<Person> { new Person { PersonId = 2 } },
                 PeopleWhoDeclined = new List<Person> { new Person { PersonId = 3 } }
             };
@@ -142,15 +157,14 @@ namespace Web.Tests.Services
             A.CallTo(() => PersonRepo.GetAll()).Returns(new EnumerableQuery<Person>(new[] {personOne, personTwo, personThree}));
 
             //Act
-            viewModel.PeopleInvited.Remove(personThree.PersonId.ToString());
-            viewModel.PeopleInvited.Remove(personTwo.PersonId.ToString());
-            viewModel.PeopleInvited.Remove(emailPerson);
-            viewModel.PeopleInvited.Remove(facebookPerson);
+            viewModel.PeopleInvited.Remove(vmPersonOne);
+            viewModel.PeopleInvited.Remove(vmPersonTwo);
+            viewModel.PeopleInvited.Remove(vmEmailPerson);
             EventService.UninvitePeople(dataModel, viewModel);
 
             //Assert
             Assert.AreEqual(dataModel.RegisteredInvites.Count, 0);
-            Assert.AreEqual(dataModel.NonRegisteredInvites.Count, 0);
+            Assert.AreEqual(dataModel.UnRegisteredInvites.Count, 0);
             Assert.AreEqual(dataModel.PeopleWhoAccepted.Count, 0);
             Assert.AreEqual(dataModel.PeopleWhoDeclined.Count, 0);            
         }
@@ -177,7 +191,7 @@ namespace Web.Tests.Services
                     Location = "My House", 
                     StartDate = DateTime.Now, 
                     EndDate = DateTime.Now.AddHours(3),
-                    NonRegisteredInvites = new List<PendingInvitation>(),
+                    UnRegisteredInvites = new List<PendingInvitation>(),
                     RegisteredInvites = new List<Person>()
                 };
 
