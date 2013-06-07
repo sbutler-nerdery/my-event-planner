@@ -90,17 +90,20 @@ namespace Web.Controllers
         /// <summary>
         /// Get a single guest from the database using the specified id
         /// </summary>
-        /// <param name="personId"></param>
+        /// <param name="guestId"></param>
         /// <returns></returns>
         [HttpPost]
-        public ActionResult GetEventGuest(int personId)
+        public ActionResult GetEventGuest(int guestId)
         {
             var response = new Response { Error = false };
 
             try
             {
-                var registeredGuest = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
-                var unRegisteredGuest = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == personId);
+                var registeredGuest = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == guestId);
+
+                //Change the guestId to a posative value
+                guestId = Math.Abs(guestId);
+                var unRegisteredGuest = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == guestId);
 
                 var guest = (registeredGuest != null) ? new PersonViewModel(registeredGuest) : new PersonViewModel
                     {
@@ -256,17 +259,15 @@ namespace Web.Controllers
                 var theEvent = GetEventById(model.EventId);
 
                 //Update the food item
-                var updateMe = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == model.EmailInvite.PersonId);
-                updateMe.FirstName = model.EmailInvite.FirstName;
-                updateMe.LastName = model.EmailInvite.LastName;
-                updateMe.Email = model.EmailInvite.Email;
+                int guestId = Math.Abs(model.UpdateGuest.PersonId); //Make the person id posative
+                var updateMe = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == guestId);
+                updateMe.FirstName = model.UpdateGuest.FirstName;
+                updateMe.LastName = model.UpdateGuest.LastName;
+                updateMe.Email = model.UpdateGuest.Email;
 
                 //Get list of pending invitation ids
                 var pendingEventInvitations = SessionHelper.Events.GetGuestList(model.EventId);
-                var personFriendsList = new List<int>();
-
-                thePerson.MyRegisteredFriends.ForEach(x => personFriendsList.Add(x.PersonId));
-                thePerson.MyUnRegisteredFriends.ForEach(x => personFriendsList.Add(x.PendingInvitationId));
+                var personFriendsList = GetPersonFriendList(thePerson);
 
                 //Populate the guset list
                 var viewModel = GetEventViewModel(theEvent);

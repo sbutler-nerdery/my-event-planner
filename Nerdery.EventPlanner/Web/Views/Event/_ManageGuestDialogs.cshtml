@@ -44,7 +44,7 @@
     @using (Ajax.BeginForm("UpdateGuestInfo", "Service", new AjaxOptions
     {
         HttpMethod = "POST",
-        OnSuccess = "EventPlanner.Events.refreshGuests",
+        OnSuccess = "EventPlanner.Events.refreshGuests('update-guest', data)",
         OnBegin = "EventPlanner.Modals.showLoader('update-guest')",
         OnComplete = "EventPlanner.Modals.hideLoader('update-guest')"
     }))
@@ -72,6 +72,7 @@
                 @Html.EditorFor(model => model.UpdateGuest.Email)
                 @Html.ValidationMessageFor(model => model.UpdateGuest.Email)
             </div>  
+            @Html.HiddenFor(model => model.EventId)
             @Html.HiddenFor(model => model.UpdateGuest.PersonId)
             <input type="submit" value="Update" />
             <div class="loader"></div>

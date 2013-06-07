@@ -283,7 +283,7 @@
                 APP.Modals.open(actionKey);
             };
 
-            APP.Events.getSingleGame(guestId, callback);
+            APP.Events.getSingleGuest(guestId, callback);
         },
         /**/
         addEmailInvite: function (response) {
