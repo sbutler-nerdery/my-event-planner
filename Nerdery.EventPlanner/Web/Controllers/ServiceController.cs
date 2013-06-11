@@ -147,9 +147,6 @@ namespace Web.Controllers
 
                 if (exists == null)
                 {
-                    var userName = model.EmailInvite.FirstName + " " + model.EmailInvite.LastName;
-                    response.Data = new { PersonId = 0, model.EmailInvite.Email, UserName = userName, model.EmailInvite.FirstName, model.EmailInvite.LastName, model.EmailInvite.InviteControlId };
-
                     //Add the unregistered guest to the database
                     var newGuest = new PendingInvitation
                     {
@@ -164,16 +161,24 @@ namespace Web.Controllers
                     //Add to the event host's list of unregistered friends
                     thePerson.MyUnRegisteredFriends.Add(newGuest);
 
-                    //Add a negative value to the list
+                    //Add a negative value to the list ot distinguish it from registered guests.
                     var tempId = -newGuest.PendingInvitationId;
 
                     //Add the unregistered user to session
                     SessionHelper.Events.AddGuest(tempId, model.EventId);
+
+                    //Add a personalized message for the user if it exists
+                    if (!string.IsNullOrEmpty(model.EmailInvite.InviteMessage))
+                        SessionHelper.Events.AddOrUpdateMessage(model.EventId, tempId, model.EmailInvite.InviteMessage);
                 }
                 else
                 {
                     //Add the registered user to the session
                     SessionHelper.Events.AddGuest(exists.PersonId, model.EventId);
+
+                    //Add a personalized message for the user if it exists
+                    if (!string.IsNullOrEmpty(model.EmailInvite.InviteMessage))
+                        SessionHelper.Events.AddOrUpdateMessage(model.EventId, exists.PersonId, model.EmailInvite.InviteMessage);
                 }
 
                 //Get list of pending invitation ids
@@ -264,6 +269,9 @@ namespace Web.Controllers
                 updateMe.LastName = model.UpdateGuest.LastName;
                 updateMe.Email = model.UpdateGuest.Email;
 
+                //Update the personalized message 
+                SessionHelper.Events.AddOrUpdateMessage(model.EventId, guestId, model.UpdateGuest.InviteMessage);
+
                 //Get list of pending invitation ids
                 var pendingEventInvitations = SessionHelper.Events.GetGuestList(model.EventId);
                 var personFriendsList = GetPersonFriendList(thePerson);
@@ -307,6 +315,9 @@ namespace Web.Controllers
 
                 //Remove from the list
                 SessionHelper.Events.RemoveGuest(guestId, eventId);
+
+                //Remove the message
+                SessionHelper.Events.RemoveMessage(eventId, guestId);
 
                 //Get list of pending invitation ids
                 var pendingEventInvitations = SessionHelper.Events.GetGuestList(eventId);
@@ -896,6 +907,9 @@ namespace Web.Controllers
 
         private List<PersonViewModel> GetSelectedGuests(List<int> eventGuestIds, List<int> personFriendIds, int eventId)
         {
+            //Get the list of personalized messages to be sent out...
+            var messageList = SessionHelper.Events.GetMessageList(eventId);
+
             var guestList = new List<PersonViewModel>();
             var selectedGuestIds = personFriendIds.Intersect(eventGuestIds);
             _personRepository.GetAll()
@@ -904,7 +918,9 @@ namespace Web.Controllers
                 .ToList().ForEach(x =>
                 {
                     var viewModel = new PersonViewModel(x);
+                    var message = messageList.FirstOrDefault(m => m.GuestId == x.PersonId);
                     viewModel.IsRegistered = true;
+                    viewModel.InviteMessage = (message != null) ? message.Message : "";
                     guestList.Add(viewModel);
                 });
 
@@ -919,12 +935,14 @@ namespace Web.Controllers
                 .OrderBy(x => x.FirstName)
                 .ToList().ForEach(x =>
                 {
+                    var message = messageList.FirstOrDefault(m => m.GuestId == -x.PendingInvitationId);
                     var viewModel = new PersonViewModel
                         {
                             PersonId = -x.PendingInvitationId,
                             FirstName = x.FirstName,
                             LastName = x.LastName,
                             Email = x.Email,
+                            InviteMessage = (message != null) ? message.Message : "",
                             IsRegistered = false
                         };
                     guestList.Add(viewModel);

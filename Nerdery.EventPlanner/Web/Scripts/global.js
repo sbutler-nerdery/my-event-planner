@@ -194,7 +194,6 @@
 
             APP.Events.getSingleGame(gameId, callback);
         },
-        /**/
         getSingleGuest: function (guestId, callback) {
             APP.Ajax.call("/Service/GetEventGuest", { guestId: guestId }, callback);
         },
@@ -285,31 +284,6 @@
 
             APP.Events.getSingleGuest(guestId, callback);
         },
-        /**/
-        addEmailInvite: function (response) {
-            if (response.Error) {
-                alert(response.Message);
-                return;
-            }
-
-            var actionKey = "invite-person-to-event";
-            var controlId = response.Data.InviteControlId;
-            var id = response.Data.PersonId;
-            var email = response.Data.Email;
-            var text = (response.Data.FirstName == null || response.Data.LastName == null)
-                ? response.Data.UserName
-                : response.Data.FirstName + " " + response.Data.LastName;
-            var value = (id == 0) ? email + $delimieter + response.Data.FirstName + $delimieter + response.Data.LastName : id;
-            $("#" + controlId).append("<option value='" + value + "'>" + text + "</option>");
-            APP.Autocomplete.addSelectedItem(controlId, value);
-
-            //Clear the fields...
-            $("[data-action=" + actionKey + "] :input[type=text]").each(function () {
-                $(this).val("");
-            });
-
-            EventPlanner.Modals.dismiss(actionKey);
-        },
         //This is not being used at the moment because there is no way to send a facebook invitation via the Graph API
         addFacebookInvites: function (controlId) {
             var selectedCheckBoxes = $("input:checkbox:checked.facebook-invites");
@@ -355,22 +329,32 @@
             $defaultHeight = 400;
             //Set up modals
             $modals = $("[data-dialog=true]"); //invite-person-to-event
-            $modals.dialog({
-                autoOpen: false,
-                width: $defaultWidth,
-                height: $defaultHeight,
-                modal: true
-            });
+            //$modals.dialog({
+            //    autoOpen: false,
+            //    width: $defaultWidth,
+            //    height: $defaultHeight,
+            //    modal: true
+            //});
 
             //Set up triggers to open modals
             $modals.each(function () {
                 var modal = this;
                 var actionKey = $(modal).data("action");
                 var trigger = $("[data-open-modal=" + actionKey + "]").first();
+                var width = ($(modal).data("width") !== undefined) ? $(modal).data("width") : $defaultWidth;
+                var height = ($(modal).data("height") !== undefined) ? $(modal).data("height") : $defaultHeight;
                 var longList = $("[data-list=long]");
 
                 longList.height($defaultHeight - 200);
                 longList.css({ "overflow-y": "scroll" });
+
+                $(modal).dialog({
+                    autoOpen: false,
+                    width: width,
+                    height: height,
+                    modal: true
+                });
+
                 trigger.click(function () {
                     $(modal).dialog("open");
                 });

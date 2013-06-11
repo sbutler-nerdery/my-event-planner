@@ -110,10 +110,10 @@ namespace Web.ViewModels
         /// </summary>
         public bool IsRegistered { get; set; }
         /// <summary>
-        /// Get or set the name of the control id used by the invite people dialog
+        /// Get or set the message that will be sent to a user when they are invited to an event.
         /// </summary>
-        public string InviteControlId { get; set; }
-
+        [Display(Name = "Message - (optional)")]
+        public string InviteMessage { get; set; }
         #endregion
 
         #region Methods

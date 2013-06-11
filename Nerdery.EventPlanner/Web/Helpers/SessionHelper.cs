@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.SessionState;
+using System.Web.UI;
 
 namespace Web.Helpers
 {
@@ -24,20 +25,12 @@ namespace Web.Helpers
 
             if (Session[sessionKey] == null)
                 Session[sessionKey] = new List<int>();
-
-            if (Events.EventIds == null)
-                Events.EventIds = new List<int>();
-
-            if (Person.PersonIds == null)
-                Person.PersonIds = new List<int>();
         }
 
         #region Events
 
         public class Events
         {
-            public static List<int> EventIds { get; set; }
-
             /// <summary>
             /// Reset the session infomation for the specified person id
             /// </summary>
@@ -47,12 +40,15 @@ namespace Web.Helpers
                 var foodSessionKey = GetFoodSessionKey(eventId);
                 var gameSessionKey = GetGameSessionKey(eventId);
                 var personSessionKey = GetGuestSessionKey(eventId);
+                var messageSessionKey = GetMessageSessionKey(eventId);
                 EnsureSessionKeyValue(foodSessionKey);
                 EnsureSessionKeyValue(gameSessionKey);
                 EnsureSessionKeyValue(personSessionKey);
+                EnsureSessionKeyValue(messageSessionKey);
                 Session[foodSessionKey] = new List<int>();
                 Session[gameSessionKey] = new List<int>();
                 Session[personSessionKey] = new List<int>();
+                Session[messageSessionKey] = new List<UserMessage>();
             }
 
             #region Food
@@ -66,9 +62,6 @@ namespace Web.Helpers
             {
                 var sessionKey = GetFoodSessionKey(eventId);
                 EnsureSessionKeyValue(sessionKey);
-
-                if (!EventIds.Contains(eventId))
-                    EventIds.Add(eventId);
 
                 return Session[sessionKey] as List<int>;
             }
@@ -159,9 +152,6 @@ namespace Web.Helpers
                 var sessionKey = GetGuestSessionKey(eventId);
                 EnsureSessionKeyValue(sessionKey);
 
-                if (!EventIds.Contains(eventId))
-                    EventIds.Add(eventId);
-
                 return Session[sessionKey] as List<int>;
             }
             /// <summary>
@@ -195,6 +185,61 @@ namespace Web.Helpers
 
             #endregion
 
+            #region Messages
+            /// <summary>
+            /// Get the list of personalized messages that will be send to guests for the specified
+            /// event id.
+            /// </summary>
+            /// <param name="eventId"></param>
+            /// <returns></returns>
+            public static List<UserMessage> GetMessageList(int eventId)
+            {
+                var sessionKey = GetMessageSessionKey(eventId);
+                EnsureSessionKeyValue(sessionKey);
+                var messageList = Session[sessionKey] as List<UserMessage>;
+
+                return messageList;
+            }
+            /// <summary>
+            /// Add a message to an event for the specified guest id
+            /// </summary>
+            /// <param name="eventId"></param>
+            /// <param name="guestId"></param>
+            /// <param name="text"></param>
+            public static void AddOrUpdateMessage(int eventId, int guestId, string text)
+            {
+                var sessionKey = GetMessageSessionKey(eventId);
+                EnsureSessionKeyValue(sessionKey);
+                var messageList = Session[sessionKey] as List<UserMessage>;
+                var message = messageList.FirstOrDefault(x => x.GuestId.Equals(guestId));
+
+                if (message == null)
+                    messageList.Add(new UserMessage { GuestId = guestId, Message = text });
+                else
+                    message.Message = text;
+
+                Session[sessionKey] = messageList;
+            }
+            /// <summary>
+            /// Remove a message from an event for the specified guest id
+            /// </summary>
+            /// <param name="eventId"></param>
+            /// <param name="guestId"></param>
+            public static void RemoveMessage(int eventId, int guestId)
+            {
+                var sessionKey = GetMessageSessionKey(eventId);
+                EnsureSessionKeyValue(sessionKey);
+                var messageList = Session[sessionKey] as List<UserMessage>;
+                var removeMe = messageList.FirstOrDefault(x => x.GuestId.Equals(guestId));
+
+                if (removeMe != null)
+                    messageList.Remove(removeMe);
+
+                Session[sessionKey] = messageList;
+            }
+
+            #endregion
+
             #region Session Keys
 
             /// <summary>
@@ -224,6 +269,15 @@ namespace Web.Helpers
             {
                 return "invited-to-event-" + eventId.ToString();
             }
+            /// <summary>
+            /// Get the custom invitation message list session key for the specified event id
+            /// </summary>
+            /// <param name="eventId"></param>
+            /// <returns></returns>
+            private static string GetMessageSessionKey(int eventId)
+            {
+                return "custom-messages-for-event-" + eventId.ToString();
+            }
 
             #endregion
         }
@@ -234,8 +288,6 @@ namespace Web.Helpers
 
         public class Person
         {
-            public static List<int> PersonIds { get; set; }
-
             /// <summary>
             /// Reset the session infomation for the specified person id
             /// </summary>
@@ -250,6 +302,8 @@ namespace Web.Helpers
                 Session[gameSessionKey] = new List<int>();
             }
 
+            #region Food
+
             /// <summary>
             /// Get the list of food items that are waiting to be added to the database
             /// </summary>
@@ -260,12 +314,8 @@ namespace Web.Helpers
                 var sessionKey = GetFoodSessionKey(personId);
                 EnsureSessionKeyValue(sessionKey);
 
-                if (!PersonIds.Contains(personId))
-                    PersonIds.Add(personId);
-
                 return Session[sessionKey] as List<int>;
             }
-
             /// <summary>
             /// Add a food item to a person in session
             /// </summary>
@@ -294,6 +344,11 @@ namespace Web.Helpers
 
                 foodIds.Remove(foodItemId);
             }
+
+            #endregion
+
+            #region Games
+
             /// <summary>
             /// Get the list of games that are waiting to be added to the database
             /// </summary>
@@ -303,9 +358,6 @@ namespace Web.Helpers
             {
                 var sessionKey = GetGameSessionKey(eventId);
                 EnsureSessionKeyValue(sessionKey);
-
-                if (!PersonIds.Contains(eventId))
-                    PersonIds.Add(eventId);
 
                 return Session[sessionKey] as List<int>;
             }
@@ -337,6 +389,11 @@ namespace Web.Helpers
 
                 gameIds.Remove(gameId);
             }
+
+            #endregion
+
+            #region Session Keys
+
             /// <summary>
             /// Get the food session key for the specified person id
             /// </summary>
@@ -355,6 +412,27 @@ namespace Web.Helpers
             {
                 return "game-for-person-" + personId.ToString();
             }
+
+            #endregion 
+        }
+
+        #endregion
+
+        #region Helpers
+
+        /// <summary>
+        /// Represents a guest id and a message to be sent to it.
+        /// </summary>
+        public class UserMessage
+        {
+            /// <summary>
+            /// Get or set the guest id
+            /// </summary>
+            public int GuestId { get; set; }
+            /// <summary>
+            /// Get or set the message text
+            /// </summary>
+            public string Message { get; set; }
         }
 
         #endregion

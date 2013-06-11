@@ -132,7 +132,7 @@ namespace Web.Services
             return notification;
         }
 
-        public EventPlannerNotification GetNewInvitationNotification(int eventId, int registeredId, int nonRegisteredId, string invitationUrl)
+        public EventPlannerNotification GetNewInvitationNotification(int eventId, int registeredId, int nonRegisteredId, string invitationUrl, string message = "")
         {
             var notification = new EventPlannerNotification();
 
@@ -141,7 +141,14 @@ namespace Web.Services
             var nonRegisteredPerson = _invitationRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == nonRegisteredId);
             var coordinatorName = GetPersonName(theEvent.Coordinator);
 
-            notification.SendToFacebook = (registeredPerson != null) ? registeredPerson.NotifyWithFacebook : (nonRegisteredPerson.FacebookId != null);
+            var personalMessage = string.Empty;
+
+            if (message != string.Empty)
+            {
+                personalMessage = string.Format("</br><b>A personal message for you</b><p>{0}</p>", message);
+            }
+
+            //notification.SendToFacebook = (registeredPerson != null) ? registeredPerson.NotifyWithFacebook : (nonRegisteredPerson.FacebookId != null);
             notification.SendToEmail = (registeredPerson != null) ? registeredPerson.NotifyWithEmail : (nonRegisteredPerson.Email != null);
             notification.Email = (registeredPerson != null) ? registeredPerson.Email : nonRegisteredPerson.Email;
             notification.FacebookId = (registeredPerson != null) ? registeredPerson.FacebookId : nonRegisteredPerson.FacebookId;
@@ -149,7 +156,8 @@ namespace Web.Services
             notification.Message = string.Format(Constants.MESSAGE_NEW_TEMPLATE, coordinatorName,
                                                  theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                  theEvent.StartDate.ToShortTimeString(),
-                                                 invitationUrl);
+                                                 invitationUrl,
+                                                 personalMessage);
 
             return notification;            
         }

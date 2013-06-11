@@ -106,8 +106,11 @@ namespace Web.Controllers
                     _eventRepository.Insert(createMe);
                     _eventRepository.SubmitChanges();
 
+                    //Make a list of the custom messages by email address
+                    var messageList = GetEmailMessages(model.PeopleInvited);
+
                     //Send notifications
-                    SendUpdateNotifications(createMe, createMe.RegisteredInvites, createMe.UnRegisteredInvites);
+                    SendUpdateNotifications(createMe, createMe.RegisteredInvites, createMe.UnRegisteredInvites, messageList);
 
                     return RedirectToAction("Index", "Home", new {message = BaseControllerMessageId.SaveModelSuccess});
                 }
@@ -197,13 +200,16 @@ namespace Web.Controllers
                     var uninvitedRegisteredUsers = _eventService.GetRegisteredUninvites(previousRegisteredInvites, updateMe.RegisteredInvites);
                     var uninvitedNonRegisteredUsers = _eventService.GetNonRegisteredUninvites(previousNonRegisteredInvites, updateMe.UnRegisteredInvites);
 
+                    //Make a list of the custom messages by email address
+                    var messageList = GetEmailMessages(model.PeopleInvited);
+
                     //Send notifications if the model has changed
                     if (!initialRequiredFieldsState.Equals(updatedRequiredFieldsState))
-                        SendUpdateNotifications(updateMe, newRegisteredInvites, newNonRegisteredInvites);
+                        SendUpdateNotifications(updateMe, newRegisteredInvites, newNonRegisteredInvites, messageList);
                     //Even if the model state has not changed, send notifications to newly invited people
                     else
                     {
-                        SendInvitations(updateMe, newRegisteredInvites, newNonRegisteredInvites);
+                        SendInvitations(updateMe, newRegisteredInvites, newNonRegisteredInvites, messageList);
                     }
 
                     //No matter what let people know when they are uninvited
@@ -267,71 +273,11 @@ namespace Web.Controllers
             //Populate the total list of people who could be invited to an event.
             var userName = (User != null) ? User.Identity.Name : string.Empty;
             var userId = _userService.GetCurrentUserId(userName);
+
             //var people = new List<PersonViewModel>();
             var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
 
-            ////Ids of friends who are coming
-            //var acceptedIds = dataModel.PeopleWhoAccepted.Select(x => x.PersonId);
-
-            ////Ids of friends who have declined
-            //var declinedIds = dataModel.PeopleWhoDeclined.Select(x => x.PersonId);
-
-            ////Friends who have accepted
-            //coordinator.MyRegisteredFriends
-            //                 .Where(x => acceptedIds.Contains(x.PersonId))
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = true
-            //                     }));
-
-            ////Friends who have declined
-            //coordinator.MyRegisteredFriends
-            //                 .Where(x => declinedIds.Contains(x.PersonId))
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = true
-            //                     }));
-
-            ////Everone else
-            //coordinator.MyRegisteredFriends
-            //                 .Where(x => !acceptedIds.Contains(x.PersonId) && !declinedIds.Contains(x.PersonId))
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = true
-            //                     }));
-
-            //coordinator.MyNonRegisteredFriends
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = false
-            //                     }));
-
             model.TimeList = _eventService.GetTimeList();
-            //model.FacebookFriends = _userService.GetFacebookFriends(userName);
 
             //Populate food and games
             if (dataModel.FoodItems != null) dataModel.FoodItems.ForEach(x => model.AllEventFoodItems.Add(new FoodItemViewModel(x)));
@@ -387,7 +333,8 @@ namespace Web.Controllers
         /// <param name="theEvent">The specified event</param>
         /// <param name="newRegisteredInvites">A list of newly invited people who are registered users</param>
         /// <param name="newNonRegisteredInvites">A list of newly invited people who are non-registered users</param>
-        private void SendUpdateNotifications(Event theEvent, List<Person> newRegisteredInvites, List<PendingInvitation> newNonRegisteredInvites)
+        /// <param name="messageList">A list of personalized messages indexed by email address</param>
+        private void SendUpdateNotifications(Event theEvent, List<Person> newRegisteredInvites, List<PendingInvitation> newNonRegisteredInvites, Dictionary<string, string> messageList)
         {
             //This is here so that unit tests on this controller will pass. So much easier than faking it!
             if (Request == null)
@@ -415,7 +362,7 @@ namespace Web.Controllers
             _notificationService.SendNotifications(notifications);
 
             //Invite new people to the event...
-            SendInvitations(theEvent, newRegisteredInvites, newNonRegisteredInvites);
+            SendInvitations(theEvent, newRegisteredInvites, newNonRegisteredInvites, messageList);
         }
 
         /// <summary>
@@ -424,7 +371,8 @@ namespace Web.Controllers
         /// <param name="theEvent">The specified event</param>
         /// <param name="registeredInvites">A list of newly invited people who are registered users</param>
         /// <param name="nonRegisteredInvites">A list of newly invited people who are non-registered users</param>
-        private void SendInvitations(Event theEvent, List<Person> registeredInvites, List<PendingInvitation> nonRegisteredInvites)
+        /// <param name="messageList">A list of personalized messages indexed by email address</param>
+        private void SendInvitations(Event theEvent, List<Person> registeredInvites, List<PendingInvitation> nonRegisteredInvites, Dictionary<string, string> messageList)
         {
             //This is here so that unit tests on this controller will pass.
             if (Request == null)
@@ -438,8 +386,13 @@ namespace Web.Controllers
                     Request.Url.Scheme,
                     Request.Url.Authority,
                     Url.Action("AcceptInvitation", "Home", new { eventId = theEvent.EventId, accepteeId = x.PersonId }));
+
+                //Get the personalized message if there is one
+                var isPersonalMessage = messageList.ContainsKey(x.Email);
+                var personalMessage = (isPersonalMessage) ? messageList[x.Email] : "";
+
                 var notification = _notificationService
-                    .GetNewInvitationNotification(theEvent.EventId, x.PersonId, 0, notificationUrl);
+                    .GetNewInvitationNotification(theEvent.EventId, x.PersonId, 0, notificationUrl, personalMessage);
 
                 notifications.Add(notification);
             });
@@ -451,8 +404,12 @@ namespace Web.Controllers
                     Request.Url.Authority,
                     Url.Action("Register", "Account", new { eventId = theEvent.EventId, pendingInvitationId = x.PendingInvitationId }));
 
+                //Get the personalized message if there is one
+                var isPersonalMessage = messageList.ContainsKey(x.Email);
+                var personalMessage = (isPersonalMessage) ? messageList[x.Email] : "";
+
                 var notification = _notificationService
-                    .GetNewInvitationNotification(theEvent.EventId, 0, x.PendingInvitationId, notificationUrl);
+                    .GetNewInvitationNotification(theEvent.EventId, 0, x.PendingInvitationId, notificationUrl, personalMessage);
 
                 notifications.Add(notification);
             });
@@ -551,6 +508,18 @@ namespace Web.Controllers
 
             return theEvent;
         }        
+
+        private Dictionary<string, string> GetEmailMessages(List<PersonViewModel> peopleInvited)
+        {
+            var messageList = new Dictionary<string, string>();
+
+            peopleInvited.ForEach(x =>
+            {
+                if (!string.IsNullOrEmpty(x.InviteMessage)) messageList.Add(x.Email, x.InviteMessage);
+            });
+
+            return messageList;
+        }
 
         #endregion
 

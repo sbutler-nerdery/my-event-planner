@@ -21,7 +21,7 @@
                 @name
                 @if (!person.IsRegistered)
                 {
-                    <a href="javascript:EventPlanner.Events.updateGuest(@person.PersonId, 'update-guest');">Update</a>
+                    <a href="javascript:EventPlanner.Events.updateGuest(@person.PersonId, 'update-guest');">Update info</a>
                 }
                 <a href="javascript:EventPlanner.Events.removeGuest(@Model.EventId, @person.PersonId);">Remove</a>
                 <input type="hidden" name="PeopleInvited[@i].PersonId" value="@person.PersonId"/>
@@ -29,6 +29,7 @@
                 <input type="hidden" name="PeopleInvited[@i].LastName" value="@person.LastName"/>
                 <input type="hidden" name="PeopleInvited[@i].IsRegistered" value="@isRegistered"/>
                 <input type="hidden" name="PeopleInvited[@i].Email" value="@person.Email"/>
+                <input type="hidden" name="PeopleInvited[@i].InviteMessage" value="@person.InviteMessage"/>
             </li>
         }
     </ul>

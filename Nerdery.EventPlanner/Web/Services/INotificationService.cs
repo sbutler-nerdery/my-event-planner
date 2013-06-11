@@ -43,7 +43,7 @@ namespace Web.Services
         /// <param name="nonRegisteredId">an id for a person who is not registered in the system</param>
         /// <param name="invitationUrl">The URL the invited person will clik on to accept the inviation</param>
         /// <returns></returns>
-        EventPlannerNotification GetNewInvitationNotification(int eventId, int registeredId, int nonRegisteredId, string invitationUrl);
+        EventPlannerNotification GetNewInvitationNotification(int eventId, int registeredId, int nonRegisteredId, string invitationUrl, string message = "");
         /// <summary>
         /// Get a notification when a person accepts an event invitation.
         /// </summary>

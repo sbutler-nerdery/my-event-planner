@@ -120,7 +120,7 @@ namespace Web
         /// {4} = The event invitation URL
         /// </summary>
         public const string MESSAGE_NEW_TEMPLATE =
-            "{0} has invited you to the event '{1}' starting on {2} at {3}! <a href='{4}'>Click here</a> to accept.";
+            "{0} has invited you to the event '{1}' starting on {2} at {3}! <a href='{4}'>Click here</a> to accept. <br/>{5}";
         /// <summary>
         /// The title used when a user accepts an invitation
         /// </summary>

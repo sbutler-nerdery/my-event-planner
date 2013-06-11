@@ -42,7 +42,7 @@ namespace Web.Tests.Services
             string expectedMessage = string.Format(Constants.MESSAGE_NEW_TEMPLATE, hostName,
                                                     theEvent.Title, theEvent.StartDate.ToShortDateString(),
                                                     theEvent.StartDate.ToShortTimeString(),
-                                                    inivitationUrl);
+                                                    inivitationUrl, string.Empty);
 
             Assert.AreEqual(notification.SendToEmail, personList[0].NotifyWithEmail);
             Assert.AreEqual(notification.SendToFacebook, personList[0].NotifyWithFacebook);

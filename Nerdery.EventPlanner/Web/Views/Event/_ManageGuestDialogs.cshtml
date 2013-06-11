@@ -1,6 +1,6 @@
 ﻿@model Web.ViewModels.EditEventViewModel
 
-<div data-dialog="true" title="Invite More People" data-action="invite-person-to-event">
+<div data-dialog="true" data-height="450" title="Invite More People" data-action="invite-person-to-event">
     @using (Ajax.BeginForm("AddNewGuest", "Service", new AjaxOptions
         {
             HttpMethod = "POST",
@@ -32,6 +32,13 @@
                 @Html.EditorFor(model => model.EmailInvite.Email)
                 @Html.ValidationMessageFor(model => model.EmailInvite.Email)
             </div>  
+            <div class="editor-label">
+                @Html.LabelFor(model => model.EmailInvite.InviteMessage)
+            </div>
+            <div class="editor-field">
+                @Html.TextAreaFor(model => model.EmailInvite.InviteMessage)
+                @Html.ValidationMessageFor(model => model.EmailInvite.InviteMessage)
+            </div> 
             @Html.HiddenFor(model => model.EventId)
             @Html.HiddenFor(model => model.PersonId)
             <input type="submit" value="Send Invite" />
@@ -40,7 +47,7 @@
     }    
 </div>
 
-<div data-dialog="true" title="Update Guest Info" data-action="update-guest">
+<div data-dialog="true" data-height="300" title="Update Guest Info" data-action="update-guest">
     @using (Ajax.BeginForm("UpdateGuestInfo", "Service", new AjaxOptions
     {
         HttpMethod = "POST",
