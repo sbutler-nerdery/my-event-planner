@@ -9,7 +9,9 @@
         Model.AllEventFoodItems.Where(x => !myFoodItemIds.Contains(x.FoodItemId.ToString())).ToList();
     var myGameIds = Model.MyGames.Select(item => item.Value).ToList();
     var gamesOtherPeopleAreBringing =
-        Model.AllEventGames.Where(x => !myGameIds.Contains(x.GameId.ToString())).ToList();     
+        Model.AllEventGames.Where(x => !myGameIds.Contains(x.GameId.ToString())).ToList();
+
+    var hostName = Model.Coordinator.FirstName + " " + Model.Coordinator.LastName;
 }
 
 @section featured {
@@ -19,8 +21,9 @@
                 <h1>@Model.Title</h1>
                 <h2>starts on @Model.StartDate.Value.ToShortDateString() and goes from @Model.StartTime to @Model.EndTime</h2>
             </hgroup>
+            <p><b>Location:</b> @Model.EventLocation</p>
             <p>
-                @Model.Description
+                <b>Description:</b> @Model.Description
             </p>
         </div>
     </section>
@@ -38,6 +41,26 @@
             @Html.HiddenFor(model => model.EventId)
             @Html.HiddenFor(model => model.PersonId)
         </div>
+        
+        <h3>Who is hosting the event?</h3>
+        @hostName
+
+        <h3>Who else is coming?</h3>
+        
+        @if (Model.PeopleInvited.Count > 0)
+        {
+            <ul>
+                @foreach (var person in Model.PeopleInvited)
+                {
+                    var name = person.FirstName + " " + person.LastName;
+                    <li>@name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            @:No one else have been invited to this event.
+        }        
 
         <h3>Food items other people are bringing</h3>
         

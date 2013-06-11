@@ -22,14 +22,23 @@ namespace Web.ViewModels
         /// </summary>
         [Required]
         public string Description { get; set; }
+        /// <summary>
+        /// Get or set the start date for the event
+        /// </summary>
         [Required]
         [Display(Name = "Date")]
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:MM/dd/yyyy}")]
         public DateTime? StartDate { get; set; }
+        /// <summary>
+        /// Get or set the start time for the event
+        /// </summary>
         [Required]
         [Display(Name = "Start time")]
         [RegularExpression(@"^([0-1][0-9]:[0-5][0-9]\s[AaPp][Mm])|([1-9]:[0-5][0-9]\s[AaPp][Mm])$", ErrorMessage = "Must enter hh:mm AM or PM")]
         public string StartTime { get; set; }
+        /// <summary>
+        /// Get or set the end time for the event
+        /// </summary>
         [Required]
         [Display(Name = "End time")]
         [RegularExpression(@"^([0-1][0-9]:[0-5][0-9]\s[AaPp][Mm])|([1-9]:[0-5][0-9]\s[AaPp][Mm])$", ErrorMessage = "Must enter hh:mm AM or PM")]
@@ -70,5 +79,10 @@ namespace Web.ViewModels
         /// </summary>
         [Display(Name = "Games other people are brining")]
         public List<GameViewModel> AllEventGames { get; set; }
+        /// <summary>
+        /// Get or set the list of people who are invited to the event
+        /// </summary>
+        [Display(Name = "People who are invited")]
+        public List<PersonViewModel> PeopleInvited { get; set; }
     }
 }

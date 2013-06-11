@@ -65,11 +65,6 @@ namespace Web.ViewModels
         /// </summary>
         public List<GameViewModel> MyGames { get; set; }
         /// <summary>
-        /// Get or set the list of people who are invited to the event
-        /// </summary>
-        [Display(Name = "People who are invited")]
-        public List<PersonViewModel> PeopleInvited { get; set; }
-        /// <summary>
         /// Get or set the list of people who have accepted event invitations
         /// </summary>
         [Display(Name = "People who have accepted")]

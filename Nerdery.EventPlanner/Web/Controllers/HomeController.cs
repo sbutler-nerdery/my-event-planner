@@ -80,7 +80,7 @@ namespace Web.Controllers
             try
             {
                 //Get the event
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == eventId);
                 var theAcceptee = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == accepteeId);
 
                 //Build the view model
@@ -148,7 +148,7 @@ namespace Web.Controllers
             try
             {
                 //Get the event
-                var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == eventId);
+                var theEvent = _eventRepository.GetAll().IncludeAll("Coordinator").FirstOrDefault(x => x.EventId == eventId);
                 var theAcceptee = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == accepteeId);
 
                 //Build the view model
@@ -267,10 +267,14 @@ namespace Web.Controllers
                 PersonId = thePerson.PersonId, 
                 StartDate = theEvent.StartDate,
                 StartTime = theEvent.StartDate.ToString("h:mm tt"),
-                EndTime = theEvent.EndDate.ToString("h:mm tt")
+                EndTime = theEvent.EndDate.ToString("h:mm tt"),
+                PeopleInvited = new List<PersonViewModel>()
             };
 
             PopulateFoodAndGames(theEvent, thePerson, model);
+
+            model.Coordinator = new PersonViewModel(theEvent.Coordinator);
+            model.EventLocation = theEvent.Location;
 
             //Stuff the user is already bringing
             var eventFoodItemIds = theEvent.FoodItems.Select(x => x.FoodItemId);
@@ -290,6 +294,19 @@ namespace Web.Controllers
 
             //Populate the event id for each item
             model.WillBringTheseGames.ForEach(x => x.EventId = theEvent.EventId);
+
+            //People who are coming
+            theEvent.RegisteredInvites.ForEach(x => model.PeopleInvited.Add(new PersonViewModel(x)));
+            theEvent.UnRegisteredInvites.ForEach(x => model.PeopleInvited.Add(new PersonViewModel
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName
+                }));
+
+            //Order by first name, last name
+            model.PeopleInvited = model.PeopleInvited
+                .OrderBy(x => x.FirstName)
+                .ThenBy(x => x.LastName).ToList();
 
             return model;
         }
