@@ -34,7 +34,6 @@ namespace Web.Tests.Controllers
             Assert.AreEqual(result.ViewBag.StatusMessage, Constants.BASE_BUILD_VIEW_FAIL);
         }
 
-        [Ignore]
         [TestMethod]
         public void Create_Event_Build_ViewModel_Success()
         {
@@ -46,7 +45,9 @@ namespace Web.Tests.Controllers
                     FirstName = "Joe",
                     LastName = "Smith",
                     MyRegisteredFriends = new List<Person>(),
-                    MyUnRegisteredFriends = new List<PendingInvitation>()
+                    MyUnRegisteredFriends = new List<PendingInvitation>(),
+                    MyFoodItems = new List<FoodItem>(),
+                    MyGames = new List<Game>()
                 };
             A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
             A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { thePerson }.AsQueryable());
@@ -150,16 +151,38 @@ namespace Web.Tests.Controllers
         /// <summary>
         /// This unit test ensures that the correct message is returned in the query string if editing event fails.
         /// </summary>
-        [Ignore]
         [TestMethod]
         public void Edit_Event_Fail()
         {
             //Arrange
+            var theHost = new Person
+                {
+                    PersonId = 0, 
+                    FirstName = "Billy", 
+                    LastName = "Bob",
+                    MyFoodItems = new List<FoodItem>(),
+                    MyGames = new List<Game>()
+                };
+            var theEvent = new Event {
+                EventId = 1, 
+                Coordinator = theHost,
+                Title = "My Event", 
+                Description = "It's cool", 
+                Location = "My House", 
+                StartDate = DateTime.Now,
+                RegisteredInvites = new List<Person>(),
+                UnRegisteredInvites = new List<PendingInvitation>(),
+                FoodItems = new List<FoodItem>(),
+                Games = new List<Game>()
+            };
+            var viewModel = new EditEventViewModel(theEvent);
             var contoller = new EventController(RepositoryFactory, EventService, UserService, NotifyService);
-            A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event>().AsQueryable());
 
             //Act
-            var result = contoller.Edit(new EditEventViewModel()) as ViewResult;
+            A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theHost }.AsQueryable());
+            A.CallTo(() => EventRepo.SubmitChanges()).Throws(new Exception("Crap I crashed."));
+            var result = contoller.Edit(viewModel) as ViewResult;
 
             //Assert
             Assert.AreEqual(result.ViewBag.StatusMessage, Constants.BASE_SAVE_FAIL);
@@ -168,16 +191,19 @@ namespace Web.Tests.Controllers
         /// <summary>
         /// Make sure we are getting back the view model that we are expecting
         /// </summary>
-        [Ignore]
         [TestMethod]
         public void Edit_Event_Build_View_Model_Success()
         {
             //Arrange
             var dataModel = GetTestEventDataModel(1);
-            var theHost = new Person { PersonId = 1, MyUnRegisteredFriends = new List<PendingInvitation>()};
-            var friendOne = new Person{PersonId = 4, FirstName = "Mark", LastName = "Walburg"};
-            var friendTwo = new Person { PersonId = 5, FirstName = "Drew", LastName = "Smith" };
-            theHost.MyRegisteredFriends = new List<Person>{friendOne, friendTwo};
+            var theHost = new Person
+            {
+                PersonId = 1,
+                FirstName = "Billy",
+                LastName = "Bob",
+                MyFoodItems = new List<FoodItem>(),
+                MyGames = new List<Game>()
+            };
 
             var controller = new EventController(RepositoryFactory, EventService, UserService, NotifyService);
 
@@ -190,19 +216,26 @@ namespace Web.Tests.Controllers
 
             //Assert
             Assert.AreEqual(((EditEventViewModel)result.Model).Title, dataModel.Title);
-            Assert.IsTrue(((EditEventViewModel)result.Model).PeopleInvited.ToList().Count == 2);
             Assert.AreEqual(result.ViewBag.StatusMessage, string.Empty);
         }
 
         /// <summary>
         /// This unit test ensures that all of the required fields for the event view model must be filled out on edit.
         /// </summary>
-        [Ignore]
         [TestMethod]
         public void Edit_Event_ModelState_Not_Valid()
         {
             //Arrange
-            var viewModel = new EditEventViewModel();
+            var theHost = new Person
+            {
+                PersonId = 1,
+                FirstName = "Billy",
+                LastName = "Bob",
+                MyFoodItems = new List<FoodItem>(),
+                MyGames = new List<Game>()
+            };
+            var theEvent = GetTestEventDataModel(1);
+            var viewModel = new EditEventViewModel(theEvent);
             var contoller = new EventController(RepositoryFactory, EventService, UserService, NotifyService);
 
             var modelBinder = new ModelBindingContext
@@ -211,10 +244,26 @@ namespace Web.Tests.Controllers
                 ValueProvider = new NameValueCollectionValueProvider(new NameValueCollection(), CultureInfo.InvariantCulture)
             };
 
+            A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { theEvent }.AsQueryable());
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theHost }.AsQueryable());
+            A.CallTo(() => UserService.GetCurrentUserId("")).Returns(1);
+
+            //Act
+
+            //None of these should be null
+            viewModel.Title = string.Empty;
+            viewModel.Description = string.Empty;
+            viewModel.Location = string.Empty;
+            viewModel.StartDate = null;
+            viewModel.StartTime = string.Empty;
+            viewModel.EndTime = string.Empty;
+
+            //Set model binding
             var binder = new DefaultModelBinder().BindModel(new ControllerContext(), modelBinder);
             contoller.ModelState.Clear();
             contoller.ModelState.Merge(modelBinder.ModelState);
-            //Act
+
+            //Get the result
             var result = contoller.Edit(viewModel) as ViewResult;
 
             //Assert
@@ -225,17 +274,29 @@ namespace Web.Tests.Controllers
         /// <summary>
         /// This unit test ensures that the correct message is returned in the query string if editing event succeeds.
         /// </summary>
-        [Ignore]
         [TestMethod]
         public void Edit_Event_Success()
         {
             //Arrange
+            var theHost = new Person
+            {
+                PersonId = 1,
+                FirstName = "Billy",
+                LastName = "Bob",
+                MyFoodItems = new List<FoodItem>(),
+                MyGames = new List<Game>()
+            };
+
             var viewModel = GetTestEventViewModel(1);
             var expectedDataModel = GetTestEventDataModel(1);
+            expectedDataModel.Coordinator = theHost;
+
             var contoller = new EventController(RepositoryFactory, EventService, UserService, NotifyService);
 
-            //Act
+            A.CallTo(() => PersonRepo.GetAll()).Returns(new List<Person> { theHost }.AsQueryable());
             A.CallTo(() => EventRepo.GetAll()).Returns(new List<Event> { expectedDataModel }.AsQueryable());
+
+            //Act
             var result = contoller.Edit(viewModel) as RedirectToRouteResult;
 
             //Assert

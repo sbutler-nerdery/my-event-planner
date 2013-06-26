@@ -59,7 +59,8 @@ namespace Web.Controllers
                     };
 
                 var model = GetViewModel(dataModel);
-                var personId = _userService.GetCurrentUserId(User.Identity.Name);
+                var userName = (User != null) ? User.Identity.Name : string.Empty;
+                var personId = _userService.GetCurrentUserId(userName);
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
 
                 //Setup session
@@ -133,7 +134,8 @@ namespace Web.Controllers
         {
             try
             {
-                var personId = _userService.GetCurrentUserId(User.Identity.Name);
+                var userName = (User != null) ? User.Identity.Name : string.Empty;
+                var personId = _userService.GetCurrentUserId(userName);
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
                 var theEvent = _eventRepository.GetAll().FirstOrDefault(x => x.EventId == id);
                 var model = GetViewModel(theEvent);
@@ -519,22 +521,6 @@ namespace Web.Controllers
                 });
 
             _notificationService.SendNotifications(notifications);
-        }
-
-        private void SetupSession(Event theEvent, Person thePerson)
-        {
-            //Reset the session manager
-            SessionHelper.Events.Reset(theEvent.EventId);
-            SessionHelper.Person.Reset(thePerson.PersonId);
-
-            //Build out the list of food and games items in session
-            theEvent.FoodItems.ForEach(x => SessionHelper.Events.AddFoodItem(x.FoodItemId, theEvent.EventId));
-            theEvent.Games.ForEach(x => SessionHelper.Events.AddGame(x.GameId, theEvent.EventId));
-            theEvent.RegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(x.PersonId, theEvent.EventId));
-            //Make the unregistered ids negative to avoid conflicts
-            theEvent.UnRegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(-x.PendingInvitationId, theEvent.EventId));
-            thePerson.MyFoodItems.ForEach(x => SessionHelper.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
-            thePerson.MyGames.ForEach(x => SessionHelper.Person.AddGame(x.GameId, thePerson.PersonId));
         }
 
         private Event GetEventById(int eventId)

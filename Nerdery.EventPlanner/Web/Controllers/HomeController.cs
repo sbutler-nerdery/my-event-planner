@@ -343,19 +343,6 @@ namespace Web.Controllers
             model.MyGames = new MultiSelectList(games, "Value", "Text");
         }
 
-        private void SetupSession(Event theEvent, Person thePerson)
-        {
-            //Reset the session manager
-            SessionHelper.Events.Reset(theEvent.EventId);
-            SessionHelper.Person.Reset(thePerson.PersonId);
-
-            //Build out the list of food and games items in session
-            theEvent.FoodItems.ForEach(x => SessionHelper.Events.AddFoodItem(x.FoodItemId, theEvent.EventId));
-            theEvent.Games.ForEach(x => SessionHelper.Events.AddGame(x.GameId, theEvent.EventId));
-            thePerson.MyFoodItems.ForEach(x => SessionHelper.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
-            thePerson.MyGames.ForEach(x => SessionHelper.Person.AddGame(x.GameId, thePerson.PersonId));
-        }
-
         #endregion
     }
 }

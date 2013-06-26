@@ -5,6 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Web.Data;
 using Web.Data.Models;
+using Web.Helpers;
 using Web.ViewModels;
 using WebMatrix.WebData;
 
@@ -33,6 +34,23 @@ namespace Web.Controllers
                     Constants.DB_USER_TABLE_NAME,
                     Constants.DB_USER_ID_COLUMN,
                     Constants.DB_USER_NAME_COLUMN, autoCreateTables: true);
+        }
+
+        public void SetupSession(Event theEvent, Person thePerson)
+        {
+            //This is for unit testing... the http context will be null, so we skip the rest of this method
+            if (System.Web.HttpContext.Current == null)
+                return;
+
+            //Reset the session manager
+            SessionHelper.Events.Reset(theEvent.EventId);
+            SessionHelper.Person.Reset(thePerson.PersonId);
+
+            //Build out the list of food and games items in session
+            theEvent.FoodItems.ForEach(x => SessionHelper.Events.AddFoodItem(x.FoodItemId, theEvent.EventId));
+            theEvent.Games.ForEach(x => SessionHelper.Events.AddGame(x.GameId, theEvent.EventId));
+            thePerson.MyFoodItems.ForEach(x => SessionHelper.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
+            thePerson.MyGames.ForEach(x => SessionHelper.Person.AddGame(x.GameId, thePerson.PersonId));
         }
 
         #endregion

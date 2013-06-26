@@ -95,6 +95,7 @@ namespace Web.Tests.Controllers
                 EventId = id,
                 Title = "My Test Event",
                 Description = "This is a fun test event",
+                Location = "My House",
                 StartDate = DateTime.Now,
                 StartTime = "5:00 PM",
                 EndTime = "2:00 AM",

@@ -93,7 +93,6 @@ namespace Web.Tests.Controllers
         /// <summary>
         /// Make sure we get back the view model that we are expecting if the user and the event are found.
         /// </summary>
-        [Ignore]
         [TestMethod]
         public void AcceptInvitation_Build_View_Model_Success()
         {
@@ -101,6 +100,7 @@ namespace Web.Tests.Controllers
             var eventId = 1;
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
+            theEvent.Coordinator = new Person { PersonId = 1, FirstName = "Billy", LastName = "Bob"};
             var theInvitee = GetTestInviteeDataModel(accepteeId);
             var controller = new HomeController(RepositoryFactory, UserService, NotifyService, EventService);
 
@@ -121,7 +121,6 @@ namespace Web.Tests.Controllers
         /// <summary>
         /// Make sure we get the correct error message if accepting the invitation fails
         /// </summary>
-        [Ignore]
         [TestMethod]
         public void AcceptInvitation_Fail()
         {
@@ -129,6 +128,7 @@ namespace Web.Tests.Controllers
             var eventId = 1;
             var accepteeId = 10;
             var theEvent = GetTestEventDataModel(eventId);
+            theEvent.Coordinator = new Person { PersonId = 1, FirstName = "Billy", LastName = "Bob" };
             var theInvitee = GetTestInviteeDataModel(accepteeId);
             var controller = new HomeController(RepositoryFactory, UserService, NotifyService, EventService);
 
@@ -138,7 +138,7 @@ namespace Web.Tests.Controllers
             var viewModel = result.Model as InvitationDetailsViewModel;
 
             //Act
-            A.CallTo(() => EventRepo.GetAll()).Throws(new Exception("Database error!"));
+            A.CallTo(() => PersonRepo.SubmitChanges()).Throws(new Exception("Oh crap... error!"));
             result = controller.AcceptInvitation(viewModel) as ViewResult;
 
             //Assert
@@ -147,7 +147,6 @@ namespace Web.Tests.Controllers
         /// <summary>
         /// Make sure that we get the correct page redirect if the invitation is acceped successfully.
         /// </summary>
-        [Ignore]
         [TestMethod]
         public void AcceptInvitation_Succeed()
         {
