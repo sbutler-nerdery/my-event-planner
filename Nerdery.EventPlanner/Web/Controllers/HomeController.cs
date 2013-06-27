@@ -101,6 +101,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult ViewInvitation(InvitationDetailsViewModel model)
         {
             Event theEvent = null;
@@ -169,6 +170,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult AcceptInvitation(InvitationDetailsViewModel model)
         {
             Event theEvent = null;
@@ -223,6 +225,7 @@ namespace Web.Controllers
             model = GetViewModel(theEvent, thePerson);
             return View(model);
         }
+
         /// <summary>
         /// Decline an invitation to an event
         /// </summary>

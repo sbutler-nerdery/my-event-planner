@@ -33,6 +33,7 @@
 
 @using (Html.BeginForm()) {
     @Html.ValidationSummary(true)
+    @Html.AntiForgeryToken()
 
     <fieldset>
         <div class="editor-field">

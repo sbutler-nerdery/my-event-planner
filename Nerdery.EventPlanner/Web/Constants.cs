@@ -50,8 +50,8 @@ namespace Web
 
         public const string BASE_SAVE_SUCCESS = "Your changes were saved successfully!";
         public const string BASE_SAVE_FAIL = "An error occurrred while trying to save changes.";
-        public const string BASE_DELETE_SUCCESS = "An error occurrred while trying to delete.";
-        public const string BASE_DELETE_FAIL = "Delete succedssful.";
+        public const string BASE_DELETE_SUCCESS = "Delete succedssful.";
+        public const string BASE_DELETE_FAIL = "An error occurrred while trying to delete.";
         public const string BASE_BUILD_VIEW_FAIL = "An error occurrred while retrieving your data.";
         public const string BASE_ACCEPT_INVITATION_FAIL = "An error occurred. Unable to accept invitation.";
         public const string BASE_ACCEPT_INVITATION_SUCCESS = "You have accepted the invitation!";

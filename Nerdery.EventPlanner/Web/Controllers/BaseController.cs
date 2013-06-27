@@ -51,6 +51,8 @@ namespace Web.Controllers
             theEvent.Games.ForEach(x => SessionHelper.Events.AddGame(x.GameId, theEvent.EventId));
             thePerson.MyFoodItems.ForEach(x => SessionHelper.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
             thePerson.MyGames.ForEach(x => SessionHelper.Person.AddGame(x.GameId, thePerson.PersonId));
+            theEvent.RegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(x.PersonId, theEvent.EventId));
+            theEvent.UnRegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(-x.PendingInvitationId, theEvent.EventId)); //make sure that the id is negative!
         }
 
         #endregion
@@ -88,6 +90,8 @@ namespace Web.Controllers
                             : id == BaseControllerMessageId.UpdateInvitationSuccess ? Constants.BASE_UPDATE_INVITATION_SUCCESS
                             : id == BaseControllerMessageId.DeclineInvitationFail ? Constants.BASE_DECLINE_INVITATION_FAIL
                             : id == BaseControllerMessageId.DeclineInvitationSuccess ? Constants.BASE_DECLINE_INVITATION_SUCCESS
+                            : id == BaseControllerMessageId.DeleteFailed ? Constants.BASE_DELETE_FAIL
+                            : id == BaseControllerMessageId.DeleteSuccessful ? Constants.BASE_DELETE_SUCCESS
                             : "";
             return message;
         }

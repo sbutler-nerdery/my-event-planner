@@ -78,6 +78,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Create(EditEventViewModel model)
         {
             try
@@ -157,6 +158,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Edit(EditEventViewModel model)
         {
             Event updateMe = null;
@@ -271,66 +273,6 @@ namespace Web.Controllers
             var userId = _userService.GetCurrentUserId(userName);
             //var people = new List<PersonViewModel>();
             var coordinator = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == userId);
-
-            ////Ids of friends who are coming
-            //var acceptedIds = dataModel.PeopleWhoAccepted.Select(x => x.PersonId);
-
-            ////Ids of friends who have declined
-            //var declinedIds = dataModel.PeopleWhoDeclined.Select(x => x.PersonId);
-
-            ////Friends who have accepted
-            //coordinator.MyRegisteredFriends
-            //                 .Where(x => acceptedIds.Contains(x.PersonId))
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = true
-            //                     }));
-
-            ////Friends who have declined
-            //coordinator.MyRegisteredFriends
-            //                 .Where(x => declinedIds.Contains(x.PersonId))
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = true
-            //                     }));
-
-            ////Everone else
-            //coordinator.MyRegisteredFriends
-            //                 .Where(x => !acceptedIds.Contains(x.PersonId) && !declinedIds.Contains(x.PersonId))
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = true
-            //                     }));
-
-            //coordinator.MyNonRegisteredFriends
-            //                 .ToList()
-            //                 .ForEach(
-            //                     x => people.Add(new PersonViewModel
-            //                     {
-            //                         PersonId = x.PersonId,
-            //                         FirstName = x.FirstName,
-            //                         LastName = x.LastName,
-            //                         Email = x.Email,
-            //                         IsRegistered = false
-            //                     }));
 
             model.TimeList = _eventService.GetTimeList();
             //model.FacebookFriends = _userService.GetFacebookFriends(userName);
