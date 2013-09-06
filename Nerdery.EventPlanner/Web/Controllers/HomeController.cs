@@ -6,7 +6,7 @@ using System.Web.Mvc;
 using Web.Data;
 using Web.Data.Models;
 using Web.Extensions;
-using Web.Helpers;
+using Web.Utilities;
 using Web.Services;
 using Web.ViewModels;
 using WebMatrix.WebData;

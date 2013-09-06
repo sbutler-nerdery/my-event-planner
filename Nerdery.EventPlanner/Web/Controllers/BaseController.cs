@@ -5,7 +5,7 @@ using System.Web;
 using System.Web.Mvc;
 using Web.Data;
 using Web.Data.Models;
-using Web.Helpers;
+using Web.Utilities;
 using Web.ViewModels;
 using WebMatrix.WebData;
 
@@ -43,16 +43,16 @@ namespace Web.Controllers
                 return;
 
             //Reset the session manager
-            SessionHelper.Events.Reset(theEvent.EventId);
-            SessionHelper.Person.Reset(thePerson.PersonId);
+            SessionUtility.Events.Reset(theEvent.EventId);
+            SessionUtility.Person.Reset(thePerson.PersonId);
 
             //Build out the list of food and games items in session
-            theEvent.FoodItems.ForEach(x => SessionHelper.Events.AddFoodItem(x.FoodItemId, theEvent.EventId));
-            theEvent.Games.ForEach(x => SessionHelper.Events.AddGame(x.GameId, theEvent.EventId));
-            thePerson.MyFoodItems.ForEach(x => SessionHelper.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
-            thePerson.MyGames.ForEach(x => SessionHelper.Person.AddGame(x.GameId, thePerson.PersonId));
-            theEvent.RegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(x.PersonId, theEvent.EventId));
-            theEvent.UnRegisteredInvites.ForEach(x => SessionHelper.Events.AddGuest(-x.PendingInvitationId, theEvent.EventId)); //make sure that the id is negative!
+            theEvent.FoodItems.ForEach(x => SessionUtility.Events.AddFoodItem(x.FoodItemId, theEvent.EventId));
+            theEvent.Games.ForEach(x => SessionUtility.Events.AddGame(x.GameId, theEvent.EventId));
+            thePerson.MyFoodItems.ForEach(x => SessionUtility.Person.AddFoodItem(x.FoodItemId, thePerson.PersonId));
+            thePerson.MyGames.ForEach(x => SessionUtility.Person.AddGame(x.GameId, thePerson.PersonId));
+            theEvent.RegisteredInvites.ForEach(x => SessionUtility.Events.AddGuest(x.PersonId, theEvent.EventId));
+            theEvent.UnRegisteredInvites.ForEach(x => SessionUtility.Events.AddGuest(-x.PendingInvitationId, theEvent.EventId)); //make sure that the id is negative!
         }
 
         #endregion

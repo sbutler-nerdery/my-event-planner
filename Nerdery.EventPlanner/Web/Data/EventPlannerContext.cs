@@ -28,7 +28,7 @@ namespace Web.Data
                 .WithMany()
                 .Map(mc =>
                     {
-                        mc.ToTable("PersonFriends");
+                        mc.ToTable("MyRegisteredFriends");
                         mc.MapLeftKey("PersonId");
                         mc.MapRightKey("FriendId");
                     });
@@ -37,7 +37,7 @@ namespace Web.Data
                 .WithMany(pn => pn.MyFriends)
                 .Map(mc =>
                 {
-                    mc.ToTable("TempFriends");
+                    mc.ToTable("MyUnRegisteredFriends");
                     mc.MapLeftKey("PersonId");
                     mc.MapRightKey("PendingInvitationId");
                 });
@@ -47,7 +47,7 @@ namespace Web.Data
                 .WithMany(p => p.OwnerList)
                 .Map(mc =>
                 {
-                    mc.ToTable("PersonFoodItems");
+                    mc.ToTable("MyFoodItems");
                     mc.MapLeftKey("PersonId");
                     mc.MapRightKey("FoodItemId");
                 });
@@ -66,7 +66,7 @@ namespace Web.Data
                 .WithMany(p => p.OwnerList)
                 .Map(mc =>
                 {
-                    mc.ToTable("PersonGames");
+                    mc.ToTable("MyGames");
                     mc.MapLeftKey("PersonId");
                     mc.MapRightKey("GameId");
                 });
@@ -85,7 +85,7 @@ namespace Web.Data
                 .WithMany(p => p.MyInvitations)
                 .Map(mc =>
                 {
-                    mc.ToTable("PeopleInvited");
+                    mc.ToTable("RegisteredInvites");
                     mc.MapLeftKey("EventId");
                     mc.MapRightKey("PersonId");
                 });
@@ -95,7 +95,7 @@ namespace Web.Data
                 .WithMany(p => p.MyInvitations)
                 .Map(mc =>
                 {
-                    mc.ToTable("TempPeopleInvited");
+                    mc.ToTable("UnRegisteredInvites");
                     mc.MapLeftKey("EventId");
                     mc.MapRightKey("PendingInvitationId");
                 });

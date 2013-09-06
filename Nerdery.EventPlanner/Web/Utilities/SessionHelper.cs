@@ -4,12 +4,12 @@ using System.Linq;
 using System.Web;
 using System.Web.SessionState;
 
-namespace Web.Helpers
+namespace Web.Utilities
 {
     /// <summary>
     /// This class manages session objects used by the application
     /// </summary>
-    public class SessionHelper
+    public class SessionUtility
     {
         public static HttpSessionState Session { get; set; }
 

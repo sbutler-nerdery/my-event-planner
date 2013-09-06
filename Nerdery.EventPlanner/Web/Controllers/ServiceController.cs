@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 using Web.Data;
 using Web.Data.Models;
 using Web.Extensions;
-using Web.Helpers;
+using Web.Utilities;
 using Web.Services;
 using Web.ViewModels;
 using WebMatrix.WebData;
@@ -18,6 +18,14 @@ namespace Web.Controllers
     /// <summary>
     /// This controller is used exclusively for AJAX calls. All of the methods
     /// return JSON objects.
+    /// 
+    /// And now, a bit of explination about the guest list ids stored in session. Unregistered guest ids
+    /// are stored as negative values and registered guest ids are stored as posative values. Since unique ids are numeric and are
+    /// stored in two DB separate tables, we need to make sure there are no conflicts. For example: if there is an unregistered guest
+    /// with an id of 2 in the MyUnRegisteredFriends table and a registered guest with an id of 2 in the MyRegisteredFriends table, 
+    /// there would be a conflict in the session collection because they would both be the same value. Therefore,
+    /// Setting the un-registered friend id to negative lets us know they are not yet registered in the system and the
+    /// unique id comes from the temp table.
     /// </summary>
     public class ServiceController : BaseController
     {
@@ -52,7 +60,7 @@ namespace Web.Controllers
 
         #region Users
         /// <summary>
-        /// Get a list of all friends belonging to the current user
+        /// Get a list of all friends belonging to the current user for the specified event id
         /// </summary>
         /// <returns></returns>
         [HttpPost]
@@ -62,13 +70,14 @@ namespace Web.Controllers
 
             try
             {
-                //Get list of pending food ids for this event from session
-                var pendingGuestListIds = SessionHelper.Events.GetGuestList(eventId);
+                //Get list of pending guest ids for this event from session
+                var pendingGuestListIds = SessionUtility.Events.GetGuestList(eventId);
                 var personFriendIds = new List<int>();
                 var thePerson = GetCurrentUser();
 
                 thePerson.MyRegisteredFriends.ForEach(x => personFriendIds.Add(x.PersonId));
-                //Make the unregistered ids negative to avoid conflicts
+
+                //Make the unregistered ids negative to avoid conflicts with registered friend ids... see comments at top of class
                 thePerson.MyUnRegisteredFriends.ForEach(x => personFriendIds.Add(-x.PendingInvitationId));
 
                 var guestList = GetNonSelectedGuests(pendingGuestListIds, personFriendIds, eventId)
@@ -101,7 +110,7 @@ namespace Web.Controllers
             {
                 var registeredGuest = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == guestId);
 
-                //Change the guestId to a posative value
+                //Change the guestId to a posative value... see comments at top of class
                 guestId = Math.Abs(guestId);
                 var unRegisteredGuest = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == guestId);
 
@@ -140,9 +149,9 @@ namespace Web.Controllers
                 var theEvent = GetEventById(model.EventId);
 
                 //Get the host
-                var thePerson = GetPersonById(model.PersonId);
+                var theHost = GetPersonById(model.PersonId);
 
-                //Find out the if the user being added already has en email as a registered user
+                //Find out the if the user being added already has an email as a registered user... see comments at top of class
                 var exists = _personRepository.GetAll().FirstOrDefault(x => x.Email == model.EmailInvite.Email);
 
                 if (exists == null)
@@ -161,24 +170,24 @@ namespace Web.Controllers
                     _inviteRepository.Insert(newGuest);
                     _inviteRepository.SubmitChanges();
 
-                    //Add to the event host's list of unregistered friends
-                    thePerson.MyUnRegisteredFriends.Add(newGuest);
+                    //Add the new guest to the host's list of unregistered friends
+                    theHost.MyUnRegisteredFriends.Add(newGuest);
 
-                    //Add a negative value to the list
+                    //Add a negative value to the list. 
                     var tempId = -newGuest.PendingInvitationId;
 
                     //Add the unregistered user to session
-                    SessionHelper.Events.AddGuest(tempId, model.EventId);
+                    SessionUtility.Events.AddGuest(tempId, model.EventId);
                 }
                 else
                 {
                     //Add the registered user to the session
-                    SessionHelper.Events.AddGuest(exists.PersonId, model.EventId);
+                    SessionUtility.Events.AddGuest(exists.PersonId, model.EventId);
                 }
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetGuestList(model.EventId);
-                var personFriendsList = GetPersonFriendList(thePerson);
+                var pendingEventInvitations = SessionUtility.Events.GetGuestList(model.EventId);
+                var personFriendsList = GetPersonFriendList(theHost);
 
                 //Populate the guest list
                 var viewModel = GetEventViewModel(theEvent);
@@ -199,11 +208,11 @@ namespace Web.Controllers
             return Json(response);
         }
         /// <summary>
-        /// Add a guest to an event
+        /// Add a guest invited to previous events to the specified event
         /// </summary>
         /// <param name="guestId"></param>
         /// <param name="eventId"></param>
-        /// <param name="personId"></param>
+        /// <param name="personId">The id of the event host</param>
         /// <returns></returns>
         [HttpPost]
         public ActionResult AddPreviousGuest(int guestId, int eventId, int personId)
@@ -216,18 +225,18 @@ namespace Web.Controllers
                 var theEvent = GetEventById(eventId);
 
                 //Get the event host
-                var thePerson = GetPersonById(personId);
+                var theHost = GetPersonById(personId);
 
-                //Add the pending food item to session
-                SessionHelper.Events.AddGuest(guestId, eventId);
+                //Add the pending guest id to session
+                SessionUtility.Events.AddGuest(guestId, eventId);
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetGuestList(eventId);
-                var personFriendsList = GetPersonFriendList(thePerson);
+                var pendingEventInvitations = SessionUtility.Events.GetGuestList(eventId);
+                var hostFriendList = GetPersonFriendList(theHost);
 
                 //Populate the guset list
                 var viewModel = GetEventViewModel(theEvent);
-                viewModel.PeopleInvited = GetSelectedGuests(pendingEventInvitations, personFriendsList, eventId);
+                viewModel.PeopleInvited = GetSelectedGuests(pendingEventInvitations, hostFriendList, eventId);
 
                 response.Data = RenderRazorViewToString("_InvitedPeopleTemplate", viewModel);
             }
@@ -257,15 +266,15 @@ namespace Web.Controllers
                 //Get the event
                 var theEvent = GetEventById(model.EventId);
 
-                //Update the food item
-                int guestId = Math.Abs(model.UpdateGuest.PersonId); //Make the person id posative
+                //Update the guest info
+                int guestId = Math.Abs(model.UpdateGuest.PersonId); //Make the guest id posative before we hit the database
                 var updateMe = _inviteRepository.GetAll().FirstOrDefault(x => x.PendingInvitationId == guestId);
                 updateMe.FirstName = model.UpdateGuest.FirstName;
                 updateMe.LastName = model.UpdateGuest.LastName;
                 updateMe.Email = model.UpdateGuest.Email;
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetGuestList(model.EventId);
+                var pendingEventInvitations = SessionUtility.Events.GetGuestList(model.EventId);
                 var personFriendsList = GetPersonFriendList(thePerson);
 
                 //Populate the guset list
@@ -300,17 +309,17 @@ namespace Web.Controllers
             try
             {
                 //Get the event host
-                var thePerson = GetCurrentUser();
+                var theHost = GetCurrentUser();
 
                 //Get the event
                 var theEvent = GetEventById(eventId);
 
                 //Remove from the list
-                SessionHelper.Events.RemoveGuest(guestId, eventId);
+                SessionUtility.Events.RemoveGuest(guestId, eventId);
 
                 //Get list of pending invitation ids
-                var pendingEventInvitations = SessionHelper.Events.GetGuestList(eventId);
-                var personFriendsList = GetPersonFriendList(thePerson);
+                var pendingEventInvitations = SessionUtility.Events.GetGuestList(eventId);
+                var personFriendsList = GetPersonFriendList(theHost);
 
                 //Populate the guset list
                 var viewModel = GetEventViewModel(theEvent);
@@ -348,8 +357,8 @@ namespace Web.Controllers
             try
             {
                 //Get list of pending food ids for this event from session
-                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(eventId);
-                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
+                var pendingEventFoodItemIds = SessionUtility.Events.GetPendingFoodItems(eventId);
+                var pendingPersonFoodItemIds = SessionUtility.Person.GetPendingFoodItems(personId);
 
                 var foodList = GetNonSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, eventId)
                     .Where(x => x.Title.ToLower().Contains(contains.ToLower()));
@@ -409,15 +418,15 @@ namespace Web.Controllers
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == model.PersonId);
                 thePerson.MyFoodItems.Add(newFoodItem);
 
-                //Add the pending food item to session
-                SessionHelper.Events.AddFoodItem(newFoodItem.FoodItemId, model.EventId);
-                SessionHelper.Person.AddFoodItem(newFoodItem.FoodItemId, model.PersonId);
+                //Add the person's pending food item to session
+                SessionUtility.Events.AddFoodItem(newFoodItem.FoodItemId, model.EventId);
+                SessionUtility.Person.AddFoodItem(newFoodItem.FoodItemId, model.PersonId);
 
-                //Get list of pending food ids for this event from session
-                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(model.EventId);
-                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(model.PersonId);
+                //Get list of all pending food ids for this event from session
+                var pendingEventFoodItemIds = SessionUtility.Events.GetPendingFoodItems(model.EventId);
+                var pendingPersonFoodItemIds = SessionUtility.Person.GetPendingFoodItems(model.PersonId);
 
-                //Populate the food items already ing brought
+                //Populate the food items already being brought
                 var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, model.EventId);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
 
@@ -451,12 +460,12 @@ namespace Web.Controllers
                 var foodItem = _foodRepository.GetAll().FirstOrDefault(x => x.FoodItemId == foodItemId);
 
                 //Add the pending food item to session
-                SessionHelper.Events.AddFoodItem(foodItem.FoodItemId, eventId);
-                SessionHelper.Person.AddFoodItem(foodItem.FoodItemId, personId);
+                SessionUtility.Events.AddFoodItem(foodItem.FoodItemId, eventId);
+                SessionUtility.Person.AddFoodItem(foodItem.FoodItemId, personId);
 
                 //Get list of pending food ids for this event from session
-                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(eventId);
-                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
+                var pendingEventFoodItemIds = SessionUtility.Events.GetPendingFoodItems(eventId);
+                var pendingPersonFoodItemIds = SessionUtility.Person.GetPendingFoodItems(personId);
 
                 //Populate the food items already ing brought
                 var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, eventId);
@@ -490,8 +499,8 @@ namespace Web.Controllers
                 updateMe.Description = model.UpdateFoodItem.Description;
 
                 //Get list of pending food ids for this event from session
-                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(model.EventId);
-                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
+                var pendingEventFoodItemIds = SessionUtility.Events.GetPendingFoodItems(model.EventId);
+                var pendingPersonFoodItemIds = SessionUtility.Person.GetPendingFoodItems(personId);
 
                 var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, model.EventId);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
@@ -525,11 +534,11 @@ namespace Web.Controllers
                 var thePerson = _personRepository.GetAll().FirstOrDefault(x => x.PersonId == personId);
 
                 //Remove from the list
-                SessionHelper.Events.RemoveFoodItem(foodItemId, eventId);
+                SessionUtility.Events.RemoveFoodItem(foodItemId, eventId);
 
                 //Get list of pending food ids for this event from session
-                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingFoodItems(eventId);
-                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingFoodItems(personId);
+                var pendingEventFoodItemIds = SessionUtility.Events.GetPendingFoodItems(eventId);
+                var pendingPersonFoodItemIds = SessionUtility.Person.GetPendingFoodItems(personId);
 
                 var foodList = GetSelectedFoodItems(pendingEventFoodItemIds, pendingPersonFoodItemIds, eventId);
                 response.Data = RenderRazorViewToString("_FoodItemListTemplate", foodList);
@@ -564,8 +573,8 @@ namespace Web.Controllers
             try
             {
                 //Get list of pending game ids for this event from session
-                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(eventId);
-                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(personId);
+                var pendingEventGameIds = SessionUtility.Events.GetPendingGames(eventId);
+                var pendingPersonGameIds = SessionUtility.Person.GetPendingGames(personId);
 
                 response.Data = GetNonSelectedGames(pendingEventGameIds, pendingPersonGameIds, eventId)
                     .Where(x => x.Title.ToLower().Contains(contains.ToLower()));
@@ -624,12 +633,12 @@ namespace Web.Controllers
                 thePerson.MyGames.Add(newGame);
 
                 //Add the pending game to session
-                SessionHelper.Events.AddGame(newGame.GameId, model.EventId);
-                SessionHelper.Person.AddGame(newGame.GameId, model.PersonId);
+                SessionUtility.Events.AddGame(newGame.GameId, model.EventId);
+                SessionUtility.Person.AddGame(newGame.GameId, model.PersonId);
 
                 //Get list of pending game ids for this event from session
-                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(model.EventId);
-                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(model.PersonId);
+                var pendingEventGameIds = SessionUtility.Events.GetPendingGames(model.EventId);
+                var pendingPersonGameIds = SessionUtility.Person.GetPendingGames(model.PersonId);
 
                 //Populate the games already ing brought
                 var gameList = GetSelectedGames(pendingEventGameIds, pendingPersonGameIds, model.EventId);
@@ -662,12 +671,12 @@ namespace Web.Controllers
             try
             {
                 //Add the pending game to session
-                SessionHelper.Events.AddGame(gameId, eventId);
-                SessionHelper.Person.AddGame(gameId, personId);
+                SessionUtility.Events.AddGame(gameId, eventId);
+                SessionUtility.Person.AddGame(gameId, personId);
 
                 //Get list of pending game ids for this event from session
-                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(eventId);
-                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(personId);
+                var pendingEventGameIds = SessionUtility.Events.GetPendingGames(eventId);
+                var pendingPersonGameIds = SessionUtility.Person.GetPendingGames(personId);
 
                 //Populate the games already ing brought
                 var gameList = GetSelectedGames(pendingEventGameIds, pendingPersonGameIds, eventId);
@@ -705,8 +714,8 @@ namespace Web.Controllers
                 _gameRepository.SubmitChanges();
 
                 //Get list of pending food ids for this event from session
-                var pendingEventFoodItemIds = SessionHelper.Events.GetPendingGames(model.EventId);
-                var pendingPersonFoodItemIds = SessionHelper.Person.GetPendingGames(personId);
+                var pendingEventFoodItemIds = SessionUtility.Events.GetPendingGames(model.EventId);
+                var pendingPersonFoodItemIds = SessionUtility.Person.GetPendingGames(personId);
 
                 var selectedGames = GetSelectedGames(pendingEventFoodItemIds, pendingPersonFoodItemIds, model.EventId);
                 response.Data = RenderRazorViewToString("_GameListTemplate", selectedGames);
@@ -737,11 +746,11 @@ namespace Web.Controllers
                 var personId = _userService.GetCurrentUserId(User.Identity.Name);
 
                 //Remove from the event
-                SessionHelper.Events.RemoveGame(gameId, eventId);
+                SessionUtility.Events.RemoveGame(gameId, eventId);
 
                 //Get list of pending game ids for this event from session
-                var pendingEventGameIds = SessionHelper.Events.GetPendingGames(eventId);
-                var pendingPersonGameIds = SessionHelper.Person.GetPendingGames(personId);
+                var pendingEventGameIds = SessionUtility.Events.GetPendingGames(eventId);
+                var pendingPersonGameIds = SessionUtility.Person.GetPendingGames(personId);
 
                 var gameList = GetSelectedGames(pendingEventGameIds, pendingPersonGameIds, eventId);
                 response.Data = RenderRazorViewToString("_GameListTemplate", gameList);
@@ -803,7 +812,7 @@ namespace Web.Controllers
         #region Helpers
 
         /// <summary>
-        /// Get the HTML out put of the specified view name and model combination.
+        /// Get the HTML output of the specified view name and viewmodel.
         /// </summary>
         /// <param name="viewName">The specified partial view</param>
         /// <param name="model">The specified model name</param>
@@ -821,12 +830,18 @@ namespace Web.Controllers
                 return sw.GetStringBuilder().ToString();
             }
         }
-
+        /// <summary>
+        /// Get the food items that have been added to the event and are being brought by a person.
+        /// </summary>
+        /// <param name="eventFoodItemIds">A list of all food item ids that are associated to the event</param>
+        /// <param name="personFoodItemIds">A list of all the food ids that the person is bringing personally</param>
+        /// <param name="eventId">An event id</param>
+        /// <returns></returns>
         private List<FoodItemViewModel> GetSelectedFoodItems(List<int> eventFoodItemIds, List<int> personFoodItemIds, int eventId)
         {
             var foodList = new List<FoodItemViewModel>();
-            var selectedFoodItemIds = personFoodItemIds.Intersect(eventFoodItemIds);
-            var remainingFoodItems = _foodRepository.GetAll()
+            var selectedFoodItemIds = personFoodItemIds.Intersect(eventFoodItemIds); //Food items selected by this person
+            var remainingFoodItems = _foodRepository.GetAll() 
                 .Where(x => selectedFoodItemIds.Contains(x.FoodItemId))
                 .OrderBy(x => x.Title).ToList();
             remainingFoodItems.ForEach(x =>
@@ -839,7 +854,13 @@ namespace Web.Controllers
 
             return foodList;
         }
-
+        /// <summary>
+        /// Get the food items that have been added to the event but no one is bringing yet.
+        /// </summary>
+        /// <param name="eventFoodItemIds">A list of all food item ids that are associated to the event</param>
+        /// <param name="personFoodItemIds">A list of all the food ids that the person is bringing personally</param>
+        /// <param name="eventId">An event id</param>
+        /// <returns></returns>
         private List<FoodItemViewModel> GetNonSelectedFoodItems(List<int> eventFoodItemIds, List<int> personFoodItemIds, int eventId)
         {
             var foodList = new List<FoodItemViewModel>();
@@ -857,7 +878,13 @@ namespace Web.Controllers
 
             return foodList;
         }
-
+        /// <summary>
+        /// Get a list of all the games that have been added to the event and that a person is bringing
+        /// </summary>
+        /// <param name="eventGameIds">A list of all game ids that are associated with the event</param>
+        /// <param name="personGameIds">A list of all game ids that a person is bringing personally</param>
+        /// <param name="eventId">an event id</param>
+        /// <returns></returns>
         private List<GameViewModel> GetSelectedGames(List<int> eventGameIds, List<int> personGameIds, int eventId)
         {
             var gameList = new List<GameViewModel>();
@@ -875,7 +902,13 @@ namespace Web.Controllers
 
             return gameList;
         }
-
+        /// <summary>
+        /// Get a list of all games that are associated with the event that no one is bringing yet.
+        /// </summary>
+        /// <param name="eventGameIds">A list of all game ids that are associated with the event</param>
+        /// <param name="personGameIds">A list of all game ids that a person is bringing personally</param>
+        /// <param name="eventId">an event id</param>
+        /// <returns></returns>
         private List<GameViewModel> GetNonSelectedGames(List<int> eventGameIds, List<int> personGameIds, int eventId)
         {
             var gameList = new List<GameViewModel>();
@@ -893,7 +926,13 @@ namespace Web.Controllers
 
             return gameList;
         }
-
+        /// <summary>
+        /// Get a list of all registered and non registered guests that have been invited to the specified event
+        /// </summary>
+        /// <param name="eventGuestIds"></param>
+        /// <param name="personFriendIds"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         private List<PersonViewModel> GetSelectedGuests(List<int> eventGuestIds, List<int> personFriendIds, int eventId)
         {
             var guestList = new List<PersonViewModel>();
@@ -932,7 +971,13 @@ namespace Web.Controllers
 
             return guestList;
         }
-
+        /// <summary>
+        /// Get a list of all registered and non registered guests that have NOT been invited to the specified event
+        /// </summary>
+        /// <param name="eventGuestIds"></param>
+        /// <param name="personFriendIds"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         private List<PersonViewModel> GetNonSelectedGuests(List<int> eventGuestIds, List<int> personFriendIds, int eventId)
         {
             var guestList = new List<PersonViewModel>();
@@ -971,7 +1016,11 @@ namespace Web.Controllers
 
             return guestList;
         }
-
+        /// <summary>
+        /// Get a list of a persons registered and non registered friends.
+        /// </summary>
+        /// <param name="thePerson"></param>
+        /// <returns></returns>
         private List<int> GetPersonFriendList(Person thePerson)
         {
             var personFriendsList = new List<int>();
